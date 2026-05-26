@@ -102,6 +102,34 @@ export interface WorldCupGroup {
   teamIds: string[];
 }
 
+export interface GroupMatch {
+  id: string;
+  group: GroupCode;
+  matchday: number;
+  homeTeamId: string;
+  awayTeamId: string;
+}
+
+export interface GroupMatchScore {
+  homeScore?: number;
+  awayScore?: number;
+}
+
+export type GroupStagePredictionState = Record<string, GroupMatchScore>;
+
+export interface GroupStandingRow {
+  teamId: string;
+  played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+  position: 1 | 2 | 3 | 4;
+}
+
 export type SeedType = "winner" | "runner-up" | "best-third" | "manual" | "winner-of";
 
 export interface BracketSlot {

@@ -3,6 +3,7 @@ import { BracketView } from "./components/BracketView";
 import { DataImportExport } from "./components/DataImportExport";
 import { FilterBar } from "./components/FilterBar";
 import { GroupGrid } from "./components/GroupGrid";
+import { GroupStagePredictor } from "./components/GroupStagePredictor";
 import { Header } from "./components/Header";
 import { PlayerModal } from "./components/PlayerModal";
 import { PredictionSummary } from "./components/PredictionSummary";
@@ -125,6 +126,7 @@ export default function App() {
         {mode === "overview" ? (
           <>
             <FilterBar filters={filters} setFilters={setFilters} />
+            <GroupStagePredictor groups={groups} teams={runtimeData.teams} />
             <GroupGrid groups={groups} teams={visibleTeams} filters={filters} onSelectTeam={setSelectedTeam} />
             <TopPlayers players={runtimeData.players} teams={runtimeData.teams} onSelectPlayer={setSelectedPlayer} />
             <TeamCompare teams={runtimeData.teams} players={runtimeData.players} />
