@@ -22,6 +22,7 @@ export type PredictionStage =
   | "Group Stage";
 
 export type PlayerPosition = "GK" | "DF" | "MF" | "FW";
+export type PlayerPhotoSource = "club_website" | "national_team_website" | "fifa" | "manual" | "placeholder";
 
 export type DataQuality =
   | "official"
@@ -43,6 +44,7 @@ export interface Team {
   name: string;
   group: GroupCode;
   flag: string;
+  flagImageUrl?: string;
   fifaRank?: number;
   strengthRank: number;
   strengthScore: number;
@@ -53,6 +55,13 @@ export interface Team {
   coach?: string;
   formation?: string;
   description?: string;
+  beginnerIntro?: string;
+  playStyle?: string;
+  keyStrengths?: string[];
+  weaknesses?: string[];
+  playersToWatch?: string[];
+  historicalNote?: string;
+  whyTheyMatter?: string;
   isDarkHorse?: boolean;
   lastUpdated: string;
   sourceUrls: string[];
@@ -63,17 +72,20 @@ export interface Player {
   playerId: string;
   teamId: string;
   name: string;
-  photoUrl: string;
+  photoUrl?: string;
+  photoSource?: PlayerPhotoSource;
+  photoCredit?: string;
+  photoLastUpdated?: string;
   position: PlayerPosition;
-  age: number;
+  age?: number;
   club: string;
-  marketValue: string;
+  marketValue?: string;
   marketValueEurM: number;
-  transfermarktUrl: string;
-  isKeyPlayer: boolean;
-  predictedStarter: boolean;
+  transfermarktUrl?: string;
+  isKeyPlayer?: boolean;
+  predictedStarter?: boolean;
   shirtNumber?: number;
-  lastUpdated: string;
+  lastUpdated?: string;
   sourceUrls: string[];
   dataQuality: DataQuality;
 }

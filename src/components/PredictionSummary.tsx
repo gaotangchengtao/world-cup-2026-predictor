@@ -1,8 +1,10 @@
 import { BarChart3, Crown, Sparkles, Trophy } from "lucide-react";
+import type { ReactNode } from "react";
 import { useLanguage } from "../i18n";
-import type { Player, Team } from "../types/worldCup";
+import type { BracketPredictionState, Player, Team } from "../types/worldCup";
 import { getChampionId } from "../utils/bracket";
-import type { BracketPredictionState } from "../types/worldCup";
+import { displayTeamName } from "../utils/localizedNames";
+import { TeamFlag } from "./TeamFlag";
 
 interface PredictionSummaryProps {
   teams: Team[];
@@ -11,16 +13,27 @@ interface PredictionSummaryProps {
 }
 
 export const PredictionSummary = ({ teams, players, bracketState }: PredictionSummaryProps) => {
-  const { t } = useLanguage();
-  const champion = teams.find((team) => team.id === getChampionId(bracketState)) ?? teams.find((team) => team.predictedStage === "Champion");
+  const { language, t } = useLanguage();
+  const champion =
+    teams.find((team) => team.id === getChampionId(bracketState)) ??
+    teams.find((team) => team.predictedStage === "Champion");
   const contenders = teams.filter((team) => ["Champion", "Final", "Semi-final"].includes(team.predictedStage)).length;
   const darkHorses = teams.filter((team) => team.isDarkHorse).length;
   const corePlayers = players.filter((player) => player.isKeyPlayer).length;
 
-  const cards = [
+  const championValue = champion ? (
+    <span className="inline-flex min-w-0 items-center gap-2">
+      <TeamFlag team={champion} size="sm" />
+      <span className="truncate">{displayTeamName(champion, language)}</span>
+    </span>
+  ) : (
+    t("notSelected")
+  );
+
+  const cards: Array<{ label: string; value: ReactNode; icon: typeof Crown; tone: string }> = [
     {
       label: t("championPrediction"),
-      value: champion ? `${champion.flag} ${champion.name}` : t("notSelected"),
+      value: championValue,
       icon: Crown,
       tone: "text-trophy-300",
     },

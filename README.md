@@ -14,6 +14,8 @@
 - JSON 导入 / 导出预测和运行时数据
 - 深色 / 浅色模式
 - 中文 / English 语言切换，语言偏好保存到 localStorage
+- 中文模式下球队名、球员名、俱乐部名显示中文；英文模式显示英文
+- 球队详情包含“新手看球指南”：风格、优势、隐患、推荐关注球员和历史背景
 - 响应式布局，移动端 bracket 可横向滚动
 
 ## 运行
@@ -52,6 +54,8 @@ git push
 - `src/data/groups.ts`: A-L 小组结构
 - `src/data/bracket.ts`: 32 强到冠军的淘汰赛槽位结构
 - `src/data/sources.ts`: 数据来源说明
+- `src/data/teamGuides.ts`: 12 支重点球队的新手看球指南，中英文分开维护
+- `src/data/localizedNames.ts`: 球队、球员、俱乐部的中文显示名
 - `src/types/worldCup.ts`: TypeScript 数据类型
 - `src/i18n/`: 中文/英文翻译字典和语言上下文
 
@@ -63,6 +67,8 @@ git push
 - English
 
 首次打开时会根据浏览器语言判断：`zh` 开头默认中文，否则默认英文。用户手动切换后，选择会保存到 `localStorage` 的 `wc2026.language`，下次打开自动使用上次选择的语言。
+
+代码里仍建议把 `team.name`、`player.name`、`player.club` 保持为英文标准名，方便后续导入 CSV/JSON 和匹配外部数据源。页面显示时会通过 `src/data/localizedNames.ts` 自动切换：中文模式显示中文名，英文模式显示英文名。
 
 ## 添加球队
 
@@ -78,6 +84,22 @@ git push
 - `sourceUrls` 保留来源链接
 
 同时在 `src/data/groups.ts` 对应小组的 `teamIds` 中加入这个球队 `id`。
+
+如果要让中文模式显示中文球队名，也在 `src/data/localizedNames.ts` 的 `teamNamesZh` 中补充对应 `id`。
+
+## 添加球队新手介绍
+
+在 `src/data/teamGuides.ts` 中按球队 `id` 添加中英文介绍：
+
+- `beginnerIntro`: 给足球新人的简短介绍
+- `playStyle`: 常见打法
+- `keyStrengths`: 优势
+- `weaknesses`: 可能的弱点
+- `playersToWatch`: 推荐关注球员
+- `historicalNote`: 历史背景
+- `whyTheyMatter`: 为什么值得关注
+
+中文内容可以写中文球队名和中文球员名；英文内容写英文名。
 
 ## 添加球员
 
@@ -100,6 +122,8 @@ git push
 
 `photoUrl`、`transfermarktUrl`、`lastUpdated` 会由当前 helper 自动生成。以后如果你有真实照片或精确德转链接，可以把 helper 改成允许手动覆盖。
 
+如果要让中文模式显示中文球员名或中文俱乐部名，也在 `src/data/localizedNames.ts` 的 `playerNamesZh`、`clubNamesZh` 中补充映射。
+
 ## 更新德转身价
 
 本项目不直接爬取 Transfermarkt。推荐流程：
@@ -115,6 +139,20 @@ git push
 - 你自己有权使用的本地图片路径
 - 合法授权的 CDN 图片地址
 - 自己维护的静态资源地址
+- 俱乐部官网球员头像、国家队官网头像、FIFA 官方资料页或其他合法授权图片链接
+
+球员照片字段包括：
+
+- `photoUrl`: 图片地址，没有时自动使用默认头像
+- `photoSource`: `club_website` / `national_team_website` / `fifa` / `manual` / `placeholder`
+- `photoCredit`: 图片署名或维护说明
+- `photoLastUpdated`: 照片更新时间
+
+请不要写自动爬虫批量抓取 Transfermarkt 或俱乐部官网图片。照片建议手动维护，或通过你有权使用的合法授权数据源导入。图片加载失败时，页面会自动回退到默认头像。
+
+## 国旗显示
+
+球队国旗通过 `src/components/TeamFlag.tsx` 统一渲染，优先使用 `src/utils/flags.ts` 中的图片国旗，加载失败时回退到 emoji。球队卡片、详情、淘汰赛槽位、Top 10 和对比模块都会显示国旗。
 
 ## 数据质量说明
 

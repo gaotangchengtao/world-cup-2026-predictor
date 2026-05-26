@@ -16,6 +16,7 @@ import { useLanguage } from "./i18n";
 import type { BracketPredictionState, FilterState, Player, RuntimeData, Team } from "./types/worldCup";
 import { createInitialBracketState } from "./utils/bracket";
 import { stageOrder } from "./utils/format";
+import { teamSearchText } from "./utils/localizedNames";
 import { readJson, storageKeys, writeJson } from "./utils/storage";
 
 const defaultFilters: FilterState = {
@@ -73,7 +74,7 @@ export default function App() {
     const query = filters.query.trim().toLowerCase();
 
     return runtimeData.teams
-      .filter((team) => team.name.toLowerCase().includes(query))
+      .filter((team) => teamSearchText(team).includes(query))
       .filter((team) => filters.group === "all" || team.group === filters.group)
       .filter((team) => filters.stage === "all" || team.predictedStage === filters.stage)
       .filter((team) => !filters.onlyContenders || contenderStages.has(team.predictedStage))

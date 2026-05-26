@@ -2,6 +2,9 @@ import { ExternalLink, Star, X } from "lucide-react";
 import { useLanguage } from "../i18n";
 import type { Player, Team } from "../types/worldCup";
 import { qualityLabel } from "../utils/format";
+import { displayClubName, displayPlayerName, displayTeamName } from "../utils/localizedNames";
+import { getPlayerPhotoUrl, photoSourceLabel, placeholderAvatarUrl } from "../utils/photos";
+import { TeamFlag } from "./TeamFlag";
 
 interface PlayerModalProps {
   player: Player;
@@ -10,70 +13,93 @@ interface PlayerModalProps {
 }
 
 export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const playerName = displayPlayerName(player, language);
+  const teamName = displayTeamName(team, language);
+  const clubName = displayClubName(player.club, language);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
-    <article className="glass-panel max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-lg p-5">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <img
-            alt={player.name}
-            className="h-20 w-20 rounded-full border border-trophy-500/40 object-cover"
-            src={player.photoUrl}
-          />
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white light:text-slate-950">{player.name}</h2>
-              {player.isKeyPlayer && <Star className="fill-trophy-500 text-trophy-500" size={20} />}
+      <article className="glass-panel max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-lg p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <img
+              alt={playerName}
+              className="h-20 w-20 rounded-full border border-trophy-500/40 object-cover"
+              onError={(event) => {
+                event.currentTarget.src = placeholderAvatarUrl(player.name);
+              }}
+              src={getPlayerPhotoUrl(player)}
+            />
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl font-black text-white light:text-slate-950">{playerName}</h2>
+                {player.isKeyPlayer && <Star className="fill-trophy-500 text-trophy-500" size={20} />}
+              </div>
+              <p className="mt-1 flex items-center gap-2 text-sm text-slate-400 light:text-slate-600">
+                <TeamFlag team={team} size="sm" />
+                <span>
+                  {teamName || "N/A"} · {player.position} · #{player.shirtNumber ?? "TBD"}
+                </span>
+              </p>
             </div>
-            <p className="text-sm text-slate-400 light:text-slate-600">
-              {team?.flag} {team?.name} · {player.position} · #{player.shirtNumber ?? "TBD"}
+          </div>
+          <button
+            className="rounded-lg border border-white/10 p-2 text-slate-300 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
+            onClick={onClose}
+            title="Close player modal"
+            type="button"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
+            <p className="text-xs uppercase text-slate-500">{t("club")}</p>
+            <p className="mt-1 font-bold text-white light:text-slate-950">{clubName}</p>
+          </div>
+          <div className="rounded-lg border border-trophy-500/30 bg-trophy-500/10 p-4">
+            <p className="text-xs uppercase text-trophy-300 light:text-trophy-700">{t("marketValue")}</p>
+            <p className="mt-1 text-xl font-black text-trophy-200 light:text-trophy-800">
+              {player.marketValue ?? "N/A"}
+            </p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
+            <p className="text-xs uppercase text-slate-500">{t("role")}</p>
+            <p className="mt-1 font-bold text-white light:text-slate-950">
+              {player.predictedStarter ? t("expectedStarter") : t("rotationPlayer")}
+            </p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
+            <p className="text-xs uppercase text-slate-500">{t("data")}</p>
+            <p className="mt-1 font-bold text-white light:text-slate-950">
+              {qualityLabel(player.dataQuality, t)} · {player.lastUpdated ?? "N/A"}
+            </p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50 sm:col-span-2">
+            <p className="text-xs uppercase text-slate-500">{t("photoSource")}</p>
+            <p className="mt-1 font-bold text-white light:text-slate-950">
+              {photoSourceLabel(player.photoSource, t)}
+            </p>
+            <p className="mt-1 text-xs text-slate-400 light:text-slate-600">
+              {player.photoCredit ? `${t("photoCredit")}: ${player.photoCredit}` : t("photoSourcePlaceholder")}
+              {player.photoLastUpdated ? ` · ${t("updated")} ${player.photoLastUpdated}` : ""}
             </p>
           </div>
         </div>
-        <button
-          className="rounded-lg border border-white/10 p-2 text-slate-300 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
-          onClick={onClose}
-          title="Close player modal"
-          type="button"
-        >
-          <X size={18} />
-        </button>
-      </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
-          <p className="text-xs uppercase text-slate-500">{t("club")}</p>
-          <p className="mt-1 font-bold text-white light:text-slate-950">{player.club}</p>
-        </div>
-        <div className="rounded-lg border border-trophy-500/30 bg-trophy-500/10 p-4">
-          <p className="text-xs uppercase text-trophy-300 light:text-trophy-700">{t("marketValue")}</p>
-          <p className="mt-1 text-xl font-black text-trophy-200 light:text-trophy-800">{player.marketValue}</p>
-        </div>
-        <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
-          <p className="text-xs uppercase text-slate-500">{t("role")}</p>
-          <p className="mt-1 font-bold text-white light:text-slate-950">
-            {player.predictedStarter ? t("expectedStarter") : t("rotationPlayer")}
-          </p>
-        </div>
-        <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
-          <p className="text-xs uppercase text-slate-500">{t("data")}</p>
-          <p className="mt-1 font-bold text-white light:text-slate-950">
-            {qualityLabel(player.dataQuality, t)} · {player.lastUpdated}
-          </p>
-        </div>
-      </div>
-
-      <a
-        className="mt-5 inline-flex items-center gap-2 rounded-lg bg-trophy-500 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-trophy-300"
-        href={player.transfermarktUrl}
-        rel="noreferrer"
-        target="_blank"
-      >
-        {t("transfermarktSearch")}
-        <ExternalLink size={16} />
-      </a>
+        {player.transfermarktUrl && (
+          <a
+            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-trophy-500 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-trophy-300"
+            href={player.transfermarktUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {t("transfermarktSearch")}
+            <ExternalLink size={16} />
+          </a>
+        )}
       </article>
     </div>
   );

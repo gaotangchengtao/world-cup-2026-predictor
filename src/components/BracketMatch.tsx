@@ -2,6 +2,8 @@ import { Trophy } from "lucide-react";
 import { useLanguage } from "../i18n";
 import type { BracketMatch as BracketMatchType, BracketMatchState, Team } from "../types/worldCup";
 import { getTeamById } from "../utils/format";
+import { displayTeamName } from "../utils/localizedNames";
+import { TeamFlag } from "./TeamFlag";
 
 interface BracketMatchProps {
   match: BracketMatchType;
@@ -22,7 +24,7 @@ interface SlotProps {
 }
 
 const BracketSlot = ({ label, slotKey, teamId, teams, isWinner, onSlotChange, onChooseWinner }: SlotProps) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const team = getTeamById(teams, teamId);
   const sortedTeams = [...teams].sort((a, b) => a.strengthRank - b.strengthRank);
 
@@ -44,10 +46,10 @@ const BracketSlot = ({ label, slotKey, teamId, teams, isWinner, onSlotChange, on
       )}
       <p className="pr-10 text-[11px] font-bold uppercase tracking-wide text-slate-500">{label}</p>
       <div className="mt-2 flex items-center gap-2">
-        <span className="text-2xl">{team?.flag ?? "🏳️"}</span>
+        <TeamFlag team={team} size="sm" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-black text-white light:text-slate-950">
-            {team?.name ?? t("selectTeam")}
+            {team ? displayTeamName(team, language) : t("selectTeam")}
           </p>
           <p className="text-xs text-slate-400 light:text-slate-600">
             {team
@@ -68,7 +70,7 @@ const BracketSlot = ({ label, slotKey, teamId, teams, isWinner, onSlotChange, on
         <option value="">{t("selectTeam")}</option>
         {sortedTeams.map((option) => (
           <option key={option.id} value={option.id}>
-            #{option.strengthRank} {option.flag} {option.name}
+            #{option.strengthRank} {displayTeamName(option, language)}
           </option>
         ))}
       </select>
@@ -91,34 +93,34 @@ export const BracketMatch = ({ match, matchState, teams, onSlotChange, onChooseW
 
   return (
     <article className="relative min-w-[280px] rounded-lg border border-white/10 bg-slate-950/50 p-3 light:border-slate-900/10 light:bg-slate-50">
-    <div className="mb-3 flex items-center justify-between">
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-        {t("match")} {match.matchNumber}
-      </p>
-      <span className="rounded-md bg-white/5 px-2 py-1 text-[11px] font-bold text-slate-300 light:bg-white light:text-slate-600">
-        {roundName}
-      </span>
-    </div>
-    <div className="grid gap-2">
-      <BracketSlot
-        isWinner={matchState.winnerTeamId === matchState.slotA}
-        label={match.slotA.label}
-        onChooseWinner={(teamId) => onChooseWinner(match.id, teamId)}
-        onSlotChange={(teamId) => onSlotChange(match.id, "slotA", teamId)}
-        slotKey="slotA"
-        teamId={matchState.slotA}
-        teams={teams}
-      />
-      <BracketSlot
-        isWinner={matchState.winnerTeamId === matchState.slotB}
-        label={match.slotB.label}
-        onChooseWinner={(teamId) => onChooseWinner(match.id, teamId)}
-        onSlotChange={(teamId) => onSlotChange(match.id, "slotB", teamId)}
-        slotKey="slotB"
-        teamId={matchState.slotB}
-        teams={teams}
-      />
-    </div>
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+          {t("match")} {match.matchNumber}
+        </p>
+        <span className="rounded-md bg-white/5 px-2 py-1 text-[11px] font-bold text-slate-300 light:bg-white light:text-slate-600">
+          {roundName}
+        </span>
+      </div>
+      <div className="grid gap-2">
+        <BracketSlot
+          isWinner={matchState.winnerTeamId === matchState.slotA}
+          label={match.slotA.label}
+          onChooseWinner={(teamId) => onChooseWinner(match.id, teamId)}
+          onSlotChange={(teamId) => onSlotChange(match.id, "slotA", teamId)}
+          slotKey="slotA"
+          teamId={matchState.slotA}
+          teams={teams}
+        />
+        <BracketSlot
+          isWinner={matchState.winnerTeamId === matchState.slotB}
+          label={match.slotB.label}
+          onChooseWinner={(teamId) => onChooseWinner(match.id, teamId)}
+          onSlotChange={(teamId) => onSlotChange(match.id, "slotB", teamId)}
+          slotKey="slotB"
+          teamId={matchState.slotB}
+          teams={teams}
+        />
+      </div>
     </article>
   );
 };

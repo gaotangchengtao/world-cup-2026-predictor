@@ -1,6 +1,9 @@
 import { Star } from "lucide-react";
 import { useLanguage } from "../i18n";
 import type { Player, Team } from "../types/worldCup";
+import { displayClubName, displayPlayerName } from "../utils/localizedNames";
+import { getPlayerPhotoUrl, placeholderAvatarUrl } from "../utils/photos";
+import { TeamFlag } from "./TeamFlag";
 
 interface TopPlayersProps {
   players: Player[];
@@ -9,7 +12,7 @@ interface TopPlayersProps {
 }
 
 export const TopPlayers = ({ players, teams, onSelectPlayer }: TopPlayersProps) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const teamById = new Map(teams.map((team) => [team.id, team]));
   const topValue = [...players].sort((a, b) => b.marketValueEurM - a.marketValueEurM).slice(0, 10);
   const topCore = [...players]
@@ -31,15 +34,28 @@ export const TopPlayers = ({ players, teams, onSelectPlayer }: TopPlayersProps) 
               type="button"
             >
               <span className="w-6 text-center text-sm font-black text-trophy-300">#{index + 1}</span>
-              <img alt={player.name} className="h-10 w-10 rounded-full object-cover" src={player.photoUrl} />
+              <img
+                alt={displayPlayerName(player, language)}
+                className="h-10 w-10 rounded-full object-cover"
+                loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.src = placeholderAvatarUrl(player.name);
+                }}
+                src={getPlayerPhotoUrl(player)}
+              />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold text-white light:text-slate-950">
-                  {team?.flag} {player.name}
+                <p className="flex min-w-0 items-center gap-2 truncate text-sm font-bold text-white light:text-slate-950">
+                  <TeamFlag team={team} size="sm" />
+                  <span className="truncate">{displayPlayerName(player, language)}</span>
                 </p>
-                <p className="truncate text-xs text-slate-400 light:text-slate-600">{player.club}</p>
+                <p className="truncate text-xs text-slate-400 light:text-slate-600">
+                  {displayClubName(player.club, language)}
+                </p>
               </div>
               {player.isKeyPlayer && <Star className="fill-trophy-500 text-trophy-500" size={14} />}
-              <span className="text-sm font-black text-trophy-300 light:text-trophy-700">{player.marketValue}</span>
+              <span className="text-sm font-black text-trophy-300 light:text-trophy-700">
+                {player.marketValue ?? "N/A"}
+              </span>
             </button>
           );
         })}

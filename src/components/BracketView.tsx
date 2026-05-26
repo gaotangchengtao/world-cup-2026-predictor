@@ -4,7 +4,9 @@ import { useLanguage } from "../i18n";
 import type { BracketPredictionState, Team } from "../types/worldCup";
 import { chooseWinner, createInitialBracketState, getChampionId, updateSlot } from "../utils/bracket";
 import { downloadJson, getTeamById } from "../utils/format";
+import { displayTeamName } from "../utils/localizedNames";
 import { BracketRound } from "./BracketRound";
+import { TeamFlag } from "./TeamFlag";
 
 interface BracketViewProps {
   teams: Team[];
@@ -13,7 +15,7 @@ interface BracketViewProps {
 }
 
 export const BracketView = ({ teams, bracketState, setBracketState }: BracketViewProps) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const champion = getTeamById(teams, getChampionId(bracketState));
 
   const handleSlotChange = (matchId: string, slotKey: "slotA" | "slotB", teamId: string) => {
@@ -30,9 +32,7 @@ export const BracketView = ({ teams, bracketState, setBracketState }: BracketVie
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-2xl font-black text-white light:text-slate-950">{t("bracketTitle")}</h2>
-            <p className="text-sm text-slate-400 light:text-slate-600">
-              {t("bracketDescription")}
-            </p>
+            <p className="text-sm text-slate-400 light:text-slate-600">{t("bracketDescription")}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
@@ -74,9 +74,11 @@ export const BracketView = ({ teams, bracketState, setBracketState }: BracketVie
             </div>
             <article className="rounded-lg border border-trophy-500/50 bg-trophy-500/15 p-5 text-center shadow-glow">
               <Trophy className="mx-auto text-trophy-300" size={36} />
-              <p className="mt-3 text-5xl">{champion?.flag ?? "🏆"}</p>
+              <div className="mt-3 flex justify-center">
+                <TeamFlag team={champion} size="xl" />
+              </div>
               <h3 className="mt-3 text-2xl font-black text-white light:text-slate-950">
-                {champion?.name ?? t("selectFinalWinner")}
+                {champion ? displayTeamName(champion, language) : t("selectFinalWinner")}
               </h3>
               {champion && (
                 <p className="mt-2 text-sm font-bold text-trophy-200 light:text-trophy-800">
