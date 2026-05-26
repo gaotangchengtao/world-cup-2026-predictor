@@ -1,0 +1,31 @@
+import type { BracketPredictionState, BracketRound as BracketRoundType, Team } from "../types/worldCup";
+import { BracketMatch } from "./BracketMatch";
+
+interface BracketRoundProps {
+  round: BracketRoundType;
+  bracketState: BracketPredictionState;
+  teams: Team[];
+  onSlotChange: (matchId: string, slotKey: "slotA" | "slotB", teamId: string) => void;
+  onChooseWinner: (matchId: string, teamId: string) => void;
+}
+
+export const BracketRound = ({ round, bracketState, teams, onSlotChange, onChooseWinner }: BracketRoundProps) => (
+  <section className="flex min-w-[300px] flex-col gap-3">
+    <div className="sticky top-20 z-10 rounded-lg border border-white/10 bg-slate-950/90 px-4 py-3 text-center light:border-slate-900/10 light:bg-white/90">
+      <h2 className="text-base font-black text-white light:text-slate-950">{round.name}</h2>
+      <p className="text-xs text-slate-500">{round.matches.length} matches</p>
+    </div>
+    <div className="grid gap-4">
+      {round.matches.map((match) => (
+        <BracketMatch
+          key={match.id}
+          match={match}
+          matchState={bracketState[match.id] ?? {}}
+          onChooseWinner={onChooseWinner}
+          onSlotChange={onSlotChange}
+          teams={teams}
+        />
+      ))}
+    </div>
+  </section>
+);

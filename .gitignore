@@ -1,0 +1,81 @@
+﻿# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Node / frontend dependencies
+node_modules/
+.vite/
+.parcel-cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Build and package outputs
+build/
+dist/
+*.egg-info/
+
+# Test and coverage outputs
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Data and model artifacts - keep large/generated files out of Git
+data/raw/
+data/interim/
+data/processed/
+outputs/
+reports/generated/
+models/
+checkpoints/
+*.pkl
+*.joblib
+*.h5
+*.onnx
+*.pt
+*.pth
+
+# Large table/archive files
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.zip
+*.7z
+*.rar
