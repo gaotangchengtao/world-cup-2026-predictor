@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { useLanguage } from "../i18n";
 import type { Player } from "../types/worldCup";
 
 interface PlayerCardProps {
@@ -6,8 +7,11 @@ interface PlayerCardProps {
   onSelect: (player: Player) => void;
 }
 
-export const PlayerCard = ({ player, onSelect }: PlayerCardProps) => (
-  <button
+export const PlayerCard = ({ player, onSelect }: PlayerCardProps) => {
+  const { t } = useLanguage();
+
+  return (
+    <button
     className="flex w-full items-center gap-3 rounded-lg border border-white/10 bg-slate-950/45 p-3 text-left transition hover:border-trophy-500 hover:bg-slate-900/90 light:border-slate-900/10 light:bg-white light:hover:bg-slate-50"
     onClick={() => onSelect(player)}
     type="button"
@@ -28,7 +32,10 @@ export const PlayerCard = ({ player, onSelect }: PlayerCardProps) => (
     </div>
     <div className="text-right">
       <p className="text-sm font-black text-trophy-300 light:text-trophy-700">{player.marketValue}</p>
-      {player.predictedStarter && <p className="text-[11px] font-bold text-emerald-300 light:text-emerald-700">Starter</p>}
+      {player.predictedStarter && (
+        <p className="text-[11px] font-bold text-emerald-300 light:text-emerald-700">{t("starter")}</p>
+      )}
     </div>
-  </button>
-);
+    </button>
+  );
+};

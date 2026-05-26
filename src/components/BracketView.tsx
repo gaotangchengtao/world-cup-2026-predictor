@@ -1,5 +1,6 @@
 import { Download, RotateCcw, Trophy } from "lucide-react";
 import { defaultBracketRounds } from "../data/bracket";
+import { useLanguage } from "../i18n";
 import type { BracketPredictionState, Team } from "../types/worldCup";
 import { chooseWinner, createInitialBracketState, getChampionId, updateSlot } from "../utils/bracket";
 import { downloadJson, getTeamById } from "../utils/format";
@@ -12,6 +13,7 @@ interface BracketViewProps {
 }
 
 export const BracketView = ({ teams, bracketState, setBracketState }: BracketViewProps) => {
+  const { t } = useLanguage();
   const champion = getTeamById(teams, getChampionId(bracketState));
 
   const handleSlotChange = (matchId: string, slotKey: "slotA" | "slotB", teamId: string) => {
@@ -27,9 +29,9 @@ export const BracketView = ({ teams, bracketState, setBracketState }: BracketVie
       <div className="glass-panel rounded-lg p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-2xl font-black text-white light:text-slate-950">淘汰赛分叉图</h2>
+            <h2 className="text-2xl font-black text-white light:text-slate-950">{t("bracketTitle")}</h2>
             <p className="text-sm text-slate-400 light:text-slate-600">
-              从 32 强开始选择胜者，胜者会自动进入下一轮。移动端可横向滑动查看完整 bracket。
+              {t("bracketDescription")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -39,7 +41,7 @@ export const BracketView = ({ teams, bracketState, setBracketState }: BracketVie
               type="button"
             >
               <RotateCcw size={16} />
-              重置预测
+              {t("resetPrediction")}
             </button>
             <button
               className="inline-flex items-center gap-2 rounded-lg bg-trophy-500 px-3 py-2 text-sm font-black text-slate-950 hover:bg-trophy-300"
@@ -47,7 +49,7 @@ export const BracketView = ({ teams, bracketState, setBracketState }: BracketVie
               type="button"
             >
               <Download size={16} />
-              导出 JSON
+              {t("exportJson")}
             </button>
           </div>
         </div>
@@ -67,18 +69,18 @@ export const BracketView = ({ teams, bracketState, setBracketState }: BracketVie
           ))}
           <section className="flex min-w-[300px] flex-col gap-3">
             <div className="sticky top-20 z-10 rounded-lg border border-trophy-500/40 bg-trophy-500/20 px-4 py-3 text-center">
-              <h2 className="text-base font-black text-trophy-100 light:text-trophy-800">Champion</h2>
-              <p className="text-xs text-trophy-200 light:text-trophy-700">Final winner</p>
+              <h2 className="text-base font-black text-trophy-100 light:text-trophy-800">{t("champion")}</h2>
+              <p className="text-xs text-trophy-200 light:text-trophy-700">{t("finalWinner")}</p>
             </div>
             <article className="rounded-lg border border-trophy-500/50 bg-trophy-500/15 p-5 text-center shadow-glow">
               <Trophy className="mx-auto text-trophy-300" size={36} />
               <p className="mt-3 text-5xl">{champion?.flag ?? "🏆"}</p>
               <h3 className="mt-3 text-2xl font-black text-white light:text-slate-950">
-                {champion?.name ?? "选择决赛胜者"}
+                {champion?.name ?? t("selectFinalWinner")}
               </h3>
               {champion && (
                 <p className="mt-2 text-sm font-bold text-trophy-200 light:text-trophy-800">
-                  #{champion.strengthRank} · Score {champion.strengthScore}
+                  #{champion.strengthRank} · {t("score")} {champion.strengthScore}
                 </p>
               )}
             </article>

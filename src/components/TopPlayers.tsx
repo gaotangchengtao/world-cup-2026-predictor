@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { useLanguage } from "../i18n";
 import type { Player, Team } from "../types/worldCup";
 
 interface TopPlayersProps {
@@ -8,6 +9,7 @@ interface TopPlayersProps {
 }
 
 export const TopPlayers = ({ players, teams, onSelectPlayer }: TopPlayersProps) => {
+  const { t } = useLanguage();
   const teamById = new Map(teams.map((team) => [team.id, team]));
   const topValue = [...players].sort((a, b) => b.marketValueEurM - a.marketValueEurM).slice(0, 10);
   const topCore = [...players]
@@ -47,8 +49,8 @@ export const TopPlayers = ({ players, teams, onSelectPlayer }: TopPlayersProps) 
 
   return (
     <section className="grid gap-4 xl:grid-cols-2">
-      {list("最贵阵容 Top 10", topValue)}
-      {list("核心球员 Top 10", topCore)}
+      {list(t("topMarketValueTitle"), topValue)}
+      {list(t("topCorePlayersTitle"), topCore)}
     </section>
   );
 };

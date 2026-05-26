@@ -1,4 +1,5 @@
 import { ArrowUpRight, Shield, Sparkles } from "lucide-react";
+import { useLanguage } from "../i18n";
 import { groupPositionLabel, qualityLabel, stageLabel } from "../utils/format";
 import type { Team } from "../types/worldCup";
 
@@ -8,8 +9,11 @@ interface TeamCardProps {
   compact?: boolean;
 }
 
-export const TeamCard = ({ team, onSelect, compact = false }: TeamCardProps) => (
-  <button
+export const TeamCard = ({ team, onSelect, compact = false }: TeamCardProps) => {
+  const { t } = useLanguage();
+
+  return (
+    <button
     className={`group relative w-full rounded-lg border p-4 text-left transition hover:-translate-y-0.5 hover:border-trophy-500 hover:shadow-glow ${
       team.strengthRank <= 8
         ? "border-trophy-500/50 bg-trophy-500/10"
@@ -26,21 +30,23 @@ export const TeamCard = ({ team, onSelect, compact = false }: TeamCardProps) => 
       <span className="text-4xl leading-none">{team.flag}</span>
       <div>
         <h3 className="text-base font-black text-white light:text-slate-950">{team.name}</h3>
-        <p className="mt-1 text-xs text-slate-400 light:text-slate-600">Group {team.group} · Score {team.strengthScore}</p>
+        <p className="mt-1 text-xs text-slate-400 light:text-slate-600">
+          {t("group")} {team.group} · {t("score")} {team.strengthScore}
+        </p>
       </div>
     </div>
 
     <div className="mt-4 flex flex-wrap items-center gap-2">
       <span className="rounded-md bg-emerald-400/15 px-2 py-1 text-xs font-bold text-emerald-200 light:text-emerald-700">
-        {groupPositionLabel(team.predictedGroupPosition)}
+        {groupPositionLabel(team.predictedGroupPosition, t)}
       </span>
       <span className="rounded-md bg-sky-400/15 px-2 py-1 text-xs font-bold text-sky-200 light:text-sky-700">
-        {stageLabel(team.predictedStage)}
+        {stageLabel(team.predictedStage, t)}
       </span>
       {team.isDarkHorse && (
         <span className="inline-flex items-center gap-1 rounded-md bg-orange-400/15 px-2 py-1 text-xs font-bold text-orange-200 light:text-orange-700">
           <Sparkles size={12} />
-          Dark Horse
+          {t("darkHorse")}
         </span>
       )}
     </div>
@@ -52,11 +58,12 @@ export const TeamCard = ({ team, onSelect, compact = false }: TeamCardProps) => 
           {team.formation ?? "TBD"}
         </span>
         <span className="font-semibold text-trophy-300 light:text-trophy-700">{team.squadValue ?? "N/A"}</span>
-        <span>{team.coach ?? "Coach TBD"}</span>
-        <span>{qualityLabel(team.dataQuality)}</span>
+        <span>{team.coach ?? `${t("coach")} TBD`}</span>
+        <span>{qualityLabel(team.dataQuality, t)}</span>
       </div>
     )}
 
     <ArrowUpRight className="absolute bottom-3 right-3 text-slate-500 transition group-hover:text-trophy-300" size={16} />
-  </button>
-);
+    </button>
+  );
+};

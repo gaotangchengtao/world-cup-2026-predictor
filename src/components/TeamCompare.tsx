@@ -1,5 +1,6 @@
 import { Scale } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useLanguage } from "../i18n";
 import type { Player, Team } from "../types/worldCup";
 import { stageLabel } from "../utils/format";
 
@@ -9,6 +10,7 @@ interface TeamCompareProps {
 }
 
 export const TeamCompare = ({ teams, players }: TeamCompareProps) => {
+  const { t } = useLanguage();
   const sortedTeams = useMemo(() => [...teams].sort((a, b) => a.strengthRank - b.strengthRank), [teams]);
   const [leftId, setLeftId] = useState(sortedTeams[0]?.id ?? "");
   const [rightId, setRightId] = useState(sortedTeams[1]?.id ?? "");
@@ -31,8 +33,8 @@ export const TeamCompare = ({ teams, players }: TeamCompareProps) => {
     <section className="glass-panel rounded-lg p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-black text-white light:text-slate-950">球队对比</h2>
-          <p className="text-sm text-slate-400 light:text-slate-600">选择两支球队，对比实力排名、身价和核心球员。</p>
+          <h2 className="text-lg font-black text-white light:text-slate-950">{t("teamCompare")}</h2>
+          <p className="text-sm text-slate-400 light:text-slate-600">{t("teamCompareDescription")}</p>
         </div>
         <Scale className="text-trophy-300" size={22} />
       </div>
@@ -70,25 +72,25 @@ export const TeamCompare = ({ teams, players }: TeamCompareProps) => {
             </div>
             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div>
-                <dt className="text-slate-500">实力评分</dt>
+                <dt className="text-slate-500">{t("strengthScore")}</dt>
                 <dd className="font-black text-white light:text-slate-950">{team?.strengthScore}</dd>
               </div>
               <div>
-                <dt className="text-slate-500">总身价</dt>
+                <dt className="text-slate-500">{t("squadValue")}</dt>
                 <dd className="font-black text-white light:text-slate-950">{metrics.value}</dd>
               </div>
               <div>
-                <dt className="text-slate-500">核心球员</dt>
+                <dt className="text-slate-500">{t("corePlayers")}</dt>
                 <dd className="font-black text-white light:text-slate-950">{metrics.core}</dd>
               </div>
               <div>
-                <dt className="text-slate-500">预计首发样本</dt>
+                <dt className="text-slate-500">{t("starterSample")}</dt>
                 <dd className="font-black text-white light:text-slate-950">{metrics.starters}</dd>
               </div>
               <div className="col-span-2">
-                <dt className="text-slate-500">预测阶段</dt>
+                <dt className="text-slate-500">{t("predictedStage")}</dt>
                 <dd className="font-black text-white light:text-slate-950">
-                  {team ? stageLabel(team.predictedStage) : "N/A"}
+                  {team ? stageLabel(team.predictedStage, t) : "N/A"}
                 </dd>
               </div>
             </dl>

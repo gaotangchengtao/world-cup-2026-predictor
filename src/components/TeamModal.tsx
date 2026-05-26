@@ -1,5 +1,6 @@
 import { ExternalLink, Shield, Star, X } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useLanguage } from "../i18n";
 import type { Player, PlayerPosition, Team } from "../types/worldCup";
 import { groupPositionLabel, qualityLabel, stageLabel } from "../utils/format";
 import { PlayerCard } from "./PlayerCard";
@@ -14,6 +15,7 @@ interface TeamModalProps {
 const positionLabels: Array<"all" | PlayerPosition> = ["all", "GK", "DF", "MF", "FW"];
 
 export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalProps) => {
+  const { t } = useLanguage();
   const [position, setPosition] = useState<"all" | PlayerPosition>("all");
   const [club, setClub] = useState("all");
   const [query, setQuery] = useState("");
@@ -45,7 +47,7 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
                 <h2 className="text-3xl font-black text-white light:text-slate-950">{team.name}</h2>
                 {team.isDarkHorse && (
                   <span className="rounded-md bg-orange-400/15 px-2 py-1 text-xs font-bold text-orange-200 light:text-orange-700">
-                    Dark Horse
+                    {t("darkHorse")}
                   </span>
                 )}
               </div>
@@ -64,25 +66,27 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
 
         <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-lg border border-trophy-500/30 bg-trophy-500/10 p-4">
-            <p className="text-xs uppercase text-trophy-300 light:text-trophy-700">Strength rank</p>
+            <p className="text-xs uppercase text-trophy-300 light:text-trophy-700">{t("strengthRank")}</p>
             <p className="mt-1 text-3xl font-black text-trophy-200 light:text-trophy-800">#{team.strengthRank}</p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
-            <p className="text-xs uppercase text-slate-500">Prediction</p>
+            <p className="text-xs uppercase text-slate-500">{t("predictedStage")}</p>
             <p className="mt-1 font-black text-white light:text-slate-950">
-              {groupPositionLabel(team.predictedGroupPosition)} · {stageLabel(team.predictedStage)}
+              {groupPositionLabel(team.predictedGroupPosition, t)} · {stageLabel(team.predictedStage, t)}
             </p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
-            <p className="text-xs uppercase text-slate-500">Coach / Formation</p>
+            <p className="text-xs uppercase text-slate-500">
+              {t("coach")} / {t("formation")}
+            </p>
             <p className="mt-1 font-black text-white light:text-slate-950">
               {team.coach} · {team.formation}
             </p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
-            <p className="text-xs uppercase text-slate-500">Squad snapshot</p>
+            <p className="text-xs uppercase text-slate-500">{t("squadSnapshot")}</p>
             <p className="mt-1 font-black text-white light:text-slate-950">
-              €{totalValue.toFixed(0)}m · {keyPlayers} core
+              €{totalValue.toFixed(0)}m · {keyPlayers} {t("corePlayers")}
             </p>
           </div>
         </div>
@@ -90,9 +94,9 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
         <div className="mt-6 flex flex-col gap-3 rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="text-lg font-black text-white light:text-slate-950">球员候选名单</h3>
+              <h3 className="text-lg font-black text-white light:text-slate-950">{t("playerList")}</h3>
               <p className="text-xs text-slate-400 light:text-slate-600">
-                数据更新时间 {team.lastUpdated} · {qualityLabel(team.dataQuality)}
+                {t("updated")} {team.lastUpdated} · {qualityLabel(team.dataQuality, t)}
               </p>
             </div>
             <a
@@ -101,7 +105,7 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
               rel="noreferrer"
               target="_blank"
             >
-              数据来源
+              {t("dataSource")}
               <ExternalLink size={15} />
             </a>
           </div>
@@ -110,7 +114,7 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
             <input
               className="h-10 rounded-lg border border-white/10 bg-slate-950/60 px-3 text-sm text-white outline-none focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950"
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="搜索球员姓名"
+              placeholder={t("searchPlayers")}
               value={query}
             />
             <select
@@ -120,7 +124,7 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
             >
               {positionLabels.map((item) => (
                 <option key={item} value={item}>
-                  {item === "all" ? "全部位置" : item}
+                  {item === "all" ? t("allPositions") : item}
                 </option>
               ))}
             </select>
@@ -131,7 +135,7 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
             >
               {clubs.map((item) => (
                 <option key={item} value={item}>
-                  {item === "all" ? "全部俱乐部" : item}
+                  {item === "all" ? t("allClubs") : item}
                 </option>
               ))}
             </select>
@@ -141,7 +145,7 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
               type="button"
             >
               <Shield size={15} />
-              {sortByValue ? "按身价" : "按位置"}
+              {sortByValue ? t("sortByMarketValue") : t("sortByPosition")}
             </button>
           </div>
 
@@ -153,7 +157,7 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
 
           {visiblePlayers.length === 0 && (
             <p className="rounded-lg border border-white/10 p-4 text-sm text-slate-400 light:border-slate-900/10 light:text-slate-600">
-              当前筛选没有匹配球员。
+              {t("noPlayers")}
             </p>
           )}
         </div>

@@ -1,4 +1,5 @@
 import { BarChart3, Crown, Sparkles, Trophy } from "lucide-react";
+import { useLanguage } from "../i18n";
 import type { Player, Team } from "../types/worldCup";
 import { getChampionId } from "../utils/bracket";
 import type { BracketPredictionState } from "../types/worldCup";
@@ -10,6 +11,7 @@ interface PredictionSummaryProps {
 }
 
 export const PredictionSummary = ({ teams, players, bracketState }: PredictionSummaryProps) => {
+  const { t } = useLanguage();
   const champion = teams.find((team) => team.id === getChampionId(bracketState)) ?? teams.find((team) => team.predictedStage === "Champion");
   const contenders = teams.filter((team) => ["Champion", "Final", "Semi-final"].includes(team.predictedStage)).length;
   const darkHorses = teams.filter((team) => team.isDarkHorse).length;
@@ -17,26 +19,26 @@ export const PredictionSummary = ({ teams, players, bracketState }: PredictionSu
 
   const cards = [
     {
-      label: "我的冠军预测",
-      value: champion ? `${champion.flag} ${champion.name}` : "尚未选择",
+      label: t("championPrediction"),
+      value: champion ? `${champion.flag} ${champion.name}` : t("notSelected"),
       icon: Crown,
       tone: "text-trophy-300",
     },
     {
-      label: "冠军热门",
-      value: `${contenders} teams`,
+      label: t("titleContenders"),
+      value: `${contenders} ${t("teamsUnit")}`,
       icon: Trophy,
       tone: "text-emerald-300",
     },
     {
-      label: "黑马球队",
-      value: `${darkHorses} teams`,
+      label: t("darkHorseTeams"),
+      value: `${darkHorses} ${t("teamsUnit")}`,
       icon: Sparkles,
       tone: "text-orange-300",
     },
     {
-      label: "核心球员样本",
-      value: `${corePlayers} players`,
+      label: t("corePlayerSample"),
+      value: `${corePlayers} ${t("playersUnit")}`,
       icon: BarChart3,
       tone: "text-sky-300",
     },

@@ -13,6 +13,7 @@
 - localStorage 自动保存预测
 - JSON 导入 / 导出预测和运行时数据
 - 深色 / 浅色模式
+- 中文 / English 语言切换，语言偏好保存到 localStorage
 - 响应式布局，移动端 bracket 可横向滚动
 
 ## 运行
@@ -52,6 +53,16 @@ git push
 - `src/data/bracket.ts`: 32 强到冠军的淘汰赛槽位结构
 - `src/data/sources.ts`: 数据来源说明
 - `src/types/worldCup.ts`: TypeScript 数据类型
+- `src/i18n/`: 中文/英文翻译字典和语言上下文
+
+## 语言切换
+
+语言模块位于页面右上角，支持：
+
+- 中文
+- English
+
+首次打开时会根据浏览器语言判断：`zh` 开头默认中文，否则默认英文。用户手动切换后，选择会保存到 `localStorage` 的 `wc2026.language`，下次打开自动使用上次选择的语言。
 
 ## 添加球队
 

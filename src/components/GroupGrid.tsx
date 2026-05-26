@@ -1,4 +1,5 @@
 import type { FilterState, Team, WorldCupGroup } from "../types/worldCup";
+import { useLanguage } from "../i18n";
 import { GroupCard } from "./GroupCard";
 
 interface GroupGridProps {
@@ -9,6 +10,7 @@ interface GroupGridProps {
 }
 
 export const GroupGrid = ({ groups, teams, filters, onSelectTeam }: GroupGridProps) => {
+  const { t } = useLanguage();
   const teamById = new Map(teams.map((team) => [team.id, team]));
   const visibleGroups = groups.filter((group) => filters.group === "all" || group.code === filters.group);
 
@@ -27,7 +29,14 @@ export const GroupGrid = ({ groups, teams, filters, onSelectTeam }: GroupGridPro
 
         if (groupTeams.length === 0) return null;
 
-        return <GroupCard key={group.code} groupName={group.name} teams={groupTeams} onSelectTeam={onSelectTeam} />;
+        return (
+          <GroupCard
+            key={group.code}
+            groupName={`${t("group")} ${group.code}`}
+            teams={groupTeams}
+            onSelectTeam={onSelectTeam}
+          />
+        );
       })}
     </section>
   );

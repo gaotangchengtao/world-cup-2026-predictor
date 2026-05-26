@@ -1,4 +1,5 @@
 import type { PredictionStage, Team } from "../types/worldCup";
+import type { TranslationKey } from "../i18n";
 
 export const stageOrder: Record<PredictionStage, number> = {
   Champion: 1,
@@ -10,38 +11,40 @@ export const stageOrder: Record<PredictionStage, number> = {
   "Group Stage": 7,
 };
 
-export const stageLabel = (stage: PredictionStage) => {
-  const labels: Record<PredictionStage, string> = {
-    Champion: "冠军候选",
-    Final: "决赛",
-    "Semi-final": "四强",
-    "Quarter-final": "八强",
-    "Round of 16": "16 强",
-    "Round of 32": "32 强",
-    "Group Stage": "小组赛出局",
+type Translator = (key: TranslationKey) => string;
+
+export const stageLabel = (stage: PredictionStage, t: Translator) => {
+  const labels: Record<PredictionStage, TranslationKey> = {
+    Champion: "stageChampion",
+    Final: "stageFinal",
+    "Semi-final": "stageSemiFinal",
+    "Quarter-final": "stageQuarterFinal",
+    "Round of 16": "stageRoundOf16",
+    "Round of 32": "stageRoundOf32",
+    "Group Stage": "stageGroupStage",
   };
 
-  return labels[stage];
+  return t(labels[stage]);
 };
 
-export const groupPositionLabel = (position: Team["predictedGroupPosition"]) => {
-  if (position === 1) return "小组第一";
-  if (position === 2) return "小组第二";
-  if (position === 3) return "第三名待定";
-  return "淘汰";
+export const groupPositionLabel = (position: Team["predictedGroupPosition"], t: Translator) => {
+  if (position === 1) return t("groupFirst");
+  if (position === 2) return t("groupSecond");
+  if (position === 3) return t("groupThird");
+  return t("groupEliminated");
 };
 
-export const qualityLabel = (quality: string) => {
-  const labels: Record<string, string> = {
-    official: "官方",
-    "official-placeholder": "官方占位",
-    estimated: "估算",
-    projected: "预测",
-    mock: "占位",
-    manual: "手动",
+export const qualityLabel = (quality: string, t: Translator) => {
+  const labels: Record<string, TranslationKey> = {
+    official: "qualityOfficial",
+    "official-placeholder": "qualityOfficialPlaceholder",
+    estimated: "qualityEstimated",
+    projected: "qualityProjected",
+    mock: "qualityMock",
+    manual: "qualityManual",
   };
 
-  return labels[quality] ?? quality;
+  return labels[quality] ? t(labels[quality]) : quality;
 };
 
 export const formatNumber = (value: number) =>

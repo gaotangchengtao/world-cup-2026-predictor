@@ -1,4 +1,6 @@
-import { Moon, Search, Sun, Trophy } from "lucide-react";
+import { Moon, Sun, Trophy } from "lucide-react";
+import { useLanguage } from "../i18n";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface HeaderProps {
   mode: "overview" | "predictor";
@@ -7,56 +9,62 @@ interface HeaderProps {
   toggleTheme: () => void;
 }
 
-export const Header = ({ mode, setMode, theme, toggleTheme }: HeaderProps) => (
-  <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl light:border-slate-900/10 light:bg-white/75">
-    <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-      <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-trophy-500 text-slate-950 shadow-glow">
-          <Trophy size={24} />
-        </div>
-        <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-trophy-300 light:text-trophy-700">Predictor MVP</p>
-          <h1 className="text-xl font-black text-white light:text-slate-950 sm:text-2xl">
-            2026 FIFA World Cup Predictor
-          </h1>
-        </div>
-      </div>
+export const Header = ({ mode, setMode, theme, toggleTheme }: HeaderProps) => {
+  const { t } = useLanguage();
 
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex rounded-lg border border-white/10 bg-white/5 p-1 light:border-slate-900/10 light:bg-slate-100">
-          <button
-            className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
-              mode === "overview"
-                ? "bg-trophy-500 text-slate-950"
-                : "text-slate-200 hover:bg-white/10 light:text-slate-700"
-            }`}
-            onClick={() => setMode("overview")}
-            type="button"
-          >
-            资料浏览
-          </button>
-          <button
-            className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
-              mode === "predictor"
-                ? "bg-trophy-500 text-slate-950"
-                : "text-slate-200 hover:bg-white/10 light:text-slate-700"
-            }`}
-            onClick={() => setMode("predictor")}
-            type="button"
-          >
-            预测模式
-          </button>
+  return (
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl light:border-slate-900/10 light:bg-white/75">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-trophy-500 text-slate-950 shadow-glow">
+            <Trophy size={24} />
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-[0.24em] text-trophy-300 light:text-trophy-700">
+              {t("predictorMvp")}
+            </p>
+            <h1 className="text-xl font-black text-white light:text-slate-950 sm:text-2xl">{t("appTitle")}</h1>
+          </div>
         </div>
 
-        <button
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-100 transition hover:bg-white/10 light:border-slate-900/10 light:bg-white light:text-slate-800"
-          onClick={toggleTheme}
-          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          type="button"
-        >
-          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-lg border border-white/10 bg-white/5 p-1 light:border-slate-900/10 light:bg-slate-100">
+            <button
+              className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
+                mode === "overview"
+                  ? "bg-trophy-500 text-slate-950"
+                  : "text-slate-200 hover:bg-white/10 light:text-slate-700"
+              }`}
+              onClick={() => setMode("overview")}
+              type="button"
+            >
+              {t("browseMode")}
+            </button>
+            <button
+              className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
+                mode === "predictor"
+                  ? "bg-trophy-500 text-slate-950"
+                  : "text-slate-200 hover:bg-white/10 light:text-slate-700"
+              }`}
+              onClick={() => setMode("predictor")}
+              type="button"
+            >
+              {t("predictorMode")}
+            </button>
+          </div>
+
+          <LanguageSwitcher />
+
+          <button
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-100 transition hover:bg-white/10 light:border-slate-900/10 light:bg-white light:text-slate-800"
+            onClick={toggleTheme}
+            title={theme === "dark" ? t("switchToLight") : t("switchToDark")}
+            type="button"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+        </div>
       </div>
-    </div>
-  </header>
-);
+    </header>
+  );
+};

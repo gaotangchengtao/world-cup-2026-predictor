@@ -1,4 +1,5 @@
 import { Download, Upload } from "lucide-react";
+import { useLanguage } from "../i18n";
 import type { BracketPredictionState, RuntimeData } from "../types/worldCup";
 import { downloadJson } from "../utils/format";
 
@@ -15,6 +16,7 @@ export const DataImportExport = ({
   onImportPrediction,
   onImportRuntimeData,
 }: DataImportExportProps) => {
+  const { t } = useLanguage();
   const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === "object" && value !== null;
 
@@ -49,9 +51,9 @@ export const DataImportExport = ({
     <section className="glass-panel rounded-lg p-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-lg font-black text-white light:text-slate-950">JSON 导入 / 导出</h2>
+          <h2 className="text-lg font-black text-white light:text-slate-950">{t("jsonImportExport")}</h2>
           <p className="text-sm text-slate-400 light:text-slate-600">
-            导入数据只更新浏览器运行时状态，不会改写源码文件。
+            {t("importRuntimeNote")}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -61,7 +63,7 @@ export const DataImportExport = ({
             type="button"
           >
             <Download size={16} />
-            导出预测 JSON
+            {t("exportPredictionJson")}
           </button>
           <button
             className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-bold text-slate-200 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
@@ -69,11 +71,11 @@ export const DataImportExport = ({
             type="button"
           >
             <Download size={16} />
-            导出数据模板
+            {t("exportDataTemplate")}
           </button>
           <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-trophy-500 px-3 py-2 text-sm font-black text-slate-950 hover:bg-trophy-300">
             <Upload size={16} />
-            导入 JSON
+            {t("importJson")}
             <input
               accept="application/json"
               className="hidden"

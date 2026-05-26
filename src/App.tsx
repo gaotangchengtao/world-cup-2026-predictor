@@ -12,6 +12,7 @@ import { TopPlayers } from "./components/TopPlayers";
 import { groups } from "./data/groups";
 import { players as defaultPlayers } from "./data/players";
 import { teams as defaultTeams } from "./data/teams";
+import { useLanguage } from "./i18n";
 import type { BracketPredictionState, FilterState, Player, RuntimeData, Team } from "./types/worldCup";
 import { createInitialBracketState } from "./utils/bracket";
 import { stageOrder } from "./utils/format";
@@ -35,6 +36,7 @@ const defaultRuntimeData: RuntimeData = {
 const contenderStages = new Set(["Champion", "Final", "Semi-final", "Quarter-final"]);
 
 export default function App() {
+  const { t } = useLanguage();
   const [mode, setMode] = useState<"overview" | "predictor">(() =>
     readJson(storageKeys.mode, "overview" as "overview" | "predictor"),
   );
@@ -106,14 +108,13 @@ export default function App() {
         <section className="glass-panel rounded-lg p-5 sm:p-7">
           <div className="max-w-4xl">
             <p className="text-sm font-bold uppercase tracking-[0.24em] text-trophy-300 light:text-trophy-700">
-              Canada · Mexico · United States 2026
+              {t("heroKicker")}
             </p>
             <h2 className="mt-3 text-3xl font-black text-white light:text-slate-950 sm:text-5xl">
-              48 teams, 12 groups, one predicted champion.
+              {t("heroTitle")}
             </h2>
             <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300 light:text-slate-700">
-              2026 世界杯扩军为 48 支球队，分为 A-L 共 12 个小组。每组前二名加上成绩最好的 8 个第三名进入
-              32 强淘汰赛。本项目先实现可扩展的数据模型、预测交互和响应式网页结构。
+              {t("heroDescription")}
             </p>
           </div>
         </section>
@@ -148,7 +149,7 @@ export default function App() {
 
       <footer className="mx-auto max-w-7xl px-4 pb-8 sm:px-6">
         <div className="rounded-lg border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-400 light:border-slate-900/10 light:bg-white/70 light:text-slate-600">
-          球员身价与照片数据为占位/预测数据，后续可通过合法数据源或手动导入更新。本应用不直接爬取 Transfermarkt。
+          {t("dataNotice")}
         </div>
       </footer>
 

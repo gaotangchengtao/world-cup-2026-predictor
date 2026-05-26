@@ -1,4 +1,5 @@
 import { Trophy } from "lucide-react";
+import { useLanguage } from "../i18n";
 import type { BracketMatch as BracketMatchType, BracketMatchState, Team } from "../types/worldCup";
 import { getTeamById } from "../utils/format";
 
@@ -21,6 +22,7 @@ interface SlotProps {
 }
 
 const BracketSlot = ({ label, slotKey, teamId, teams, isWinner, onSlotChange, onChooseWinner }: SlotProps) => {
+  const { t } = useLanguage();
   const team = getTeamById(teams, teamId);
   const sortedTeams = [...teams].sort((a, b) => a.strengthRank - b.strengthRank);
 
@@ -44,9 +46,15 @@ const BracketSlot = ({ label, slotKey, teamId, teams, isWinner, onSlotChange, on
       <div className="mt-2 flex items-center gap-2">
         <span className="text-2xl">{team?.flag ?? "🏳️"}</span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-black text-white light:text-slate-950">{team?.name ?? "Select team"}</p>
+          <p className="truncate text-sm font-black text-white light:text-slate-950">
+            {team?.name ?? t("selectTeam")}
+          </p>
           <p className="text-xs text-slate-400 light:text-slate-600">
-            {team ? `Group ${team.group} · Score ${team.strengthScore}` : slotKey === "slotA" ? "Upper slot" : "Lower slot"}
+            {team
+              ? `${t("group")} ${team.group} · ${t("score")} ${team.strengthScore}`
+              : slotKey === "slotA"
+                ? t("upperSlot")
+                : t("lowerSlot")}
           </p>
         </div>
         <Trophy className={isWinner ? "text-trophy-300" : "text-slate-500"} size={16} />
@@ -57,7 +65,7 @@ const BracketSlot = ({ label, slotKey, teamId, teams, isWinner, onSlotChange, on
         onClick={(event) => event.stopPropagation()}
         value={teamId ?? ""}
       >
-        <option value="">Select team</option>
+        <option value="">{t("selectTeam")}</option>
         {sortedTeams.map((option) => (
           <option key={option.id} value={option.id}>
             #{option.strengthRank} {option.flag} {option.name}
@@ -68,12 +76,27 @@ const BracketSlot = ({ label, slotKey, teamId, teams, isWinner, onSlotChange, on
   );
 };
 
-export const BracketMatch = ({ match, matchState, teams, onSlotChange, onChooseWinner }: BracketMatchProps) => (
-  <article className="relative min-w-[280px] rounded-lg border border-white/10 bg-slate-950/50 p-3 light:border-slate-900/10 light:bg-slate-50">
+export const BracketMatch = ({ match, matchState, teams, onSlotChange, onChooseWinner }: BracketMatchProps) => {
+  const { t } = useLanguage();
+  const roundName =
+    match.roundId === "round-32"
+      ? t("stageRoundOf32")
+      : match.roundId === "round-16"
+        ? t("stageRoundOf16")
+        : match.roundId === "quarter-finals"
+          ? t("stageQuarterFinal")
+          : match.roundId === "semi-finals"
+            ? t("stageSemiFinal")
+            : t("stageFinal");
+
+  return (
+    <article className="relative min-w-[280px] rounded-lg border border-white/10 bg-slate-950/50 p-3 light:border-slate-900/10 light:bg-slate-50">
     <div className="mb-3 flex items-center justify-between">
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Match {match.matchNumber}</p>
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+        {t("match")} {match.matchNumber}
+      </p>
       <span className="rounded-md bg-white/5 px-2 py-1 text-[11px] font-bold text-slate-300 light:bg-white light:text-slate-600">
-        {match.roundName}
+        {roundName}
       </span>
     </div>
     <div className="grid gap-2">
@@ -96,5 +119,6 @@ export const BracketMatch = ({ match, matchState, teams, onSlotChange, onChooseW
         teams={teams}
       />
     </div>
-  </article>
-);
+    </article>
+  );
+};
