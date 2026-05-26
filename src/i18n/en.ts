@@ -63,7 +63,9 @@ export const en = {
   photoSourceNationalTeam: "National team website",
   photoSourceFifa: "FIFA",
   photoSourceManual: "Manual",
+  photoSourceWikimedia: "Wikimedia / Wikipedia",
   photoSourcePlaceholder: "Placeholder avatar",
+  photoAutoLookupNote: "Auto-checks Wikipedia/Wikimedia for a public thumbnail, then falls back to the placeholder avatar.",
   knockoutStage: "Knockout Stage",
   bracketTitle: "Knockout Bracket",
   bracketDescription:

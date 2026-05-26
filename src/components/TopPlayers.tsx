@@ -2,7 +2,7 @@ import { Star } from "lucide-react";
 import { useLanguage } from "../i18n";
 import type { Player, Team } from "../types/worldCup";
 import { displayClubName, displayPlayerName } from "../utils/localizedNames";
-import { getPlayerPhotoUrl, placeholderAvatarUrl } from "../utils/photos";
+import { PlayerAvatar } from "./PlayerAvatar";
 import { TeamFlag } from "./TeamFlag";
 
 interface TopPlayersProps {
@@ -34,14 +34,10 @@ export const TopPlayers = ({ players, teams, onSelectPlayer }: TopPlayersProps) 
               type="button"
             >
               <span className="w-6 text-center text-sm font-black text-trophy-300">#{index + 1}</span>
-              <img
+              <PlayerAvatar
                 alt={displayPlayerName(player, language)}
                 className="h-10 w-10 rounded-full object-cover"
-                loading="lazy"
-                onError={(event) => {
-                  event.currentTarget.src = placeholderAvatarUrl(player.name);
-                }}
-                src={getPlayerPhotoUrl(player)}
+                player={player}
               />
               <div className="min-w-0 flex-1">
                 <p className="flex min-w-0 items-center gap-2 truncate text-sm font-bold text-white light:text-slate-950">

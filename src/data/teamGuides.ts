@@ -1,4 +1,5 @@
 import type { Language } from "../i18n";
+import type { Team } from "../types/worldCup";
 
 export interface TeamGuide {
   beginnerIntro: string;
@@ -252,3 +253,73 @@ export const teamGuides: Record<string, Record<Language, TeamGuide>> = {
     },
   },
 };
+
+interface GetTeamGuideOptions {
+  team: Team;
+  language: Language;
+  teamName: string;
+  playerNames: string[];
+}
+
+const fallbackWatchPlayers = (playerNames: string[], language: Language) => {
+  if (playerNames.length > 0) return playerNames.slice(0, 3);
+  return language === "zh" ? ["核心前锋", "中场组织者", "主力门将"] : ["Key forward", "Midfield organizer", "Starting goalkeeper"];
+};
+
+const fallbackGuide = ({ team, language, teamName, playerNames }: GetTeamGuideOptions): TeamGuide => {
+  const watchPlayers = fallbackWatchPlayers(playerNames, language);
+  const formation = team.formation ?? (language === "zh" ? "稳定阵型" : "a balanced shape");
+
+  if (language === "zh") {
+    const contenderText =
+      team.strengthRank <= 16
+        ? "本预测把他们看作有淘汰赛竞争力的球队，适合新手重点观察整体实力和比赛节奏。"
+        : team.isDarkHorse
+          ? "他们不是最热门的冠军候选，但具备制造冷门的潜力，适合观察弱势一方如何寻找机会。"
+          : "他们在强队面前容错率不高，但很适合新手学习小组赛中不同风格球队的生存方式。";
+
+    return {
+      beginnerIntro: `${teamName} 位于 ${team.group} 组，预测实力排名第 ${team.strengthRank}，实力评分 ${team.strengthScore}。${contenderText}`,
+      playStyle: `预计常用 ${formation}，比赛重点通常会落在阵型纪律、攻守转换和关键球员处理球的效率上。`,
+      keyStrengths: [
+        team.predictedGroupPosition <= 2 ? "小组出线前景相对清晰" : "面对强队时会更重视防守组织",
+        team.isDarkHorse ? "具备黑马属性和冷门潜力" : "战术执行和团队结构是观察重点",
+        team.strengthScore >= 75 ? "核心球员质量较高" : "比赛态度和整体跑动很关键",
+      ],
+      weaknesses: [
+        team.strengthRank > 32 ? "阵容深度与顶级球队相比有差距" : "关键位置状态会明显影响上限",
+        team.predictedGroupPosition >= 3 ? "小组赛每一场都需要抢分" : "淘汰赛遇到高强度对手时会被考验",
+      ],
+      playersToWatch: watchPlayers,
+      historicalNote: `${teamName} 的世界杯故事适合结合小组形势一起看：看他们如何在有限场次里调整策略、争取晋级机会。`,
+      whyTheyMatter: `如果你是足球新手，观察 ${teamName} 可以帮助你理解世界杯不只是豪门对决，也包括不同足球文化、阵型选择和临场决策。`,
+    };
+  }
+
+  const contenderText =
+    team.strengthRank <= 16
+      ? "This projection treats them as a knockout-level side, useful for learning how stronger teams control games."
+      : team.isDarkHorse
+        ? "They are not a title favorite, but they have upset potential and are useful for watching underdog game plans."
+        : "They have less margin against elite teams, but they are useful for understanding group-stage survival.";
+
+  return {
+    beginnerIntro: `${teamName} are in Group ${team.group}, ranked #${team.strengthRank} in this predictor with a ${team.strengthScore} strength score. ${contenderText}`,
+    playStyle: `They are projected around ${formation}, with the key viewing points being defensive shape, transitions, and how efficiently their best players use the ball.`,
+    keyStrengths: [
+      team.predictedGroupPosition <= 2 ? "Clearer path toward group qualification" : "Defensive organization matters against stronger opponents",
+      team.isDarkHorse ? "Dark-horse potential" : "Team structure and tactical discipline are important",
+      team.strengthScore >= 75 ? "Good core-player quality" : "Work rate and compactness are crucial",
+    ],
+    weaknesses: [
+      team.strengthRank > 32 ? "Squad depth trails the top teams" : "Key-position form can define their ceiling",
+      team.predictedGroupPosition >= 3 ? "Every group match carries pressure" : "High-intensity knockout opponents can test them",
+    ],
+    playersToWatch: watchPlayers,
+    historicalNote: `${teamName}'s tournament story is best read through the group context: how they adjust over three matches and chase qualification.`,
+    whyTheyMatter: `For beginners, ${teamName} show that a World Cup is not only about superpowers; it is also about football cultures, shapes, and match management.`,
+  };
+};
+
+export const getTeamGuide = (options: GetTeamGuideOptions) =>
+  teamGuides[options.team.id]?.[options.language] ?? fallbackGuide(options);

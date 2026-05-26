@@ -1,5 +1,5 @@
 import type { Language } from "../i18n";
-import { clubNamesZh, playerNamesZh, teamNamesZh } from "../data/localizedNames";
+import { clubNamesZh, coachNamesZh, playerNamesZh, teamNamesZh } from "../data/localizedNames";
 import type { Player, Team } from "../types/worldCup";
 
 export const displayTeamName = (team: Team | undefined, language: Language) => {
@@ -17,8 +17,16 @@ export const displayClubName = (club: string | undefined, language: Language) =>
   return language === "zh" ? clubNamesZh[club] ?? club : club;
 };
 
+export const displayCoachName = (coach: string | undefined, language: Language) => {
+  if (!coach) return "";
+  return language === "zh" ? coachNamesZh[coach] ?? coach : coach;
+};
+
 export const teamSearchText = (team: Team) =>
-  [team.name, teamNamesZh[team.id], team.group].filter(Boolean).join(" ").toLowerCase();
+  [team.name, teamNamesZh[team.id], team.coach, coachNamesZh[team.coach ?? ""], team.group]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
 
 export const playerSearchText = (player: Player) =>
   [player.name, playerNamesZh[player.name], player.club, clubNamesZh[player.club]]

@@ -2,7 +2,7 @@ import { ArrowUpRight, Shield, Sparkles } from "lucide-react";
 import { useLanguage } from "../i18n";
 import type { Team } from "../types/worldCup";
 import { groupPositionLabel, qualityLabel, stageLabel } from "../utils/format";
-import { displayTeamName } from "../utils/localizedNames";
+import { displayCoachName, displayTeamName } from "../utils/localizedNames";
 import { TeamFlag } from "./TeamFlag";
 
 interface TeamCardProps {
@@ -61,7 +61,7 @@ export const TeamCard = ({ team, onSelect, compact = false }: TeamCardProps) => 
             {team.formation ?? "TBD"}
           </span>
           <span className="font-semibold text-trophy-300 light:text-trophy-700">{team.squadValue ?? "N/A"}</span>
-          <span className="truncate">{team.coach ?? `${t("coach")} TBD`}</span>
+          <span className="truncate">{displayCoachName(team.coach, language) || `${t("coach")} TBD`}</span>
           <span>{qualityLabel(team.dataQuality, t)}</span>
         </div>
       )}

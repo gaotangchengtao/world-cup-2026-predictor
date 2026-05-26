@@ -22,7 +22,13 @@ export type PredictionStage =
   | "Group Stage";
 
 export type PlayerPosition = "GK" | "DF" | "MF" | "FW";
-export type PlayerPhotoSource = "club_website" | "national_team_website" | "fifa" | "manual" | "placeholder";
+export type PlayerPhotoSource =
+  | "club_website"
+  | "national_team_website"
+  | "fifa"
+  | "manual"
+  | "wikimedia"
+  | "placeholder";
 
 export type DataQuality =
   | "official"

@@ -2,7 +2,8 @@ import { Star } from "lucide-react";
 import { useLanguage } from "../i18n";
 import type { Player } from "../types/worldCup";
 import { displayClubName, displayPlayerName } from "../utils/localizedNames";
-import { getPlayerPhotoUrl, photoSourceLabel, placeholderAvatarUrl } from "../utils/photos";
+import { photoSourceLabel } from "../utils/photos";
+import { PlayerAvatar } from "./PlayerAvatar";
 
 interface PlayerCardProps {
   player: Player;
@@ -13,7 +14,8 @@ export const PlayerCard = ({ player, onSelect }: PlayerCardProps) => {
   const { language, t } = useLanguage();
   const playerName = displayPlayerName(player, language);
   const clubName = displayClubName(player.club, language);
-  const photoTitle = `${t("photoSource")}: ${photoSourceLabel(player.photoSource, t)}`;
+  const photoSource = player.photoSource === "placeholder" ? "wikimedia" : player.photoSource;
+  const photoTitle = `${t("photoSource")}: ${photoSourceLabel(photoSource, t)}. ${t("photoAutoLookupNote")}`;
 
   return (
     <button
@@ -21,14 +23,10 @@ export const PlayerCard = ({ player, onSelect }: PlayerCardProps) => {
       onClick={() => onSelect(player)}
       type="button"
     >
-      <img
+      <PlayerAvatar
         alt={playerName}
         className="h-12 w-12 rounded-full border border-white/10 object-cover"
-        loading="lazy"
-        onError={(event) => {
-          event.currentTarget.src = placeholderAvatarUrl(player.name);
-        }}
-        src={getPlayerPhotoUrl(player)}
+        player={player}
         title={photoTitle}
       />
       <div className="min-w-0 flex-1">

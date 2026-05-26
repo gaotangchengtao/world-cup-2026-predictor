@@ -1,10 +1,16 @@
 import { ExternalLink, Shield, Star, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { teamGuides } from "../data/teamGuides";
+import { getTeamGuide } from "../data/teamGuides";
 import { useLanguage } from "../i18n";
 import type { Player, PlayerPosition, Team } from "../types/worldCup";
 import { groupPositionLabel, qualityLabel, stageLabel } from "../utils/format";
-import { displayClubName, displayTeamName, playerSearchText } from "../utils/localizedNames";
+import {
+  displayClubName,
+  displayCoachName,
+  displayPlayerName,
+  displayTeamName,
+  playerSearchText,
+} from "../utils/localizedNames";
 import { PlayerCard } from "./PlayerCard";
 import { TeamFlag } from "./TeamFlag";
 
@@ -24,7 +30,20 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
   const [query, setQuery] = useState("");
   const [sortByValue, setSortByValue] = useState(true);
   const teamName = displayTeamName(team, language);
-  const guide = teamGuides[team.id]?.[language];
+
+  const topPlayerNames = useMemo(
+    () =>
+      [...players]
+        .sort((a, b) => b.marketValueEurM - a.marketValueEurM)
+        .slice(0, 3)
+        .map((player) => displayPlayerName(player, language)),
+    [language, players],
+  );
+
+  const guide = useMemo(
+    () => getTeamGuide({ team, language, teamName, playerNames: topPlayerNames }),
+    [language, team, teamName, topPlayerNames],
+  );
 
   const clubs = useMemo(() => ["all", ...Array.from(new Set(players.map((player) => player.club))).sort()], [players]);
 
@@ -38,11 +57,16 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
       .sort((a, b) => (sortByValue ? b.marketValueEurM - a.marketValueEurM : a.position.localeCompare(b.position)));
   }, [club, players, position, query, sortByValue]);
 
+  const findPlayerByGuideName = (name: string) =>
+    players.find((player) => {
+      const names = [player.name, displayPlayerName(player, "en"), displayPlayerName(player, "zh")].map((value) =>
+        value.toLowerCase(),
+      );
+      return names.includes(name.toLowerCase());
+    });
+
   const totalValue = players.reduce((sum, player) => sum + player.marketValueEurM, 0);
   const keyPlayers = players.filter((player) => player.isKeyPlayer).length;
-  const keyStrengths = guide?.keyStrengths ?? team.keyStrengths ?? [];
-  const weaknesses = guide?.weaknesses ?? team.weaknesses ?? [];
-  const playersToWatch = guide?.playersToWatch ?? team.playersToWatch ?? [];
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
@@ -60,7 +84,7 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
                 )}
               </div>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300 light:text-slate-700">
-                {guide?.beginnerIntro ?? team.description}
+                {guide.beginnerIntro}
               </p>
             </div>
           </div>
@@ -90,7 +114,7 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
               {t("coach")} / {t("formation")}
             </p>
             <p className="mt-1 font-black text-white light:text-slate-950">
-              {team.coach ?? "TBD"} · {team.formation ?? "TBD"}
+              {displayCoachName(team.coach, language) || "TBD"} · {team.formation ?? "TBD"}
             </p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
@@ -101,72 +125,87 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
           </div>
         </div>
 
-        {(guide || keyStrengths.length > 0 || weaknesses.length > 0 || playersToWatch.length > 0) && (
-          <section className="mt-6 rounded-lg border border-trophy-500/20 bg-trophy-500/10 p-4">
-            <div className="flex items-center gap-2">
-              <Star className="fill-trophy-400 text-trophy-400" size={18} />
-              <h3 className="text-lg font-black text-white light:text-slate-950">{t("beginnerGuide")}</h3>
-            </div>
+        <section className="mt-6 rounded-lg border border-trophy-500/20 bg-trophy-500/10 p-4">
+          <div className="flex items-center gap-2">
+            <Star className="fill-trophy-400 text-trophy-400" size={18} />
+            <h3 className="text-lg font-black text-white light:text-slate-950">{t("beginnerGuide")}</h3>
+          </div>
 
-            <div className="mt-4 grid gap-4 lg:grid-cols-2">
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-black text-trophy-200 light:text-trophy-800">{t("teamStyle")}</h4>
-                  <p className="mt-1 text-sm leading-6 text-slate-300 light:text-slate-700">
-                    {guide?.playStyle ?? team.playStyle}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-black text-trophy-200 light:text-trophy-800">{t("playersToWatch")}</h4>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {playersToWatch.map((name) => (
-                      <span
-                        className="rounded-md border border-white/10 bg-slate-950/35 px-2 py-1 text-xs font-bold text-slate-200 light:border-slate-900/10 light:bg-white light:text-slate-700"
-                        key={name}
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-sm font-black text-trophy-200 light:text-trophy-800">{t("teamStyle")}</h4>
+                <p className="mt-1 text-sm leading-6 text-slate-300 light:text-slate-700">{guide.playStyle}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-trophy-200 light:text-trophy-800">{t("playersToWatch")}</h4>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {guide.playersToWatch.map((name) => {
+                    const player = findPlayerByGuideName(name);
+
+                    if (!player) {
+                      return (
+                        <span
+                          className="rounded-md border border-white/10 bg-slate-950/35 px-2 py-1 text-xs font-bold text-slate-200 light:border-slate-900/10 light:bg-white light:text-slate-700"
+                          key={name}
+                        >
+                          {name}
+                        </span>
+                      );
+                    }
+
+                    return (
+                      <button
+                        className="rounded-md border border-trophy-500/30 bg-slate-950/35 px-2 py-1 text-xs font-bold text-trophy-200 transition hover:border-trophy-400 hover:bg-trophy-500/20 light:bg-white light:text-trophy-800"
+                        key={player.playerId}
+                        onClick={() => onSelectPlayer(player)}
+                        type="button"
                       >
-                        {name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <h4 className="text-sm font-black text-emerald-300 light:text-emerald-700">{t("keyStrengths")}</h4>
-                  <ul className="mt-2 space-y-1 text-sm text-slate-300 light:text-slate-700">
-                    {keyStrengths.map((item) => (
-                      <li key={item}>• {item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="text-sm font-black text-orange-300 light:text-orange-700">{t("weaknesses")}</h4>
-                  <ul className="mt-2 space-y-1 text-sm text-slate-300 light:text-slate-700">
-                    {weaknesses.map((item) => (
-                      <li key={item}>• {item}</li>
-                    ))}
-                  </ul>
+                        {displayPlayerName(player, language)}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
 
-            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <h4 className="text-sm font-black text-trophy-200 light:text-trophy-800">{t("historicalNote")}</h4>
-                <p className="mt-1 text-sm leading-6 text-slate-300 light:text-slate-700">
-                  {guide?.historicalNote ?? team.historicalNote}
-                </p>
+                <h4 className="text-sm font-black text-emerald-300 light:text-emerald-700">{t("keyStrengths")}</h4>
+                <ul className="mt-2 space-y-1 text-sm text-slate-300 light:text-slate-700">
+                  {guide.keyStrengths.map((item) => (
+                    <li className="flex gap-2" key={item}>
+                      <span className="text-emerald-300">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
               <div>
-                <h4 className="text-sm font-black text-trophy-200 light:text-trophy-800">{t("whyTheyMatter")}</h4>
-                <p className="mt-1 text-sm leading-6 text-slate-300 light:text-slate-700">
-                  {guide?.whyTheyMatter ?? team.whyTheyMatter}
-                </p>
+                <h4 className="text-sm font-black text-orange-300 light:text-orange-700">{t("weaknesses")}</h4>
+                <ul className="mt-2 space-y-1 text-sm text-slate-300 light:text-slate-700">
+                  {guide.weaknesses.map((item) => (
+                    <li className="flex gap-2" key={item}>
+                      <span className="text-orange-300">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-          </section>
-        )}
+          </div>
+
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <div>
+              <h4 className="text-sm font-black text-trophy-200 light:text-trophy-800">{t("historicalNote")}</h4>
+              <p className="mt-1 text-sm leading-6 text-slate-300 light:text-slate-700">{guide.historicalNote}</p>
+            </div>
+            <div>
+              <h4 className="text-sm font-black text-trophy-200 light:text-trophy-800">{t("whyTheyMatter")}</h4>
+              <p className="mt-1 text-sm leading-6 text-slate-300 light:text-slate-700">{guide.whyTheyMatter}</p>
+            </div>
+          </div>
+        </section>
 
         <div className="mt-6 flex flex-col gap-3 rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
           <div className="flex flex-wrap items-center justify-between gap-3">
