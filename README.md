@@ -28,6 +28,22 @@ npm run dev
 http://127.0.0.1:5173
 ```
 
+## GitHub Pages 部署
+
+本项目的 Vite 构建产物输出到 `docs/`，GitHub Pages 发布源应设置为：
+
+- Branch: `master`
+- Folder: `/docs`
+
+重新部署时运行：
+
+```bash
+npm run build
+git add vite.config.ts README.md docs
+git commit -m "Deploy Vite build to GitHub Pages"
+git push
+```
+
 ## 数据位置
 
 - `src/data/teams.ts`: 球队基础信息、组别、排名、评分、预测阶段、教练、阵型
