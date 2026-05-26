@@ -70,7 +70,7 @@ export const zh: Record<keyof typeof en, string> = {
   photoAutoLookupNote: "会自动尝试从 Wikipedia/Wikimedia 获取公开缩略图，失败时回退到默认头像。",
   knockoutStage: "淘汰赛",
   bracketTitle: "淘汰赛分叉图",
-  bracketDescription: "从 32 强开始选择胜者，胜者会自动进入下一轮。移动端可横向滑动查看完整 bracket。",
+  bracketDescription: "淘汰赛会默认填好一条从 32 强到冠军的模型预测路线。你仍然可以修改任意槽位或胜者，胜者会自动进入下一轮。移动端可横向滑动查看完整 bracket。",
   resetPrediction: "重置预测",
   exportJson: "导出 JSON",
   champion: "冠军",

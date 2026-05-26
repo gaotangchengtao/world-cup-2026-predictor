@@ -69,7 +69,7 @@ export const en = {
   knockoutStage: "Knockout Stage",
   bracketTitle: "Knockout Bracket",
   bracketDescription:
-    "Choose winners from the Round of 32. Winners automatically advance to the next round. On mobile, scroll horizontally to view the full bracket.",
+    "The bracket starts with a complete model prediction from the Round of 32 to champion. You can still change any slot or winner, and winners automatically advance to the next round. On mobile, scroll horizontally to view the full bracket.",
   resetPrediction: "Reset Prediction",
   exportJson: "Export JSON",
   champion: "Champion",

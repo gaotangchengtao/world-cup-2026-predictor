@@ -15,7 +15,7 @@ import { players as defaultPlayers } from "./data/players";
 import { teams as defaultTeams } from "./data/teams";
 import { useLanguage } from "./i18n";
 import type { BracketPredictionState, FilterState, Player, RuntimeData, Team } from "./types/worldCup";
-import { createInitialBracketState } from "./utils/bracket";
+import { completeBracketState, createInitialBracketState } from "./utils/bracket";
 import { stageOrder } from "./utils/format";
 import { teamSearchText } from "./utils/localizedNames";
 import { readJson, storageKeys, writeJson } from "./utils/storage";
@@ -47,7 +47,10 @@ export default function App() {
     readJson(storageKeys.runtimeData, defaultRuntimeData),
   );
   const [bracketState, setBracketState] = useState<BracketPredictionState>(() =>
-    readJson(storageKeys.bracketPredictions, createInitialBracketState()),
+    completeBracketState(
+      readJson(storageKeys.bracketPredictions, createInitialBracketState(runtimeData.teams)),
+      runtimeData.teams,
+    ),
   );
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
@@ -70,6 +73,10 @@ export default function App() {
   useEffect(() => {
     writeJson(storageKeys.runtimeData, runtimeData);
   }, [runtimeData]);
+
+  useEffect(() => {
+    setBracketState((current) => completeBracketState(current, runtimeData.teams));
+  }, [runtimeData.teams]);
 
   const visibleTeams = useMemo(() => {
     const query = filters.query.trim().toLowerCase();

@@ -19,11 +19,11 @@ export const BracketView = ({ teams, bracketState, setBracketState }: BracketVie
   const champion = getTeamById(teams, getChampionId(bracketState));
 
   const handleSlotChange = (matchId: string, slotKey: "slotA" | "slotB", teamId: string) => {
-    setBracketState(updateSlot(bracketState, matchId, slotKey, teamId));
+    setBracketState(updateSlot(bracketState, matchId, slotKey, teamId, teams));
   };
 
   const handleChooseWinner = (matchId: string, teamId: string) => {
-    setBracketState(chooseWinner(bracketState, matchId, teamId));
+    setBracketState(chooseWinner(bracketState, matchId, teamId, teams));
   };
 
   return (
@@ -37,7 +37,7 @@ export const BracketView = ({ teams, bracketState, setBracketState }: BracketVie
           <div className="flex flex-wrap gap-2">
             <button
               className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-bold text-slate-200 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
-              onClick={() => setBracketState(createInitialBracketState())}
+              onClick={() => setBracketState(createInitialBracketState(teams))}
               type="button"
             >
               <RotateCcw size={16} />
