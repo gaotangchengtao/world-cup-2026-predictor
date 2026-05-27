@@ -1,4 +1,4 @@
-import { Database, GitBranch, GraduationCap, LayoutDashboard, Shield, Users } from "lucide-react";
+import { Database, GitBranch, GraduationCap, LayoutDashboard, Newspaper, Shield, Users } from "lucide-react";
 import { useLanguage, type TranslationKey } from "../i18n";
 import type { OverviewSection } from "../types/worldCup";
 
@@ -13,6 +13,7 @@ export const overviewSectionMeta: Array<{
   { id: "knockout", titleKey: "overviewKnockout", descriptionKey: "overviewKnockoutDesc", icon: GitBranch },
   { id: "players", titleKey: "overviewPlayers", descriptionKey: "overviewPlayersDesc", icon: Users },
   { id: "beginner", titleKey: "overviewBeginner", descriptionKey: "overviewBeginnerDesc", icon: GraduationCap },
+  { id: "stories", titleKey: "overviewStories", descriptionKey: "overviewStoriesDesc", icon: Newspaper },
   { id: "data", titleKey: "overviewData", descriptionKey: "overviewDataDesc", icon: Database },
 ];
 

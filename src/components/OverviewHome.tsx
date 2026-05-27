@@ -1,4 +1,4 @@
-import { BarChart3, CalendarClock, Crown, Gauge, Sparkles, Star, Trophy } from "lucide-react";
+import { BarChart3, BookOpen, CalendarClock, Compass, Crown, Gauge, Route, Sparkles, Star, Trophy } from "lucide-react";
 import { groups as defaultGroups } from "../data/groups";
 import { useLanguage } from "../i18n";
 import type { BracketPredictionState, ExperienceMode, OverviewSection, Player, Team } from "../types/worldCup";
@@ -63,18 +63,29 @@ export const OverviewHome = ({
     knockout: [t("stageRoundOf32"), t("champion"), t("winProbability")],
     players: [t("marketValue"), t("teamCompare"), t("photoPanelTitle")],
     beginner: [t("watchGuideTitle"), t("glossaryTitle"), t("teamStyle")],
+    stories: [t("offFieldTitle"), t("storyCategoryCulture"), t("crawlerSafety")],
     data: [t("dataQuality"), t("jsonImportExport"), t("posterTitle")],
   };
 
   return (
     <section className="space-y-5">
       <PredictionSummary teams={teams} players={players} bracketState={bracketState} />
-      <ModelInsightsPanel
-        bracketState={bracketState}
-        onSelectTeam={onSelectTeam}
-        players={players}
-        teams={teams}
-      />
+      {experienceMode === "expert" ? (
+        <ModelInsightsPanel
+          bracketState={bracketState}
+          onSelectTeam={onSelectTeam}
+          players={players}
+          teams={teams}
+        />
+      ) : (
+        <BeginnerDashboardPanel
+          champion={champion}
+          firstDarkHorse={darkHorses[0]}
+          firstStrongTeam={strongestTeams[0]}
+          onSelectTeam={onSelectTeam}
+          setActiveSection={setActiveSection}
+        />
+      )}
 
       <div className="grid gap-4 xl:grid-cols-[1.05fr_1fr_1fr]">
         <article className="glass-panel rounded-lg p-4">
@@ -230,6 +241,7 @@ export const OverviewHome = ({
         </article>
       </div>
 
+      {experienceMode === "expert" ? (
       <div className="grid gap-4 lg:grid-cols-2">
         <article className="glass-panel rounded-lg p-4">
           <div className="flex items-center gap-2">
@@ -256,6 +268,30 @@ export const OverviewHome = ({
           </div>
         </article>
       </div>
+      ) : (
+      <div className="grid gap-4 lg:grid-cols-2">
+        <article className="glass-panel rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <BookOpen className="text-emerald-300" size={20} />
+            <h2 className="text-lg font-black text-white light:text-slate-950">{t("beginnerDashboardHowToRead")}</h2>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-slate-300 light:text-slate-700">{t("beginnerDashboardHowToReadText")}</p>
+        </article>
+        <article className="glass-panel rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <Route className="text-trophy-300" size={20} />
+            <h2 className="text-lg font-black text-white light:text-slate-950">{t("beginnerDashboardNextStep")}</h2>
+          </div>
+          <button
+            className="mt-4 w-full rounded-lg border border-trophy-500/30 bg-trophy-500/10 px-4 py-3 text-left text-sm font-black text-trophy-100 transition hover:border-trophy-400 light:text-trophy-800"
+            onClick={() => setActiveSection("beginner")}
+            type="button"
+          >
+            {t("beginnerDashboardOpenGuide")}
+          </button>
+        </article>
+      </div>
+      )}
 
       <div>
         <div className="mb-3 flex items-center justify-between gap-3">
@@ -278,6 +314,79 @@ export const OverviewHome = ({
             );
           })}
         </div>
+      </div>
+    </section>
+  );
+};
+
+const BeginnerDashboardPanel = ({
+  champion,
+  firstDarkHorse,
+  firstStrongTeam,
+  onSelectTeam,
+  setActiveSection,
+}: {
+  champion?: Team;
+  firstDarkHorse?: Team;
+  firstStrongTeam?: Team;
+  onSelectTeam: (team: Team) => void;
+  setActiveSection: (section: OverviewSection) => void;
+}) => {
+  const { language, t } = useLanguage();
+  const cards = [
+    {
+      icon: <Crown size={22} />,
+      title: t("beginnerDashboardCardChampion"),
+      text: champion ? displayTeamName(champion, language) : t("notSelected"),
+      action: () => champion && onSelectTeam(champion),
+    },
+    {
+      icon: <Compass size={22} />,
+      title: t("beginnerDashboardCardStrongTeam"),
+      text: firstStrongTeam ? displayTeamName(firstStrongTeam, language) : t("notSelected"),
+      action: () => firstStrongTeam && onSelectTeam(firstStrongTeam),
+    },
+    {
+      icon: <Sparkles size={22} />,
+      title: t("beginnerDashboardCardDarkHorse"),
+      text: firstDarkHorse ? displayTeamName(firstDarkHorse, language) : t("notSelected"),
+      action: () => firstDarkHorse && onSelectTeam(firstDarkHorse),
+    },
+  ];
+
+  return (
+    <section className="mode-panel rounded-lg border border-emerald-400/20 bg-emerald-500/10 p-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-200 light:text-emerald-700">
+            {t("beginnerMode")}
+          </p>
+          <h2 className="mt-1 text-2xl font-black text-white light:text-slate-950">{t("beginnerDashboardTitle")}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300 light:text-slate-700">
+            {t("beginnerDashboardDescription")}
+          </p>
+        </div>
+        <button
+          className="rounded-lg bg-emerald-400 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+          onClick={() => setActiveSection("beginner")}
+          type="button"
+        >
+          {t("beginnerDashboardStart")}
+        </button>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        {cards.map((card) => (
+          <button
+            className="rounded-lg border border-white/10 bg-slate-950/35 p-4 text-left transition hover:-translate-y-0.5 hover:border-emerald-300 light:border-slate-900/10 light:bg-white/75"
+            key={card.title}
+            onClick={card.action}
+            type="button"
+          >
+            <span className="text-emerald-300 light:text-emerald-700">{card.icon}</span>
+            <p className="mt-3 text-sm font-bold text-slate-400 light:text-slate-600">{card.title}</p>
+            <p className="mt-1 truncate text-xl font-black text-white light:text-slate-950">{card.text}</p>
+          </button>
+        ))}
       </div>
     </section>
   );

@@ -11,6 +11,7 @@ import { GroupStagePredictor } from "./components/GroupStagePredictor";
 import { Header } from "./components/Header";
 import { MatchWatchingGuide } from "./components/MatchWatchingGuide";
 import { ModelDataPanel } from "./components/ModelDataPanel";
+import { OffFieldStoriesPanel } from "./components/OffFieldStoriesPanel";
 import { OverviewHome } from "./components/OverviewHome";
 import { OverviewSectionNav, overviewSectionMeta } from "./components/OverviewSectionNav";
 import { PlayerModal } from "./components/PlayerModal";
@@ -48,7 +49,7 @@ const defaultRuntimeData: RuntimeData = {
 };
 
 const contenderStages = new Set(["Champion", "Final", "Semi-final", "Quarter-final"]);
-const overviewSectionIds: OverviewSection[] = ["home", "groups", "knockout", "players", "beginner", "data"];
+const overviewSectionIds: OverviewSection[] = ["home", "groups", "knockout", "players", "beginner", "stories", "data"];
 
 const mergeDefaultRuntimeData = (data: RuntimeData): RuntimeData => {
   const teamIds = new Set(data.teams.map((team) => team.id));
@@ -160,7 +161,8 @@ export default function App() {
       />
 
       <main className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:py-6">
-        <section className="glass-panel rounded-lg p-4 sm:p-5">
+        <section className="glass-panel hero-panel rounded-lg p-4 sm:p-5">
+          <div className="grid gap-4 lg:grid-cols-[1fr_320px] lg:items-end">
           <div className="max-w-4xl">
             <p className="text-sm font-bold uppercase tracking-[0.24em] text-trophy-300 light:text-trophy-700">
               {t("heroKicker")}
@@ -169,8 +171,20 @@ export default function App() {
               {t("heroTitle")}
             </h2>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300 light:text-slate-700 sm:text-base">
-              {t("heroDescription")}
+              {experienceMode === "beginner" ? t("beginnerHeroDescription") : t("expertHeroDescription")}
             </p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-slate-950/40 p-4 light:border-slate-900/10 light:bg-white/70">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400 light:text-slate-500">
+              {t("currentExperience")}
+            </p>
+            <h3 className="mt-2 text-xl font-black text-white light:text-slate-950">
+              {experienceMode === "beginner" ? t("beginnerMode") : t("expertMode")}
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-slate-300 light:text-slate-700">
+              {experienceMode === "beginner" ? t("beginnerModePromise") : t("expertModePromise")}
+            </p>
+          </div>
           </div>
         </section>
 
@@ -253,6 +267,8 @@ export default function App() {
                 <GlossaryPanel />
               </>
             )}
+
+            {activeOverviewSection === "stories" && <OffFieldStoriesPanel />}
 
             {activeOverviewSection === "data" && (
               <>

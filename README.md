@@ -42,11 +42,39 @@
 - `src/data/modelPredictions.ts`：前端使用的轻量 ML 预测画像
 - `src/data/localizedNames.ts`：中文姓名映射
 - `src/data/teamGuides.ts`：球队新手观赛指南
+- `src/data/offFieldStories.ts`：场外花絮公开来源摘要
 - `src/data/sources.ts`：公开来源说明
 
 类型定义位于：
 
 - `src/types/worldCup.ts`
+
+## 场外花絮与安全采集
+
+情报中心新增“场外花絮”板块，用来展示世界杯赛场之外的高关注新闻、赛区故事和赛事运营话题。当前网页数据来自人工复核后的公开来源摘要，源码位于：
+
+```text
+src/data/offFieldStories.ts
+```
+
+D 盘保留了可追踪的资料目录：
+
+```text
+D:\世界杯场外花絮
+```
+
+其中：
+- `off_field_stories_curated.json`：人工整理后的摘要数据
+- `off_field_story_fetch_log.json`：安全采集脚本生成的元数据日志
+- `crawler_policy.md`：采集安全策略
+
+如果以后要更新公开来源元数据，可以运行：
+
+```bash
+npm run stories:fetch
+```
+
+脚本位于 `scripts/fetch_off_field_stories.py`，默认只抓取标题、描述、状态码和来源链接，不保存全文。它会使用白名单域名、`robots.txt` 检查、低频请求和单页大小限制；不会登录网站、绕过付费墙、处理验证码或对抗反爬机制。
 
 ## 机器学习预测管线
 

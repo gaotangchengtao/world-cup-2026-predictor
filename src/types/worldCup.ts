@@ -210,7 +210,29 @@ export interface PredictionModelMeta {
   notes: string;
 }
 
-export type OverviewSection = "home" | "groups" | "knockout" | "players" | "beginner" | "data";
+export type OverviewSection = "home" | "groups" | "knockout" | "players" | "beginner" | "stories" | "data";
+
+export type OffFieldStoryCategory =
+  | "logistics"
+  | "team-camp"
+  | "climate"
+  | "accessibility"
+  | "culture"
+  | "governance"
+  | "media";
+
+export interface OffFieldStory {
+  id: string;
+  title: Record<"zh" | "en", string>;
+  summary: Record<"zh" | "en", string>;
+  whyItMatters: Record<"zh" | "en", string>;
+  source: string;
+  publishedAt: string;
+  url: string;
+  category: OffFieldStoryCategory;
+  attentionScore: number;
+  reliability: "reported" | "official" | "developing";
+}
 
 export interface FilterState {
   query: string;

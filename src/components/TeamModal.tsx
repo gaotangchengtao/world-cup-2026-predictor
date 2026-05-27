@@ -5,7 +5,7 @@ import { getTeamGuide } from "../data/teamGuides";
 import { useLanguage } from "../i18n";
 import type { ExperienceMode, Player, PlayerPosition, Team } from "../types/worldCup";
 import { groupPositionLabel, squadStatusLabel, stageLabel } from "../utils/format";
-import { getBeginnerFriendlyRating, getTeamStyleTags, getTopTeamPlayers } from "../utils/insights";
+import { getBeginnerFriendlyRating, getTeamStyleTags, getTopTeamPlayers, type TeamStyleTag } from "../utils/insights";
 import {
   displayClubName,
   displayCoachName,
@@ -153,6 +153,18 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
     medium: t("riskMedium"),
     high: t("riskHigh"),
   }[modelProfile.upsetRisk];
+  const styleLabel: Record<TeamStyleTag, string> = {
+    possession: t("stylePossession"),
+    counter: t("styleCounter"),
+    physical: t("stylePhysical"),
+    "defensive-counter": t("styleDefensiveCounter"),
+    "high-press": t("styleHighPress"),
+    "wing-backs": t("styleWingBacks"),
+    youth: t("styleYouth"),
+    giant: t("styleGiant"),
+    tournament: t("styleTournament"),
+    "dark-horse": t("styleDarkHorse"),
+  };
 
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-sm sm:items-center sm:p-4">
@@ -191,13 +203,21 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
           </button>
         </div>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          <Metric label={t("strengthRank")} value={`#${team.strengthRank}`} tone="trophy" />
-          <Metric label={t("strengthScore")} value={`${team.strengthScore}`} hint={t("strengthScoreHint")} />
-          <Metric label={t("predictedStage")} value={stageLabel(team.predictedStage, t)} />
-          <Metric label={t("squadStatus")} value={rosterStatus} />
-          <Metric label={t("beginnerFriendlyRating")} value={`${beginnerRating}/100`} hint={t("beginnerFriendlyHint")} />
-        </div>
+        {experienceMode === "beginner" ? (
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <Metric label={t("beginnerFriendlyRating")} value={`${beginnerRating}/100`} hint={t("beginnerFriendlyHint")} tone="emerald" />
+            <Metric label={t("predictedStage")} value={stageLabel(team.predictedStage, t)} />
+            <Metric label={t("beginnerFocus")} value={styleTags.slice(0, 2).map((tag) => styleLabel[tag]).join(" / ")} />
+          </div>
+        ) : (
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <Metric label={t("strengthRank")} value={`#${team.strengthRank}`} tone="trophy" />
+            <Metric label={t("mlStrengthScore")} value={`${modelProfile.mlStrengthScore}`} hint={t("strengthScoreHint")} />
+            <Metric label={t("recentFormScore")} value={`${modelProfile.recentFormScore}`} />
+            <Metric label={t("squadStatus")} value={rosterStatus} />
+            <Metric label={t("modelConfidence")} value={`${modelProfile.confidenceScore}/100`} />
+          </div>
+        )}
 
         <div className="-mx-4 mt-5 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           <div className="flex min-w-max gap-2 rounded-lg border border-white/10 bg-slate-950/35 p-1 light:border-slate-900/10 light:bg-white/70">
@@ -444,8 +464,14 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
   );
 };
 
-const Metric = ({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: "trophy" }) => (
-  <div className={`rounded-lg border p-4 ${tone === "trophy" ? "border-trophy-500/30 bg-trophy-500/10" : "border-white/10 bg-white/5 light:border-slate-900/10 light:bg-slate-50"}`}>
+const Metric = ({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: "trophy" | "emerald" }) => (
+  <div className={`rounded-lg border p-4 ${
+    tone === "trophy"
+      ? "border-trophy-500/30 bg-trophy-500/10"
+      : tone === "emerald"
+        ? "border-emerald-400/30 bg-emerald-500/10"
+        : "border-white/10 bg-white/5 light:border-slate-900/10 light:bg-slate-50"
+  }`}>
     <p className="text-xs uppercase text-slate-500">{label}</p>
     <p className="mt-1 text-2xl font-black text-white light:text-slate-950">{value}</p>
     {hint && <p className="mt-2 text-xs leading-5 text-slate-400 light:text-slate-600">{hint}</p>}

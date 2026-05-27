@@ -4,6 +4,7 @@ import type { ExperienceMode, Team } from "../types/worldCup";
 import { groupPositionLabel, stageLabel } from "../utils/format";
 import { getBeginnerFriendlyRating } from "../utils/insights";
 import { displayCoachName, displayTeamName } from "../utils/localizedNames";
+import { getModelProfile } from "../utils/modelPredictions";
 import { DataQualityBadge } from "./DataQualityBadge";
 import { TeamFlag } from "./TeamFlag";
 
@@ -18,10 +19,12 @@ export const TeamCard = ({ team, onSelect, compact = false, experienceMode = "ex
   const { language, t } = useLanguage();
   const teamName = displayTeamName(team, language);
   const beginnerRating = getBeginnerFriendlyRating(team, []);
+  const modelProfile = getModelProfile(team, []);
+  const isBeginner = experienceMode === "beginner";
 
   return (
     <button
-      className={`group relative w-full rounded-lg border p-4 text-left transition hover:-translate-y-0.5 hover:border-trophy-500 hover:shadow-glow ${
+      className={`group team-card relative w-full rounded-lg border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-glow ${
         team.strengthRank <= 8
           ? "border-trophy-500/50 bg-trophy-500/10"
           : "border-white/10 bg-white/[0.055] light:border-slate-900/10 light:bg-white/70"
@@ -29,8 +32,12 @@ export const TeamCard = ({ team, onSelect, compact = false, experienceMode = "ex
       onClick={() => onSelect(team)}
       type="button"
     >
-      <span className="absolute right-3 top-3 rounded-md bg-slate-950 px-2 py-1 text-xs font-black text-trophy-300 light:bg-slate-900">
-        #{team.strengthRank}
+      <span className={`absolute right-3 top-3 rounded-md px-2 py-1 text-xs font-black ${
+        isBeginner
+          ? "bg-emerald-400 text-slate-950"
+          : "bg-slate-950 text-trophy-300 light:bg-slate-900"
+      }`}>
+        {isBeginner ? `${beginnerRating}` : `#${team.strengthRank}`}
       </span>
 
       <div className="flex min-w-0 items-start gap-3 pr-12">
@@ -38,7 +45,9 @@ export const TeamCard = ({ team, onSelect, compact = false, experienceMode = "ex
         <div className="min-w-0">
           <h3 className="truncate text-base font-black text-white light:text-slate-950">{teamName}</h3>
           <p className="mt-1 text-xs text-slate-400 light:text-slate-600">
-            {t("group")} {team.group} · {t("score")} {team.strengthScore}
+            {isBeginner
+              ? `${t("group")} ${team.group} · ${stageLabel(team.predictedStage, t)}`
+              : `${t("group")} ${team.group} · ${t("score")} ${team.strengthScore}`}
           </p>
         </div>
       </div>
@@ -56,7 +65,7 @@ export const TeamCard = ({ team, onSelect, compact = false, experienceMode = "ex
             {t("darkHorse")}
           </span>
         )}
-        <DataQualityBadge quality={team.dataQuality} compact />
+        {!isBeginner && <DataQualityBadge quality={team.dataQuality} compact />}
       </div>
 
       {!compact && (
@@ -67,7 +76,9 @@ export const TeamCard = ({ team, onSelect, compact = false, experienceMode = "ex
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-900/70 light:bg-slate-200">
                 <div className="h-full rounded-full bg-emerald-400" style={{ width: `${beginnerRating}%` }} />
               </div>
-              <p className="mt-1 text-xs text-slate-300 light:text-slate-700">{beginnerRating}/100</p>
+              <p className="mt-2 text-xs leading-5 text-slate-300 light:text-slate-700">
+                {team.isDarkHorse ? t("beginnerCardDarkHorseHint") : t("beginnerCardWatchHint")}
+              </p>
             </div>
           )}
           {experienceMode === "expert" && (
@@ -78,7 +89,7 @@ export const TeamCard = ({ team, onSelect, compact = false, experienceMode = "ex
               </span>
               <span className="font-semibold text-trophy-300 light:text-trophy-700">{team.squadValue ?? "N/A"}</span>
               <span className="truncate">{displayCoachName(team.coach, language) || `${t("coach")} TBD`}</span>
-              <span>{t("strengthScore")}: {team.strengthScore}</span>
+              <span>{t("mlStrengthScore")}: {modelProfile.mlStrengthScore}</span>
             </div>
           )}
         </>
