@@ -47,6 +47,17 @@ const defaultRuntimeData: RuntimeData = {
 const contenderStages = new Set(["Champion", "Final", "Semi-final", "Quarter-final"]);
 const overviewSectionIds: OverviewSection[] = ["home", "groups", "knockout", "players", "beginner", "data"];
 
+const mergeDefaultRuntimeData = (data: RuntimeData): RuntimeData => {
+  const teamIds = new Set(data.teams.map((team) => team.id));
+  const playerIds = new Set(data.players.map((player) => player.playerId));
+
+  return {
+    ...data,
+    teams: [...data.teams, ...defaultTeams.filter((team) => !teamIds.has(team.id))],
+    players: [...data.players, ...defaultPlayers.filter((player) => !playerIds.has(player.playerId))],
+  };
+};
+
 const readOverviewSection = () => {
   const saved = readJson(storageKeys.overviewSection, "home" as OverviewSection);
   return overviewSectionIds.includes(saved) ? saved : "home";
@@ -60,7 +71,7 @@ export default function App() {
   const [theme, setTheme] = useState<"dark" | "light">(() => readJson(storageKeys.theme, "dark" as "dark" | "light"));
   const [activeOverviewSection, setActiveOverviewSection] = useState<OverviewSection>(readOverviewSection);
   const [runtimeData, setRuntimeData] = useState<RuntimeData>(() =>
-    readJson(storageKeys.runtimeData, defaultRuntimeData),
+    mergeDefaultRuntimeData(readJson(storageKeys.runtimeData, defaultRuntimeData)),
   );
   const [bracketState, setBracketState] = useState<BracketPredictionState>(() =>
     completeBracketState(
@@ -125,6 +136,7 @@ export default function App() {
     : undefined;
   const activeOverviewMeta =
     overviewSectionMeta.find((section) => section.id === activeOverviewSection) ?? overviewSectionMeta[0];
+  const importRuntimeData = (data: RuntimeData) => setRuntimeData(mergeDefaultRuntimeData(data));
 
   return (
     <div className={`${theme} stadium-bg min-h-screen text-slate-100 light:text-slate-900`}>
@@ -227,7 +239,7 @@ export default function App() {
                 <DataImportExport
                   bracketState={bracketState}
                   onImportPrediction={setBracketState}
-                  onImportRuntimeData={setRuntimeData}
+                  onImportRuntimeData={importRuntimeData}
                   runtimeData={runtimeData}
                 />
                 <PosterExportPanel
@@ -255,7 +267,7 @@ export default function App() {
             <DataImportExport
               bracketState={bracketState}
               onImportPrediction={setBracketState}
-              onImportRuntimeData={setRuntimeData}
+              onImportRuntimeData={importRuntimeData}
               runtimeData={runtimeData}
             />
           </>

@@ -60,6 +60,16 @@
 - 球员真实照片建议手动维护，或使用你有权使用的合法公开来源
 - 当前前端会优先尝试公开 Wikimedia / Wikipedia 缩略图，失败后回退到占位头像
 
+## 名单状态
+
+当前 `src/data/players.ts` 中的球员是“预测/初选名单”，不是官方 Final Squad。页面会在球队详情、球员卡片和球员详情中显示 `squadStatus`：
+
+- `projected`：预测/初选
+- `preliminary`：初选名单
+- `final`：Final Squad
+
+建议等 6 月 2 日后，再根据官方确认名单统一更新为 `final`。在此之前，先保持结构完整、展示清晰、数据可维护。
+
 ## CSV 模板
 
 页面中的 CSV 模板下载用于后续维护以下字段：

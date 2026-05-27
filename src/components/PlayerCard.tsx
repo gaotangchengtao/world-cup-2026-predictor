@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
 import { useLanguage } from "../i18n";
 import type { Player } from "../types/worldCup";
+import { squadStatusLabel } from "../utils/format";
 import { displayClubName, displayPlayerName } from "../utils/localizedNames";
 import { photoSourceLabel } from "../utils/photos";
 import { PlayerAvatar } from "./PlayerAvatar";
@@ -40,6 +41,9 @@ export const PlayerCard = ({ player, onSelect }: PlayerCardProps) => {
       </div>
       <div className="text-right">
         <p className="text-sm font-black text-trophy-300 light:text-trophy-700">{player.marketValue ?? "N/A"}</p>
+        <p className="text-[11px] font-bold text-sky-300 light:text-sky-700">
+          {squadStatusLabel(player.squadStatus, t)}
+        </p>
         {player.predictedStarter && (
           <p className="text-[11px] font-bold text-emerald-300 light:text-emerald-700">{t("starter")}</p>
         )}

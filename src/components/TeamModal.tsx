@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { getTeamGuide } from "../data/teamGuides";
 import { useLanguage } from "../i18n";
 import type { Player, PlayerPosition, Team } from "../types/worldCup";
-import { groupPositionLabel, qualityLabel, stageLabel } from "../utils/format";
+import { groupPositionLabel, qualityLabel, squadStatusLabel, stageLabel } from "../utils/format";
 import {
   displayClubName,
   displayCoachName,
@@ -71,6 +71,7 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
   const totalValue = players.reduce((sum, player) => sum + player.marketValueEurM, 0);
   const keyPlayers = players.filter((player) => player.isKeyPlayer).length;
   const spotlightPlayers = getTopTeamPlayers(team.id, players);
+  const rosterStatus = squadStatusLabel(players.find((player) => player.squadStatus)?.squadStatus, t);
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
@@ -128,6 +129,9 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
             <p className="text-xs uppercase text-slate-500">{t("squadSnapshot")}</p>
             <p className="mt-1 font-black text-white light:text-slate-950">
               €{totalValue.toFixed(0)}m · {keyPlayers} {t("corePlayers")}
+            </p>
+            <p className="mt-1 text-xs font-bold text-trophy-300 light:text-trophy-700">
+              {t("squadStatus")}: {rosterStatus}
             </p>
           </div>
         </div>
@@ -253,6 +257,9 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
               <p className="text-xs text-slate-400 light:text-slate-600">
                 {t("updated")} {team.lastUpdated} · {qualityLabel(team.dataQuality, t)}
               </p>
+              <p className="mt-1 text-xs font-bold text-trophy-300 light:text-trophy-700">
+                {t("squadStatus")}: {rosterStatus}
+              </p>
             </div>
             {team.sourceUrls[0] && (
               <a
@@ -265,6 +272,10 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
                 <ExternalLink size={15} />
               </a>
             )}
+          </div>
+
+          <div className="rounded-lg border border-trophy-500/20 bg-trophy-500/10 p-3 text-sm leading-6 text-slate-200 light:text-slate-800">
+            {t("squadStatusNote")} {t("finalSquadUpdateNote")}
           </div>
 
           <div className="grid gap-3 md:grid-cols-[1fr_0.7fr_0.7fr_auto]">

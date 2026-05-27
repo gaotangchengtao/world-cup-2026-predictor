@@ -1,7 +1,7 @@
 import { ExternalLink, Star, X } from "lucide-react";
 import { useLanguage } from "../i18n";
 import type { Player, Team } from "../types/worldCup";
-import { qualityLabel } from "../utils/format";
+import { qualityLabel, squadStatusLabel } from "../utils/format";
 import { displayClubName, displayPlayerName, displayTeamName } from "../utils/localizedNames";
 import { photoSourceLabel } from "../utils/photos";
 import { PlayerAvatar } from "./PlayerAvatar";
@@ -68,6 +68,9 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
             <p className="text-xs uppercase text-slate-500">{t("role")}</p>
             <p className="mt-1 font-bold text-white light:text-slate-950">
               {player.predictedStarter ? t("expectedStarter") : t("rotationPlayer")}
+            </p>
+            <p className="mt-1 text-xs font-bold text-trophy-300 light:text-trophy-700">
+              {t("squadStatus")}: {squadStatusLabel(player.squadStatus, t)}
             </p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">

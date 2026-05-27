@@ -22,6 +22,7 @@ export type PredictionStage =
   | "Group Stage";
 
 export type PlayerPosition = "GK" | "DF" | "MF" | "FW";
+export type SquadStatus = "projected" | "preliminary" | "final";
 export type PlayerPhotoSource =
   | "club_website"
   | "national_team_website"
@@ -91,6 +92,7 @@ export interface Player {
   isKeyPlayer?: boolean;
   predictedStarter?: boolean;
   shirtNumber?: number;
+  squadStatus?: SquadStatus;
   lastUpdated?: string;
   sourceUrls: string[];
   dataQuality: DataQuality;

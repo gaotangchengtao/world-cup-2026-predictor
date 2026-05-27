@@ -1,4 +1,4 @@
-import type { PredictionStage, Team } from "../types/worldCup";
+import type { PredictionStage, SquadStatus, Team } from "../types/worldCup";
 import type { TranslationKey } from "../i18n";
 
 export const stageOrder: Record<PredictionStage, number> = {
@@ -45,6 +45,16 @@ export const qualityLabel = (quality: string, t: Translator) => {
   };
 
   return labels[quality] ? t(labels[quality]) : quality;
+};
+
+export const squadStatusLabel = (status: SquadStatus | undefined, t: Translator) => {
+  const labels: Record<SquadStatus, TranslationKey> = {
+    projected: "squadStatusProjected",
+    preliminary: "squadStatusPreliminary",
+    final: "squadStatusFinal",
+  };
+
+  return t(labels[status ?? "projected"]);
 };
 
 export const formatNumber = (value: number) =>
