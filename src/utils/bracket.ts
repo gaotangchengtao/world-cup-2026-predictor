@@ -4,7 +4,9 @@ import type { BracketMatch, BracketPredictionState, Team } from "../types/worldC
 
 export const flattenMatches = () => defaultBracketRounds.flatMap((round) => round.matches);
 
-const pickPredictedWinner = (slotA: string | undefined, slotB: string | undefined, teams: Team[]) => {
+type WinnerPicker = (slotA: string | undefined, slotB: string | undefined, teams: Team[]) => string | undefined;
+
+const pickPredictedWinner: WinnerPicker = (slotA, slotB, teams) => {
   if (!slotA) return slotB;
   if (!slotB) return slotA;
 
@@ -25,6 +27,7 @@ const isWinnerInMatch = (winnerTeamId: string | undefined, slotA?: string, slotB
 export const completeBracketState = (
   state: BracketPredictionState,
   teams: Team[] = defaultTeams,
+  pickWinner: WinnerPicker = pickPredictedWinner,
 ): BracketPredictionState => {
   const completed: BracketPredictionState = {};
   const matches = flattenMatches();
@@ -42,7 +45,7 @@ export const completeBracketState = (
     const current = completed[match.id] ?? {};
     const winnerTeamId = isWinnerInMatch(current.winnerTeamId, current.slotA, current.slotB)
       ? current.winnerTeamId
-      : pickPredictedWinner(current.slotA, current.slotB, teams);
+      : pickWinner(current.slotA, current.slotB, teams);
 
     completed[match.id] = {
       ...current,
@@ -72,6 +75,23 @@ export const createInitialBracketState = (teams: Team[] = defaultTeams): Bracket
   });
 
   return completeBracketState(state, teams);
+};
+
+export const createRecommendedBracketState = (
+  teams: Team[] = defaultTeams,
+  pickWinner: WinnerPicker = pickPredictedWinner,
+): BracketPredictionState => {
+  const state: BracketPredictionState = {};
+
+  flattenMatches().forEach((match) => {
+    state[match.id] = {
+      slotA: match.slotA.teamId,
+      slotB: match.slotB.teamId,
+      winnerTeamId: undefined,
+    };
+  });
+
+  return completeBracketState(state, teams, pickWinner);
 };
 
 export const findMatch = (matchId: string) =>

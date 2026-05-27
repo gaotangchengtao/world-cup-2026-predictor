@@ -12,9 +12,13 @@
 - JSON 导入 / 导出预测结果与运行时数据
 - 中英文切换，中文模式下球队、球员、俱乐部、主教练显示中文
 - 响应式布局，移动端可横向查看 bracket
+- 离线机器学习预测管线：可读取历史国家队比赛 CSV，训练模型并导出前端轻量预测结果
 
 ## 本次增强
 
+- 机器学习预测层：前端优先读取 `src/data/modelPredictions.ts`，缺失时回退到现有规则评分
+- Dashboard 新增 ML 冠军候选、置信度最高球队和爆冷风险观察
+- Bracket 支持“使用 ML 推荐路线”，一键填满 32 强到冠军的预测路径
 - Bracket 胜率条：基于 `strengthScore`、`strengthRank`、预测阶段和阵容身价给出简单可解释的胜率
 - 预测解释卡片：在球队详情和 bracket 中解释为什么模型更看好某支球队
 - 足球术语小词典：帮助新手理解控球、高位逼抢、反击、低位防守、净胜球、最好第三名等概念
@@ -35,6 +39,7 @@
 - `src/data/players.ts`：球员名单、俱乐部、身价、照片来源、Transfermarkt 搜索链接
 - `src/data/groups.ts`：12 个小组
 - `src/data/bracket.ts`：32 强淘汰赛结构
+- `src/data/modelPredictions.ts`：前端使用的轻量 ML 预测画像
 - `src/data/localizedNames.ts`：中文姓名映射
 - `src/data/teamGuides.ts`：球队新手观赛指南
 - `src/data/sources.ts`：公开来源说明
@@ -42,6 +47,66 @@
 类型定义位于：
 
 - `src/types/worldCup.ts`
+
+## 机器学习预测管线
+
+本项目采用“离线训练 + 前端展示”的方式，不需要后端，也不会影响 GitHub Pages 部署。
+
+### 目录约定
+
+- `data/raw/`：放原始历史比赛 CSV，不提交 Git
+- `data/processed/`：放清洗后的中间数据，不提交 Git
+- `models/`：放本地训练产物，不提交 Git
+- `src/data/modelPredictions.ts`：提交到 Git 的前端预测结果
+
+### 数据来源
+
+推荐使用你有权下载和使用的历史国家队比赛数据，例如：
+
+- `openfootball/worldcup`
+- `openfootball/worldcup.json`
+- Kaggle 上的 international football results 类数据集
+
+请手动把合法下载的 CSV 放到：
+
+```text
+data/raw/results.csv
+```
+
+脚本期待字段：
+
+```text
+date,home_team,away_team,home_score,away_score,tournament,neutral
+```
+
+项目不会自动绕过网站限制抓取数据，也不会批量爬取受限制网站。
+
+### 训练步骤
+
+先安装 Python 依赖：
+
+```bash
+python -m pip install -r requirements-ml.txt
+```
+
+然后训练并导出前端预测文件：
+
+```bash
+npm run ml:train
+```
+
+`npm run ml:train` 会自动尝试系统 `python`、Windows `py -3` 和 Codex 自带 Python。若你安装了 Python 但不在 PATH 中，也可以设置 `PYTHON` 环境变量指向完整的 `python.exe`。
+
+训练脚本会：
+
+- 读取历史比赛结果
+- 构建 Elo、近 10 场状态、净胜球、进攻趋势、防守趋势、比赛类型权重等特征
+- 训练 `HistGradientBoostingClassifier`
+- 同时训练 Logistic Regression 作为基线对照
+- 选择验证准确率更好的模型
+- 输出 `src/data/modelPredictions.ts`
+
+如果没有 `data/raw/results.csv`，脚本会给出提示并安全退出，前端仍会使用已提交的基线预测画像。
 
 ## 数据质量说明
 

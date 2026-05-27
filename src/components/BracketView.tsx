@@ -1,10 +1,11 @@
-import { Download, RotateCcw, Trophy } from "lucide-react";
+import { Download, RotateCcw, Sparkles, Trophy } from "lucide-react";
 import { defaultBracketRounds } from "../data/bracket";
 import { useLanguage } from "../i18n";
 import type { BracketPredictionState, Player, Team } from "../types/worldCup";
-import { chooseWinner, createInitialBracketState, getChampionId, updateSlot } from "../utils/bracket";
+import { chooseWinner, createInitialBracketState, createRecommendedBracketState, getChampionId, updateSlot } from "../utils/bracket";
 import { downloadJson, getTeamById } from "../utils/format";
 import { displayTeamName } from "../utils/localizedNames";
+import { getRecommendedWinnerId } from "../utils/modelPredictions";
 import { BracketRound } from "./BracketRound";
 import { ExplanationCard } from "./ExplanationCard";
 import { TeamFlag } from "./TeamFlag";
@@ -28,6 +29,20 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
     setBracketState(chooseWinner(bracketState, matchId, teamId, teams));
   };
 
+  const handleModelRecommendation = () => {
+    setBracketState(
+      createRecommendedBracketState(teams, (slotA, slotB, availableTeams) => {
+        const teamA = getTeamById(availableTeams, slotA);
+        const teamB = getTeamById(availableTeams, slotB);
+        return getRecommendedWinnerId(teamA, teamB, players);
+      }),
+    );
+  };
+
+  const scrollToRound = (roundId: string) => {
+    document.getElementById(`bracket-${roundId}`)?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+  };
+
   return (
     <section className="space-y-4">
       <div className="glass-panel rounded-lg p-4">
@@ -37,6 +52,14 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
             <p className="text-sm text-slate-400 light:text-slate-600">{t("bracketDescription")}</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <button
+              className="inline-flex items-center gap-2 rounded-lg border border-trophy-500/30 bg-trophy-500/10 px-3 py-2 text-sm font-black text-trophy-100 hover:border-trophy-500 light:text-trophy-800"
+              onClick={handleModelRecommendation}
+              type="button"
+            >
+              <Sparkles size={16} />
+              {t("useModelRecommendation")}
+            </button>
             <button
               className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-bold text-slate-200 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
               onClick={() => setBracketState(createInitialBracketState(teams))}
@@ -61,7 +84,27 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
         <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400 light:text-slate-600 md:hidden">
           {t("swipeBracketHint")}
         </p>
-        <div className="flex min-w-max gap-4">
+        <div className="mb-3 flex min-w-max gap-2 md:hidden">
+          {defaultBracketRounds.map((round) => (
+            <button
+              className="rounded-md border border-white/10 bg-white/5 px-3 py-2 text-xs font-black text-slate-200 light:border-slate-900/10 light:bg-white light:text-slate-700"
+              key={round.id}
+              onClick={() => scrollToRound(round.id)}
+              type="button"
+            >
+              {round.id === "round-32"
+                ? t("stageRoundOf32")
+                : round.id === "round-16"
+                  ? t("stageRoundOf16")
+                  : round.id === "quarter-finals"
+                    ? t("stageQuarterFinal")
+                    : round.id === "semi-finals"
+                      ? t("stageSemiFinal")
+                      : t("stageFinal")}
+            </button>
+          ))}
+        </div>
+        <div className="flex min-w-max snap-x snap-mandatory gap-4">
           {defaultBracketRounds.map((round) => (
             <BracketRound
               bracketState={bracketState}

@@ -1,9 +1,10 @@
-import { BrainCircuit, ShieldAlert, TrendingUp } from "lucide-react";
+import { BarChart3, ShieldAlert, TrendingUp } from "lucide-react";
 import { useLanguage } from "../i18n";
 import type { Player, Team } from "../types/worldCup";
 import { stageLabel } from "../utils/format";
 import { displayPlayerName, displayTeamName } from "../utils/localizedNames";
 import { getTeamExplanation, getTopTeamPlayers } from "../utils/insights";
+import { getModelProfile } from "../utils/modelPredictions";
 
 interface ExplanationCardProps {
   team: Team;
@@ -16,19 +17,20 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 export const ExplanationCard = ({ team, players, compact = false }: ExplanationCardProps) => {
   const { language, t } = useLanguage();
   const explanation = getTeamExplanation(team, players);
+  const profile = getModelProfile(team, players);
   const topPlayers = getTopTeamPlayers(team.id, players);
-  const confidence = clamp(Math.round(42 + team.strengthScore * 0.45 - team.strengthRank * 0.35), 35, 95);
+  const confidence = clamp(profile.confidenceScore, 35, 95);
   const teamName = displayTeamName(team, language);
   const coreCount = players.filter((player) => player.teamId === team.id && player.isKeyPlayer).length;
   const advantages =
     language === "zh"
       ? [
-          `实力评分 ${team.strengthScore}，纸面强度稳定。`,
+          `综合强度 ${profile.mlStrengthScore}，纸面基础稳定。`,
           `${coreCount} 名核心球员支撑关键位置。`,
-          `模型预测阶段为 ${stageLabel(team.predictedStage, t)}。`,
+          `预测阶段为 ${stageLabel(team.predictedStage, t)}。`,
         ]
       : [
-          `Strength score of ${team.strengthScore} gives a strong baseline.`,
+          `Integrated score of ${profile.mlStrengthScore} gives a strong baseline.`,
           `${coreCount} key players support the most important roles.`,
           `Projected stage: ${stageLabel(team.predictedStage, t)}.`,
         ];
@@ -52,15 +54,15 @@ export const ExplanationCard = ({ team, players, compact = false }: ExplanationC
   return (
     <section className={`rounded-lg border border-sky-400/20 bg-sky-500/10 ${compact ? "p-3" : "p-4"}`}>
       <div className="flex items-center gap-2">
-        <BrainCircuit className="text-sky-300" size={18} />
+        <BarChart3 className="text-sky-300" size={18} />
         <h3 className={`font-black text-white light:text-slate-950 ${compact ? "text-sm" : "text-lg"}`}>
           {t("predictionExplanation")}
         </h3>
       </div>
       <p className={`mt-2 text-slate-300 light:text-slate-700 ${compact ? "text-xs leading-5" : "text-sm leading-6"}`}>
         {language === "zh"
-          ? `模型更看好 ${teamName}，不是只看一个数字，而是综合实力评分、实力排名、阵容价值、核心球员和预测阶段。`
-          : `The model favors ${teamName} by combining strength score, strength rank, squad value, key-player depth, and projected stage.`}
+          ? `${teamName} 的预测依据来自综合强度、近期状态、阵容价值、核心球员深度和预计阶段。`
+          : `${teamName}'s projection combines integrated strength, recent form, squad value, key-player depth, and projected stage.`}
       </p>
 
       {!compact && (

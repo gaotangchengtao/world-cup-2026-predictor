@@ -6,6 +6,7 @@ import { getChampionId } from "../utils/bracket";
 import { qualityLabel, stageLabel } from "../utils/format";
 import { getHardestGroup, summarizeDataQuality } from "../utils/insights";
 import { displayClubName, displayPlayerName, displayTeamName } from "../utils/localizedNames";
+import { ModelInsightsPanel } from "./ModelInsightsPanel";
 import { overviewSectionMeta } from "./OverviewSectionNav";
 import { PlayerAvatar } from "./PlayerAvatar";
 import { PredictionSummary } from "./PredictionSummary";
@@ -68,6 +69,12 @@ export const OverviewHome = ({
   return (
     <section className="space-y-5">
       <PredictionSummary teams={teams} players={players} bracketState={bracketState} />
+      <ModelInsightsPanel
+        bracketState={bracketState}
+        onSelectTeam={onSelectTeam}
+        players={players}
+        teams={teams}
+      />
 
       <div className="grid gap-4 xl:grid-cols-[1.05fr_1fr_1fr]">
         <article className="glass-panel rounded-lg p-4">

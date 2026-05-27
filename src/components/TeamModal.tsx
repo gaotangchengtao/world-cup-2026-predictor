@@ -13,6 +13,7 @@ import {
   displayTeamName,
   playerSearchText,
 } from "../utils/localizedNames";
+import { getModelProfile } from "../utils/modelPredictions";
 import { DataQualityBadge } from "./DataQualityBadge";
 import { ExplanationCard } from "./ExplanationCard";
 import { PlayerCard } from "./PlayerCard";
@@ -48,7 +49,8 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
   const keyPlayers = players.filter((player) => player.isKeyPlayer);
   const spotlightPlayers = getTopTeamPlayers(team.id, players, 5);
   const rosterStatus = squadStatusLabel(players.find((player) => player.squadStatus)?.squadStatus, t);
-  const confidence = clamp(Math.round(45 + team.strengthScore * 0.42 - team.strengthRank * 0.45), 38, 94);
+  const modelProfile = getModelProfile(team, players);
+  const confidence = clamp(modelProfile.confidenceScore, 38, 94);
 
   const topPlayerNames = useMemo(
     () => spotlightPlayers.slice(0, 3).map((player) => displayPlayerName(player, language)),
@@ -102,8 +104,8 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
   const predictionText = {
     reason:
       language === "zh"
-        ? `${teamName} 的模型预测主要来自实力评分、阵容深度、核心球员数量和预计晋级阶段。`
-        : `${teamName} is projected here because of strength score, squad depth, key-player count, and predicted stage.`,
+        ? `${teamName} 的综合预测主要来自强度评分、阵容深度、核心球员数量和预计晋级阶段。`
+        : `${teamName}'s projection is based on integrated strength, squad depth, key-player count, and predicted stage.`,
     upset:
       language === "zh"
         ? team.strengthRank <= 8
@@ -146,6 +148,11 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
       : styleTags.includes("possession")
         ? "Tempo is usually more patient."
         : "Tempo can speed up through transitions and duels.";
+  const riskLabel = {
+    low: t("riskLow"),
+    medium: t("riskMedium"),
+    high: t("riskHigh"),
+  }[modelProfile.upsetRisk];
 
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-sm sm:items-center sm:p-4">
@@ -273,8 +280,19 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
           <section className="mt-5 grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
             <Panel title={t("predictionReason")}>
               <p className="text-sm leading-6 text-slate-300 light:text-slate-700">{predictionText.reason}</p>
-              <div className="mt-4">
-                <p className="text-sm font-black text-white light:text-slate-950">{t("modelConfidence")}</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <ScoreMeter label={t("mlStrengthScore")} value={modelProfile.mlStrengthScore} tone="trophy" />
+                <ScoreMeter label={t("recentFormScore")} value={modelProfile.recentFormScore} tone="sky" />
+                <ScoreMeter label={t("attackTrend")} value={modelProfile.attackTrend} tone="emerald" />
+                <ScoreMeter label={t("defenseTrend")} value={modelProfile.defenseTrend} tone="orange" />
+              </div>
+              <div className="mt-4 rounded-lg border border-trophy-500/20 bg-trophy-500/10 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-black text-white light:text-slate-950">{t("modelConfidence")}</p>
+                  <span className="rounded-md bg-slate-950/70 px-2 py-1 text-xs font-black text-trophy-300 light:bg-white">
+                    {riskLabel}
+                  </span>
+                </div>
                 <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-900/70 light:bg-slate-200">
                   <div className="h-full rounded-full bg-trophy-400" style={{ width: `${confidence}%` }} />
                 </div>
@@ -440,6 +458,29 @@ const Panel = ({ title, children }: { title: string; children: ReactNode }) => (
     <div className="mt-3">{children}</div>
   </section>
 );
+
+const ScoreMeter = ({ label, value, tone }: { label: string; value: number; tone: "trophy" | "sky" | "emerald" | "orange" }) => {
+  const color =
+    tone === "trophy"
+      ? "bg-trophy-400"
+      : tone === "sky"
+        ? "bg-sky-400"
+        : tone === "emerald"
+          ? "bg-emerald-400"
+          : "bg-orange-400";
+
+  return (
+    <div className="rounded-lg border border-white/10 bg-white/5 p-3 light:border-slate-900/10 light:bg-white">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">{label}</p>
+        <p className="text-sm font-black text-white light:text-slate-950">{value}</p>
+      </div>
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-900/70 light:bg-slate-200">
+        <div className={`h-full rounded-full ${color}`} style={{ width: `${value}%` }} />
+      </div>
+    </div>
+  );
+};
 
 const Info = ({ label, value }: { label: string; value: string }) => (
   <div className="rounded-lg border border-white/10 bg-slate-950/35 p-3 light:border-slate-900/10 light:bg-slate-50">

@@ -25,7 +25,7 @@ export const BracketRound = ({ round, bracketState, teams, players, onSlotChange
             : t("stageFinal");
 
   return (
-    <section className="flex min-w-[300px] flex-col gap-3">
+    <section className="flex min-w-[300px] snap-start flex-col gap-3" id={`bracket-${round.id}`}>
     <div className="sticky top-20 z-10 rounded-lg border border-white/10 bg-slate-950/90 px-4 py-3 text-center light:border-slate-900/10 light:bg-white/90">
       <h2 className="text-base font-black text-white light:text-slate-950">{roundName}</h2>
       <p className="text-xs text-slate-500">

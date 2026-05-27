@@ -10,6 +10,7 @@ import { GroupGrid } from "./components/GroupGrid";
 import { GroupStagePredictor } from "./components/GroupStagePredictor";
 import { Header } from "./components/Header";
 import { MatchWatchingGuide } from "./components/MatchWatchingGuide";
+import { ModelDataPanel } from "./components/ModelDataPanel";
 import { OverviewHome } from "./components/OverviewHome";
 import { OverviewSectionNav, overviewSectionMeta } from "./components/OverviewSectionNav";
 import { PlayerModal } from "./components/PlayerModal";
@@ -255,6 +256,7 @@ export default function App() {
 
             {activeOverviewSection === "data" && (
               <>
+                <ModelDataPanel />
                 <DataQualityPanel players={runtimeData.players} teams={runtimeData.teams} />
                 <DataImportExport
                   bracketState={bracketState}

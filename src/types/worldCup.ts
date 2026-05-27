@@ -24,6 +24,7 @@ export type PredictionStage =
 export type PlayerPosition = "GK" | "DF" | "MF" | "FW";
 export type SquadStatus = "projected" | "preliminary" | "final";
 export type ExperienceMode = "beginner" | "expert";
+export type PredictionRisk = "low" | "medium" | "high";
 export type PlayerPhotoSource =
   | "club_website"
   | "national_team_website"
@@ -174,6 +175,39 @@ export interface RuntimeData {
   teams: Team[];
   players: Player[];
   importedAt?: string;
+}
+
+export interface ModelPredictionProfile {
+  teamId: string;
+  mlStrengthScore: number;
+  recentFormScore: number;
+  attackTrend: number;
+  defenseTrend: number;
+  confidenceScore: number;
+  upsetRisk: PredictionRisk;
+  explanation: string;
+}
+
+export interface MatchupPrediction {
+  teamAId: string;
+  teamBId: string;
+  teamAWinProbability: number;
+  drawProbability: number;
+  teamBWinProbability: number;
+  teamAAdvanceProbability: number;
+  teamBAdvanceProbability: number;
+  topFactors: string[];
+  confidenceScore: number;
+  upsetRisk: PredictionRisk;
+}
+
+export interface PredictionModelMeta {
+  modelName: string;
+  trainedAt: string;
+  trainingDataCutoff: string;
+  dataSources: string[];
+  validationAccuracy: number | null;
+  notes: string;
 }
 
 export type OverviewSection = "home" | "groups" | "knockout" | "players" | "beginner" | "data";

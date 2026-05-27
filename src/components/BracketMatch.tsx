@@ -3,7 +3,7 @@ import { useLanguage } from "../i18n";
 import type { BracketMatch as BracketMatchType, BracketMatchState, Player, Team } from "../types/worldCup";
 import { getTeamById } from "../utils/format";
 import { displayTeamName } from "../utils/localizedNames";
-import { getWinProbability } from "../utils/insights";
+import { getMatchupPrediction } from "../utils/modelPredictions";
 import { ExplanationCard } from "./ExplanationCard";
 import { TeamFlag } from "./TeamFlag";
 
@@ -85,12 +85,13 @@ export const BracketMatch = ({ match, matchState, teams, players, onSlotChange, 
   const { language, t } = useLanguage();
   const teamA = getTeamById(teams, matchState.slotA);
   const teamB = getTeamById(teams, matchState.slotB);
-  const probabilities = getWinProbability(teamA, teamB);
-  const favorite = probabilities && probabilities.teamA >= probabilities.teamB ? teamA : teamB;
+  const probabilities = getMatchupPrediction(teamA, teamB, players);
+  const favorite = probabilities && probabilities.teamAAdvanceProbability >= probabilities.teamBAdvanceProbability ? teamA : teamB;
   const noteLabels = {
-    strengthScore: t("strengthScore"),
+    mlStrength: t("mlStrengthScore"),
+    recentForm: t("recentFormScore"),
+    attackDefense: t("attackDefenseBalance"),
     strengthRank: t("strengthRank"),
-    predictedStage: t("predictedStage"),
     squadValue: t("squadValue"),
   };
   const roundName =
@@ -137,22 +138,22 @@ export const BracketMatch = ({ match, matchState, teams, players, onSlotChange, 
       {probabilities && teamA && teamB && (
         <div className="mt-3 rounded-lg border border-sky-400/20 bg-sky-500/10 p-3">
           <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.16em] text-sky-200 light:text-sky-800">
-            <span>{t("winProbability")}</span>
-            <span>{t("simpleModelNote")}</span>
+            <span>{t("advanceProbability")}</span>
+            <span>{t("integratedPrediction")}</span>
           </div>
           <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-900/70 light:bg-slate-200">
             <div className="flex h-full">
-              <div className="bg-emerald-400" style={{ width: `${(probabilities.teamA * 100).toFixed(1)}%` }} />
-              <div className="bg-orange-400" style={{ width: `${(probabilities.teamB * 100).toFixed(1)}%` }} />
+              <div className="bg-emerald-400" style={{ width: `${(probabilities.teamAAdvanceProbability * 100).toFixed(1)}%` }} />
+              <div className="bg-orange-400" style={{ width: `${(probabilities.teamBAdvanceProbability * 100).toFixed(1)}%` }} />
             </div>
           </div>
           <div className="mt-2 flex items-center justify-between text-xs text-slate-300 light:text-slate-700">
             <span>{displayTeamName(teamA, language)}</span>
-            <span>{Math.round(probabilities.teamA * 100)}% - {Math.round(probabilities.teamB * 100)}%</span>
+            <span>{Math.round(probabilities.teamAAdvanceProbability * 100)}% - {Math.round(probabilities.teamBAdvanceProbability * 100)}%</span>
             <span>{displayTeamName(teamB, language)}</span>
           </div>
           <p className="mt-2 text-xs text-slate-400 light:text-slate-600">
-            {t("simpleModelFactors")} {probabilities.modelNotes.map((note) => noteLabels[note]).join(" / ")}
+            {t("predictionFactors")} {probabilities.topFactors.map((note) => noteLabels[note as keyof typeof noteLabels]).join(" / ")}
           </p>
         </div>
       )}
