@@ -214,7 +214,9 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
         {activeTab === "overview" && (
           <section className="mt-5 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
             <Panel title={t("oneLineSummary")}>
-              <p className="text-sm leading-6 text-slate-300 light:text-slate-700">{team.description ?? guide.beginnerIntro}</p>
+              <p className="text-sm leading-6 text-slate-300 light:text-slate-700">
+                {language === "zh" ? guide.beginnerIntro : team.description ?? guide.beginnerIntro}
+              </p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <Info label={t("coach")} value={displayCoachName(team.coach, language) || "TBD"} />
                 <Info label={t("formation")} value={team.formation ?? "TBD"} />
