@@ -1,5 +1,6 @@
 import { Download, RotateCcw, Table2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { defaultGroupStagePredictions } from "../data/groupStagePredictions";
 import { useLanguage } from "../i18n";
 import type { GroupCode, GroupStagePredictionState, Team, WorldCupGroup } from "../types/worldCup";
 import { downloadJson } from "../utils/format";
@@ -20,12 +21,15 @@ const scoreValue = (value: string) => {
   return Math.max(0, Math.min(99, Math.floor(parsed)));
 };
 
+const readInitialPredictions = () => {
+  const saved = readJson(storageKeys.groupStagePredictions, {} as GroupStagePredictionState);
+  return Object.keys(saved).length > 0 ? saved : defaultGroupStagePredictions;
+};
+
 export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps) => {
   const { language, t } = useLanguage();
   const [selectedGroup, setSelectedGroup] = useState<"all" | GroupCode>("all");
-  const [predictions, setPredictions] = useState<GroupStagePredictionState>(() =>
-    readJson(storageKeys.groupStagePredictions, {} as GroupStagePredictionState),
-  );
+  const [predictions, setPredictions] = useState<GroupStagePredictionState>(readInitialPredictions);
 
   const matches = useMemo(() => createGroupMatches(groups), [groups]);
   const teamById = useMemo(() => new Map(teams.map((team) => [team.id, team])), [teams]);
@@ -65,7 +69,7 @@ export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps)
         <div className="flex flex-wrap gap-2">
           <button
             className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-bold text-slate-200 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
-            onClick={() => setPredictions({})}
+            onClick={() => setPredictions(defaultGroupStagePredictions)}
             type="button"
           >
             <RotateCcw size={16} />
