@@ -352,4 +352,6 @@ export const en = {
   offFieldDataNotice:
     "Off-field stories are stored as curated public-source summaries. The crawler template is intentionally conservative and writes raw output to D drive for review before anything enters the app.",
   notAvailable: "N/A",
+  loadingSection: "Loading this section...",
+  close: "Close",
 } as const;

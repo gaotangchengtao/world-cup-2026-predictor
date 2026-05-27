@@ -167,9 +167,9 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-      <article className="glass-panel max-h-[94vh] w-full max-w-6xl overflow-y-auto rounded-t-2xl p-4 sm:rounded-lg sm:p-5">
-        <div className="flex flex-col gap-4 border-b border-white/10 pb-5 light:border-slate-900/10 lg:flex-row lg:items-start lg:justify-between">
+    <div className="fixed inset-0 z-40 flex items-stretch justify-center bg-slate-950/75 p-0 backdrop-blur-sm sm:items-center sm:p-4">
+      <article className="glass-panel h-[100dvh] max-h-[100dvh] w-full overflow-y-auto rounded-none p-4 pb-24 sm:h-auto sm:max-h-[94vh] sm:max-w-6xl sm:rounded-lg sm:p-5">
+        <div className="sticky top-0 z-20 -mx-4 -mt-4 flex flex-col gap-4 border-b border-white/10 bg-slate-950/95 px-4 pb-4 pt-4 backdrop-blur light:border-slate-900/10 light:bg-white/95 sm:static sm:m-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-0 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex items-start gap-4">
             <TeamFlag team={team} size="xl" />
             <div>
@@ -219,7 +219,7 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
           </div>
         )}
 
-        <div className="-mx-4 mt-5 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <div className="sticky top-0 z-10 -mx-4 mt-5 overflow-x-auto border-b border-white/10 bg-slate-950/88 px-4 py-2 backdrop-blur light:border-slate-900/10 light:bg-white/90 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-0">
           <div className="flex min-w-max gap-2 rounded-lg border border-white/10 bg-slate-950/35 p-1 light:border-slate-900/10 light:bg-white/70">
             {tabs.map((tab) => (
               <button
@@ -459,6 +459,35 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
             )}
           </section>
         )}
+
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-slate-950/92 p-3 backdrop-blur light:border-slate-900/10 light:bg-white/95 sm:hidden">
+          <div className="mx-auto grid max-w-lg grid-cols-3 gap-2">
+            <button
+              className="rounded-lg border border-white/10 px-3 py-3 text-xs font-black text-slate-200 light:border-slate-900/10 light:text-slate-700"
+              onClick={onClose}
+              type="button"
+            >
+              {t("close")}
+            </button>
+            <button
+              className="rounded-lg border border-trophy-500/30 bg-trophy-500/10 px-3 py-3 text-xs font-black text-trophy-100 light:text-trophy-800"
+              onClick={() => setActiveTab("squad")}
+              type="button"
+            >
+              {t("scoutTabSquad")}
+            </button>
+            <button
+              className="rounded-lg bg-trophy-500 px-3 py-3 text-xs font-black text-slate-950"
+              onClick={() => {
+                setActiveTab("squad");
+                setShowFullSquad((current) => !current);
+              }}
+              type="button"
+            >
+              {showFullSquad ? t("showKeyPlayersOnly") : t("showFullSquad")}
+            </button>
+          </div>
+        </div>
       </article>
     </div>
   );

@@ -1,28 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
-import { BeginnerIntroPanel } from "./components/BeginnerIntroPanel";
-import { BeginnerPathPanel } from "./components/BeginnerPathPanel";
-import { BracketView } from "./components/BracketView";
-import { DataQualityPanel } from "./components/DataQualityPanel";
-import { DataImportExport } from "./components/DataImportExport";
-import { FilterBar } from "./components/FilterBar";
-import { GlossaryPanel } from "./components/GlossaryPanel";
-import { GroupGrid } from "./components/GroupGrid";
-import { GroupStagePredictor } from "./components/GroupStagePredictor";
+import { lazy, Suspense, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Header } from "./components/Header";
-import { MatchWatchingGuide } from "./components/MatchWatchingGuide";
-import { ModelDataPanel } from "./components/ModelDataPanel";
-import { OffFieldStoriesPanel } from "./components/OffFieldStoriesPanel";
 import { OverviewHome } from "./components/OverviewHome";
 import { OverviewSectionNav, overviewSectionMeta } from "./components/OverviewSectionNav";
-import { PlayerModal } from "./components/PlayerModal";
-import { PhotoAuditPanel } from "./components/PhotoAuditPanel";
-import { PosterExportPanel } from "./components/PosterExportPanel";
 import { PredictionSummary } from "./components/PredictionSummary";
-import { RegionOverview } from "./components/RegionOverview";
-import { TeamCompare } from "./components/TeamCompare";
-import { TeamModal } from "./components/TeamModal";
-import { TopPlayers } from "./components/TopPlayers";
-import { WatchGuidePanel } from "./components/WatchGuidePanel";
 import { groups } from "./data/groups";
 import { players as defaultPlayers } from "./data/players";
 import { teams as defaultTeams } from "./data/teams";
@@ -32,6 +12,53 @@ import { completeBracketState, createInitialBracketState } from "./utils/bracket
 import { stageOrder } from "./utils/format";
 import { teamSearchText } from "./utils/localizedNames";
 import { readJson, storageKeys, writeJson } from "./utils/storage";
+
+const BeginnerIntroPanel = lazy(() =>
+  import("./components/BeginnerIntroPanel").then((module) => ({ default: module.BeginnerIntroPanel })),
+);
+const BeginnerPathPanel = lazy(() =>
+  import("./components/BeginnerPathPanel").then((module) => ({ default: module.BeginnerPathPanel })),
+);
+const BracketView = lazy(() => import("./components/BracketView").then((module) => ({ default: module.BracketView })));
+const DataImportExport = lazy(() =>
+  import("./components/DataImportExport").then((module) => ({ default: module.DataImportExport })),
+);
+const DataQualityPanel = lazy(() =>
+  import("./components/DataQualityPanel").then((module) => ({ default: module.DataQualityPanel })),
+);
+const FilterBar = lazy(() => import("./components/FilterBar").then((module) => ({ default: module.FilterBar })));
+const GlossaryPanel = lazy(() =>
+  import("./components/GlossaryPanel").then((module) => ({ default: module.GlossaryPanel })),
+);
+const GroupGrid = lazy(() => import("./components/GroupGrid").then((module) => ({ default: module.GroupGrid })));
+const GroupStagePredictor = lazy(() =>
+  import("./components/GroupStagePredictor").then((module) => ({ default: module.GroupStagePredictor })),
+);
+const MatchWatchingGuide = lazy(() =>
+  import("./components/MatchWatchingGuide").then((module) => ({ default: module.MatchWatchingGuide })),
+);
+const ModelDataPanel = lazy(() =>
+  import("./components/ModelDataPanel").then((module) => ({ default: module.ModelDataPanel })),
+);
+const OffFieldStoriesPanel = lazy(() =>
+  import("./components/OffFieldStoriesPanel").then((module) => ({ default: module.OffFieldStoriesPanel })),
+);
+const PhotoAuditPanel = lazy(() =>
+  import("./components/PhotoAuditPanel").then((module) => ({ default: module.PhotoAuditPanel })),
+);
+const PlayerModal = lazy(() => import("./components/PlayerModal").then((module) => ({ default: module.PlayerModal })));
+const PosterExportPanel = lazy(() =>
+  import("./components/PosterExportPanel").then((module) => ({ default: module.PosterExportPanel })),
+);
+const RegionOverview = lazy(() =>
+  import("./components/RegionOverview").then((module) => ({ default: module.RegionOverview })),
+);
+const TeamCompare = lazy(() => import("./components/TeamCompare").then((module) => ({ default: module.TeamCompare })));
+const TeamModal = lazy(() => import("./components/TeamModal").then((module) => ({ default: module.TeamModal })));
+const TopPlayers = lazy(() => import("./components/TopPlayers").then((module) => ({ default: module.TopPlayers })));
+const WatchGuidePanel = lazy(() =>
+  import("./components/WatchGuidePanel").then((module) => ({ default: module.WatchGuidePanel })),
+);
 
 const defaultFilters: FilterState = {
   query: "",
@@ -69,6 +96,9 @@ const readOverviewSection = () => {
 
 export default function App() {
   const { t } = useLanguage();
+  const heroPanelStyle = {
+    "--hero-bg-image": `url("assets/hero/stadium-night.webp")`,
+  } as CSSProperties;
   const [mode, setMode] = useState<"overview" | "predictor">(() =>
     readJson(storageKeys.mode, "overview" as "overview" | "predictor"),
   );
@@ -161,7 +191,7 @@ export default function App() {
       />
 
       <main className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:py-6">
-        <section className="glass-panel hero-panel rounded-lg p-4 sm:p-5">
+        <section className="glass-panel hero-panel rounded-lg p-4 sm:p-5" style={heroPanelStyle}>
           <div className="grid gap-4 lg:grid-cols-[1fr_320px] lg:items-end">
           <div className="max-w-4xl">
             <p className="text-sm font-bold uppercase tracking-[0.24em] text-trophy-300 light:text-trophy-700">
@@ -188,6 +218,7 @@ export default function App() {
           </div>
         </section>
 
+        <Suspense fallback={<LazyPanelFallback />}>
         {mode === "overview" ? (
           <>
             <OverviewSectionNav
@@ -310,6 +341,7 @@ export default function App() {
             />
           </>
         )}
+        </Suspense>
       </main>
 
       <footer className="mx-auto max-w-7xl px-4 pb-8 sm:px-6">
@@ -318,6 +350,7 @@ export default function App() {
         </div>
       </footer>
 
+      <Suspense fallback={<ModalFallback />}>
       {selectedTeam && (
         <TeamModal
           onClose={() => setSelectedTeam(null)}
@@ -331,6 +364,33 @@ export default function App() {
       {selectedPlayer && (
         <PlayerModal onClose={() => setSelectedPlayer(null)} player={selectedPlayer} team={selectedPlayerTeam} />
       )}
+      </Suspense>
     </div>
   );
 }
+
+const LazyPanelFallback = () => {
+  const { t } = useLanguage();
+
+  return (
+    <section className="glass-panel rounded-lg p-6">
+      <div className="h-2 w-24 animate-pulse rounded-full bg-trophy-400/70" />
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
+        {[0, 1, 2].map((item) => (
+          <div className="h-28 animate-pulse rounded-lg border border-white/10 bg-white/5" key={item} />
+        ))}
+      </div>
+      <p className="mt-4 text-sm text-slate-400 light:text-slate-600">{t("loadingSection")}</p>
+    </section>
+  );
+};
+
+const ModalFallback = () => {
+  const { t } = useLanguage();
+
+  return (
+    <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/75 backdrop-blur-sm">
+      <div className="glass-panel rounded-lg p-5 text-sm font-bold text-slate-200">{t("loadingSection")}</div>
+    </div>
+  );
+};

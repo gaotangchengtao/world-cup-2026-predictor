@@ -1,4 +1,5 @@
 import { Download, RotateCcw, Sparkles, Trophy } from "lucide-react";
+import { useState } from "react";
 import { defaultBracketRounds } from "../data/bracket";
 import { useLanguage } from "../i18n";
 import type { BracketPredictionState, Player, Team } from "../types/worldCup";
@@ -19,6 +20,7 @@ interface BracketViewProps {
 
 export const BracketView = ({ teams, players, bracketState, setBracketState }: BracketViewProps) => {
   const { language, t } = useLanguage();
+  const [activeMobileRound, setActiveMobileRound] = useState("round-32");
   const champion = getTeamById(teams, getChampionId(bracketState));
 
   const handleSlotChange = (matchId: string, slotKey: "slotA" | "slotB", teamId: string) => {
@@ -40,7 +42,13 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
   };
 
   const scrollToRound = (roundId: string) => {
+    setActiveMobileRound(roundId);
     document.getElementById(`bracket-${roundId}`)?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+  };
+
+  const scrollToChampion = () => {
+    setActiveMobileRound("champion");
+    document.getElementById("bracket-champion")?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
   };
 
   return (
@@ -84,10 +92,14 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
         <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400 light:text-slate-600 md:hidden">
           {t("swipeBracketHint")}
         </p>
-        <div className="mb-3 flex min-w-max gap-2 md:hidden">
+        <div className="sticky top-16 z-20 mb-3 flex min-w-max gap-2 rounded-lg border border-white/10 bg-slate-950/85 p-1 backdrop-blur md:hidden">
           {defaultBracketRounds.map((round) => (
             <button
-              className="rounded-md border border-white/10 bg-white/5 px-3 py-2 text-xs font-black text-slate-200 light:border-slate-900/10 light:bg-white light:text-slate-700"
+              className={`rounded-md px-3 py-2 text-xs font-black transition ${
+                activeMobileRound === round.id
+                  ? "bg-trophy-500 text-slate-950"
+                  : "border border-white/10 bg-white/5 text-slate-200 light:border-slate-900/10 light:bg-white light:text-slate-700"
+              }`}
               key={round.id}
               onClick={() => scrollToRound(round.id)}
               type="button"
@@ -103,8 +115,19 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
                       : t("stageFinal")}
             </button>
           ))}
+          <button
+            className={`rounded-md px-3 py-2 text-xs font-black transition ${
+              activeMobileRound === "champion"
+                ? "bg-trophy-500 text-slate-950"
+                : "border border-white/10 bg-white/5 text-slate-200 light:border-slate-900/10 light:bg-white light:text-slate-700"
+            }`}
+            onClick={scrollToChampion}
+            type="button"
+          >
+            {t("champion")}
+          </button>
         </div>
-        <div className="flex min-w-max snap-x snap-mandatory gap-4">
+        <div className="flex min-w-full snap-x snap-mandatory gap-4 md:min-w-max">
           {defaultBracketRounds.map((round) => (
             <BracketRound
               bracketState={bracketState}
@@ -116,7 +139,7 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
               players={players}
             />
           ))}
-          <section className="flex min-w-[300px] flex-col gap-3">
+          <section className="flex min-w-[calc(100vw-2rem)] snap-start flex-col gap-3 sm:min-w-[320px]" id="bracket-champion">
             <div className="sticky top-20 z-10 rounded-lg border border-trophy-500/40 bg-trophy-500/20 px-4 py-3 text-center">
               <h2 className="text-base font-black text-trophy-100 light:text-trophy-800">{t("champion")}</h2>
               <p className="text-xs text-trophy-200 light:text-trophy-700">{t("finalWinner")}</p>

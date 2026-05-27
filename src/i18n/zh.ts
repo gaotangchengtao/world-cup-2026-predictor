@@ -353,4 +353,6 @@ export const zh: Record<keyof typeof en, string> = {
   offFieldDataNotice:
     "场外花絮以公开来源摘要形式保存。爬虫模板会尽量保守运行，并把原始输出保存到 D 盘，人工复核后再进入网页数据。",
   notAvailable: "暂无",
+  loadingSection: "正在加载这个板块...",
+  close: "关闭",
 };
