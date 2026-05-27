@@ -1,4 +1,4 @@
-import type { FilterState, Team, WorldCupGroup } from "../types/worldCup";
+import type { ExperienceMode, FilterState, Team, WorldCupGroup } from "../types/worldCup";
 import { useLanguage } from "../i18n";
 import { GroupCard } from "./GroupCard";
 
@@ -6,10 +6,11 @@ interface GroupGridProps {
   groups: WorldCupGroup[];
   teams: Team[];
   filters: FilterState;
+  experienceMode: ExperienceMode;
   onSelectTeam: (team: Team) => void;
 }
 
-export const GroupGrid = ({ groups, teams, filters, onSelectTeam }: GroupGridProps) => {
+export const GroupGrid = ({ groups, teams, filters, experienceMode, onSelectTeam }: GroupGridProps) => {
   const { t } = useLanguage();
   const teamById = new Map(teams.map((team) => [team.id, team]));
   const visibleGroups = groups.filter((group) => filters.group === "all" || group.code === filters.group);
@@ -34,6 +35,7 @@ export const GroupGrid = ({ groups, teams, filters, onSelectTeam }: GroupGridPro
             key={group.code}
             groupName={`${t("group")} ${group.code}`}
             teams={groupTeams}
+            experienceMode={experienceMode}
             onSelectTeam={onSelectTeam}
           />
         );

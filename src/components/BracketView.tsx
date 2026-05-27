@@ -58,6 +58,9 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
       </div>
 
       <div className="bracket-scroll overflow-x-auto rounded-lg border border-white/10 bg-slate-950/35 p-4 light:border-slate-900/10 light:bg-white/50">
+        <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400 light:text-slate-600 md:hidden">
+          {t("swipeBracketHint")}
+        </p>
         <div className="flex min-w-max gap-4">
           {defaultBracketRounds.map((round) => (
             <BracketRound

@@ -55,6 +55,13 @@ export interface WatchMatchInsight {
   whyWatch: Record<Language, string>;
 }
 
+export interface GroupDifficulty {
+  group: GroupCode;
+  averageStrengthRank: number;
+  averageStrengthScore: number;
+  topTeam: Team;
+}
+
 const stageStrength: Record<PredictionStage, number> = {
   Champion: 1,
   Final: 0.88,
@@ -163,6 +170,38 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 export const getTeamStyleTags = (team: Team) => styleTagMap[team.id] ?? defaultStyleTags(team);
 
 export const getTeamRegion = (teamId: string): RegionKey => regionByTeamId[teamId] ?? "europe";
+
+export const getBeginnerFriendlyRating = (team: Team, players: Player[]) => {
+  const keyPlayers = players.filter((player) => player.teamId === team.id && player.isKeyPlayer).length;
+  const styleCount = getTeamStyleTags(team).length;
+  const starPower = Math.min(20, keyPlayers * 4);
+  const strengthSignal = team.strengthScore >= 78 ? 18 : team.strengthScore >= 68 ? 12 : 7;
+  const storySignal = team.isDarkHorse ? 12 : team.strengthRank <= 12 ? 14 : 8;
+  const claritySignal = styleCount >= 3 ? 14 : 10;
+
+  return clamp(Math.round(34 + starPower + strengthSignal + storySignal + claritySignal), 45, 98);
+};
+
+export const getHardestGroup = (groups: Array<{ code: GroupCode; teamIds: string[] }>, teams: Team[]): GroupDifficulty | null => {
+  const rows = groups
+    .map((group) => {
+      const groupTeams = group.teamIds
+        .map((teamId) => teams.find((team) => team.id === teamId))
+        .filter((team): team is Team => Boolean(team));
+
+      if (groupTeams.length === 0) return null;
+
+      return {
+        group: group.code,
+        averageStrengthRank: groupTeams.reduce((sum, team) => sum + team.strengthRank, 0) / groupTeams.length,
+        averageStrengthScore: groupTeams.reduce((sum, team) => sum + team.strengthScore, 0) / groupTeams.length,
+        topTeam: [...groupTeams].sort((a, b) => a.strengthRank - b.strengthRank)[0],
+      };
+    })
+    .filter((row): row is GroupDifficulty => Boolean(row));
+
+  return rows.sort((a, b) => a.averageStrengthRank - b.averageStrengthRank)[0] ?? null;
+};
 
 export const getWinProbability = (teamA: Team | undefined, teamB: Team | undefined): WinProbability | null => {
   if (!teamA || !teamB) return null;

@@ -1,8 +1,10 @@
-import { Crown, Sparkles, Star, Trophy } from "lucide-react";
+import { BarChart3, CalendarClock, Crown, Gauge, Sparkles, Star, Trophy } from "lucide-react";
+import { groups as defaultGroups } from "../data/groups";
 import { useLanguage } from "../i18n";
-import type { BracketPredictionState, OverviewSection, Player, Team } from "../types/worldCup";
+import type { BracketPredictionState, ExperienceMode, OverviewSection, Player, Team } from "../types/worldCup";
 import { getChampionId } from "../utils/bracket";
-import { stageLabel } from "../utils/format";
+import { qualityLabel, stageLabel } from "../utils/format";
+import { getHardestGroup, summarizeDataQuality } from "../utils/insights";
 import { displayClubName, displayPlayerName, displayTeamName } from "../utils/localizedNames";
 import { overviewSectionMeta } from "./OverviewSectionNav";
 import { PlayerAvatar } from "./PlayerAvatar";
@@ -12,6 +14,7 @@ import { TeamFlag } from "./TeamFlag";
 
 interface OverviewHomeProps {
   bracketState: BracketPredictionState;
+  experienceMode: ExperienceMode;
   onSelectPlayer: (player: Player) => void;
   onSelectTeam: (team: Team) => void;
   players: Player[];
@@ -21,6 +24,7 @@ interface OverviewHomeProps {
 
 export const OverviewHome = ({
   bracketState,
+  experienceMode,
   onSelectPlayer,
   onSelectTeam,
   players,
@@ -37,7 +41,20 @@ export const OverviewHome = ({
     .sort((a, b) => a.strengthRank - b.strengthRank)
     .slice(0, 5);
   const topValuePlayers = [...players].sort((a, b) => b.marketValueEurM - a.marketValueEurM).slice(0, 5);
+  const mustWatchPlayers = [...players]
+    .sort((a, b) => {
+      if (Number(b.isKeyPlayer) !== Number(a.isKeyPlayer)) return Number(b.isKeyPlayer) - Number(a.isKeyPlayer);
+      return b.marketValueEurM - a.marketValueEurM;
+    })
+    .slice(0, 5);
+  const dashboardPlayers = experienceMode === "beginner" ? mustWatchPlayers : topValuePlayers;
   const teamById = new Map(teams.map((team) => [team.id, team]));
+  const hardestGroup = getHardestGroup(defaultGroups, teams);
+  const updatedRows = [...teams.map((team) => team.lastUpdated), ...players.map((player) => player.lastUpdated ?? "")]
+    .filter(Boolean)
+    .sort();
+  const dataUpdated = updatedRows[updatedRows.length - 1];
+  const qualityRows = summarizeDataQuality(teams, players).filter((row) => row.count > 0);
 
   const sectionTags: Record<OverviewSection, string[]> = {
     home: [t("championPrediction"), t("titleContenders"), t("darkHorseTeams")],
@@ -101,16 +118,18 @@ export const OverviewHome = ({
                 <span className="min-w-0 flex-1 truncate text-sm font-bold text-white light:text-slate-950">
                   {displayTeamName(team, language)}
                 </span>
-                <span className="text-xs font-black text-slate-300 light:text-slate-600">{team.strengthScore}</span>
+                {experienceMode === "expert" && (
+                  <span className="text-xs font-black text-slate-300 light:text-slate-600">{team.strengthScore}</span>
+                )}
               </button>
             ))}
           </div>
         </article>
 
         <article className="glass-panel rounded-lg p-4">
-          <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewValuePlayersTop")}</h2>
+          <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewMustWatchPlayers")}</h2>
           <div className="mt-4 grid gap-2">
-            {topValuePlayers.map((player, index) => {
+            {dashboardPlayers.map((player, index) => {
               const team = teamById.get(player.teamId);
 
               return (
@@ -135,9 +154,11 @@ export const OverviewHome = ({
                       {displayClubName(player.club, language)}
                     </p>
                   </div>
-                  <span className="text-sm font-black text-trophy-300 light:text-trophy-700">
-                    {player.marketValue ?? "N/A"}
-                  </span>
+                  {experienceMode === "expert" && (
+                    <span className="text-sm font-black text-trophy-300 light:text-trophy-700">
+                      {player.marketValue ?? "N/A"}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -145,33 +166,89 @@ export const OverviewHome = ({
         </article>
       </div>
 
-      <article className="glass-panel rounded-lg p-4">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewDarkHorsesTop")}</h2>
-          <Sparkles className="text-orange-300" size={20} />
-        </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-          {darkHorses.map((team) => (
-            <button
-              className="rounded-lg border border-white/10 bg-white/5 p-3 text-left transition hover:border-orange-300 light:border-slate-900/10 light:bg-white"
-              key={team.id}
-              onClick={() => onSelectTeam(team)}
-              type="button"
-            >
-              <div className="flex items-center gap-2">
-                <TeamFlag team={team} size="sm" />
-                <p className="min-w-0 flex-1 truncate text-sm font-black text-white light:text-slate-950">
-                  {displayTeamName(team, language)}
+      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <article className="glass-panel rounded-lg p-4">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewDarkHorsesTop")}</h2>
+            <Sparkles className="text-orange-300" size={20} />
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+            {darkHorses.map((team) => (
+              <button
+                className="rounded-lg border border-white/10 bg-white/5 p-3 text-left transition hover:border-orange-300 light:border-slate-900/10 light:bg-white"
+                key={team.id}
+                onClick={() => onSelectTeam(team)}
+                type="button"
+              >
+                <div className="flex items-center gap-2">
+                  <TeamFlag team={team} size="sm" />
+                  <p className="min-w-0 flex-1 truncate text-sm font-black text-white light:text-slate-950">
+                    {displayTeamName(team, language)}
+                  </p>
+                  <Star className="text-orange-300" size={14} />
+                </div>
+                <p className="mt-2 text-xs text-slate-400 light:text-slate-600">
+                  #{team.strengthRank} · {stageLabel(team.predictedStage, t)}
                 </p>
-                <Star className="text-orange-300" size={14} />
-              </div>
-              <p className="mt-2 text-xs text-slate-400 light:text-slate-600">
-                #{team.strengthRank} · {stageLabel(team.predictedStage, t)}
+              </button>
+            ))}
+          </div>
+        </article>
+
+        <article className="glass-panel rounded-lg p-4">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewHardestGroup")}</h2>
+            <Gauge className="text-sky-300" size={20} />
+          </div>
+          {hardestGroup && (
+            <div className="mt-4 rounded-lg border border-sky-400/20 bg-sky-500/10 p-4">
+              <p className="text-4xl font-black text-white light:text-slate-950">
+                {t("group")} {hardestGroup.group}
               </p>
-            </button>
-          ))}
-        </div>
-      </article>
+              <p className="mt-2 text-sm leading-6 text-slate-300 light:text-slate-700">
+                {t("overviewHardestGroupDesc")}
+              </p>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs uppercase text-slate-500">{t("strengthRank")}</p>
+                  <p className="text-xl font-black text-sky-300">{hardestGroup.averageStrengthRank.toFixed(1)}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase text-slate-500">{t("strengthScore")}</p>
+                  <p className="text-xl font-black text-sky-300">{hardestGroup.averageStrengthScore.toFixed(1)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </article>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <article className="glass-panel rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <CalendarClock className="text-trophy-300" size={20} />
+            <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewDataUpdated")}</h2>
+          </div>
+          <p className="mt-3 text-3xl font-black text-white light:text-slate-950">{dataUpdated ?? "N/A"}</p>
+          <p className="mt-2 text-sm leading-6 text-slate-300 light:text-slate-700">{t("finalSquadUpdateNote")}</p>
+        </article>
+        <article className="glass-panel rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="text-emerald-300" size={20} />
+            <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewTrustSummary")}</h2>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {qualityRows.map((row) => (
+              <span
+                className="rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-bold text-slate-300 light:border-slate-900/10 light:bg-slate-50 light:text-slate-700"
+                key={row.key}
+              >
+                {qualityLabel(row.key, t)}: {row.count}
+              </span>
+            ))}
+          </div>
+        </article>
+      </div>
 
       <div>
         <div className="mb-3 flex items-center justify-between gap-3">

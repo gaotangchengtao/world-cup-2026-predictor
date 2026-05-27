@@ -1,15 +1,19 @@
 import { Moon, Sun, Trophy } from "lucide-react";
 import { useLanguage } from "../i18n";
+import type { ExperienceMode } from "../types/worldCup";
+import { ExperienceModeToggle } from "./ExperienceModeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface HeaderProps {
+  experienceMode: ExperienceMode;
   mode: "overview" | "predictor";
+  setExperienceMode: (mode: ExperienceMode) => void;
   setMode: (mode: "overview" | "predictor") => void;
   theme: "dark" | "light";
   toggleTheme: () => void;
 }
 
-export const Header = ({ mode, setMode, theme, toggleTheme }: HeaderProps) => {
+export const Header = ({ experienceMode, mode, setExperienceMode, setMode, theme, toggleTheme }: HeaderProps) => {
   const { t } = useLanguage();
 
   return (
@@ -52,6 +56,8 @@ export const Header = ({ mode, setMode, theme, toggleTheme }: HeaderProps) => {
               {t("predictorMode")}
             </button>
           </div>
+
+          <ExperienceModeToggle experienceMode={experienceMode} setExperienceMode={setExperienceMode} />
 
           <LanguageSwitcher />
 

@@ -1,19 +1,23 @@
 import { ArrowUpRight, Shield, Sparkles } from "lucide-react";
 import { useLanguage } from "../i18n";
-import type { Team } from "../types/worldCup";
-import { groupPositionLabel, qualityLabel, stageLabel } from "../utils/format";
+import type { ExperienceMode, Team } from "../types/worldCup";
+import { groupPositionLabel, stageLabel } from "../utils/format";
+import { getBeginnerFriendlyRating } from "../utils/insights";
 import { displayCoachName, displayTeamName } from "../utils/localizedNames";
+import { DataQualityBadge } from "./DataQualityBadge";
 import { TeamFlag } from "./TeamFlag";
 
 interface TeamCardProps {
   team: Team;
   onSelect: (team: Team) => void;
   compact?: boolean;
+  experienceMode?: ExperienceMode;
 }
 
-export const TeamCard = ({ team, onSelect, compact = false }: TeamCardProps) => {
+export const TeamCard = ({ team, onSelect, compact = false, experienceMode = "expert" }: TeamCardProps) => {
   const { language, t } = useLanguage();
   const teamName = displayTeamName(team, language);
+  const beginnerRating = getBeginnerFriendlyRating(team, []);
 
   return (
     <button
@@ -52,18 +56,32 @@ export const TeamCard = ({ team, onSelect, compact = false }: TeamCardProps) => 
             {t("darkHorse")}
           </span>
         )}
+        <DataQualityBadge quality={team.dataQuality} compact />
       </div>
 
       {!compact && (
-        <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-300 light:text-slate-600">
-          <span className="inline-flex items-center gap-1">
-            <Shield size={14} />
-            {team.formation ?? "TBD"}
-          </span>
-          <span className="font-semibold text-trophy-300 light:text-trophy-700">{team.squadValue ?? "N/A"}</span>
-          <span className="truncate">{displayCoachName(team.coach, language) || `${t("coach")} TBD`}</span>
-          <span>{qualityLabel(team.dataQuality, t)}</span>
-        </div>
+        <>
+          {experienceMode === "beginner" && (
+            <div className="mt-4 rounded-lg border border-emerald-400/20 bg-emerald-500/10 p-3">
+              <p className="text-xs font-bold text-emerald-200 light:text-emerald-700">{t("beginnerFriendlyIndex")}</p>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-900/70 light:bg-slate-200">
+                <div className="h-full rounded-full bg-emerald-400" style={{ width: `${beginnerRating}%` }} />
+              </div>
+              <p className="mt-1 text-xs text-slate-300 light:text-slate-700">{beginnerRating}/100</p>
+            </div>
+          )}
+          {experienceMode === "expert" && (
+            <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-300 light:text-slate-600">
+              <span className="inline-flex items-center gap-1">
+                <Shield size={14} />
+                {team.formation ?? "TBD"}
+              </span>
+              <span className="font-semibold text-trophy-300 light:text-trophy-700">{team.squadValue ?? "N/A"}</span>
+              <span className="truncate">{displayCoachName(team.coach, language) || `${t("coach")} TBD`}</span>
+              <span>{t("strengthScore")}: {team.strengthScore}</span>
+            </div>
+          )}
+        </>
       )}
 
       <ArrowUpRight className="absolute bottom-3 right-3 text-slate-500 transition group-hover:text-trophy-300" size={16} />

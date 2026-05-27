@@ -4,22 +4,26 @@ import type { Player, Team } from "../types/worldCup";
 
 export const displayTeamName = (team: Team | undefined, language: Language) => {
   if (!team) return "";
-  return language === "zh" ? teamNamesZh[team.id] ?? team.name : team.name;
+  void language;
+  return team.name;
 };
 
 export const displayPlayerName = (player: Player | undefined, language: Language) => {
   if (!player) return "";
-  return language === "zh" ? playerNamesZh[player.name] ?? player.name : player.name;
+  void language;
+  return player.name;
 };
 
 export const displayClubName = (club: string | undefined, language: Language) => {
   if (!club) return "";
-  return language === "zh" ? clubNamesZh[club] ?? club : club;
+  void language;
+  return club;
 };
 
 export const displayCoachName = (coach: string | undefined, language: Language) => {
   if (!coach) return "";
-  return language === "zh" ? coachNamesZh[coach] ?? coach : coach;
+  void language;
+  return coach;
 };
 
 export const teamSearchText = (team: Team) =>

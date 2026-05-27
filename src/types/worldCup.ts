@@ -23,6 +23,7 @@ export type PredictionStage =
 
 export type PlayerPosition = "GK" | "DF" | "MF" | "FW";
 export type SquadStatus = "projected" | "preliminary" | "final";
+export type ExperienceMode = "beginner" | "expert";
 export type PlayerPhotoSource =
   | "club_website"
   | "national_team_website"

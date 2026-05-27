@@ -1,13 +1,14 @@
-import type { Team } from "../types/worldCup";
+import type { ExperienceMode, Team } from "../types/worldCup";
 import { TeamCard } from "./TeamCard";
 
 interface GroupCardProps {
+  experienceMode: ExperienceMode;
   groupName: string;
   teams: Team[];
   onSelectTeam: (team: Team) => void;
 }
 
-export const GroupCard = ({ groupName, teams, onSelectTeam }: GroupCardProps) => (
+export const GroupCard = ({ experienceMode, groupName, teams, onSelectTeam }: GroupCardProps) => (
   <article className="glass-panel rounded-lg p-4">
     <div className="mb-4 flex items-center justify-between">
       <h2 className="text-lg font-black text-white light:text-slate-950">{groupName}</h2>
@@ -17,7 +18,7 @@ export const GroupCard = ({ groupName, teams, onSelectTeam }: GroupCardProps) =>
     </div>
     <div className="grid gap-3">
       {teams.map((team) => (
-        <TeamCard key={team.id} team={team} onSelect={onSelectTeam} />
+        <TeamCard key={team.id} team={team} experienceMode={experienceMode} onSelect={onSelectTeam} />
       ))}
     </div>
   </article>

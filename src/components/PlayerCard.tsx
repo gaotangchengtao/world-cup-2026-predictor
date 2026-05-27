@@ -4,6 +4,7 @@ import type { Player } from "../types/worldCup";
 import { squadStatusLabel } from "../utils/format";
 import { displayClubName, displayPlayerName } from "../utils/localizedNames";
 import { photoSourceLabel } from "../utils/photos";
+import { DataQualityBadge } from "./DataQualityBadge";
 import { PlayerAvatar } from "./PlayerAvatar";
 
 interface PlayerCardProps {
@@ -44,6 +45,9 @@ export const PlayerCard = ({ player, onSelect }: PlayerCardProps) => {
         <p className="text-[11px] font-bold text-sky-300 light:text-sky-700">
           {squadStatusLabel(player.squadStatus, t)}
         </p>
+        <div className="mt-1 flex justify-end">
+          <DataQualityBadge quality={player.dataQuality} compact />
+        </div>
         {player.predictedStarter && (
           <p className="text-[11px] font-bold text-emerald-300 light:text-emerald-700">{t("starter")}</p>
         )}

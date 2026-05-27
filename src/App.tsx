@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { BeginnerIntroPanel } from "./components/BeginnerIntroPanel";
+import { BeginnerPathPanel } from "./components/BeginnerPathPanel";
 import { BracketView } from "./components/BracketView";
 import { DataQualityPanel } from "./components/DataQualityPanel";
 import { DataImportExport } from "./components/DataImportExport";
@@ -8,6 +9,7 @@ import { GlossaryPanel } from "./components/GlossaryPanel";
 import { GroupGrid } from "./components/GroupGrid";
 import { GroupStagePredictor } from "./components/GroupStagePredictor";
 import { Header } from "./components/Header";
+import { MatchWatchingGuide } from "./components/MatchWatchingGuide";
 import { OverviewHome } from "./components/OverviewHome";
 import { OverviewSectionNav, overviewSectionMeta } from "./components/OverviewSectionNav";
 import { PlayerModal } from "./components/PlayerModal";
@@ -23,7 +25,7 @@ import { groups } from "./data/groups";
 import { players as defaultPlayers } from "./data/players";
 import { teams as defaultTeams } from "./data/teams";
 import { useLanguage } from "./i18n";
-import type { BracketPredictionState, FilterState, OverviewSection, Player, RuntimeData, Team } from "./types/worldCup";
+import type { BracketPredictionState, ExperienceMode, FilterState, OverviewSection, Player, RuntimeData, Team } from "./types/worldCup";
 import { completeBracketState, createInitialBracketState } from "./utils/bracket";
 import { stageOrder } from "./utils/format";
 import { teamSearchText } from "./utils/localizedNames";
@@ -69,6 +71,9 @@ export default function App() {
     readJson(storageKeys.mode, "overview" as "overview" | "predictor"),
   );
   const [theme, setTheme] = useState<"dark" | "light">(() => readJson(storageKeys.theme, "dark" as "dark" | "light"));
+  const [experienceMode, setExperienceMode] = useState<ExperienceMode>(() =>
+    readJson(storageKeys.experienceMode, "beginner" as ExperienceMode),
+  );
   const [activeOverviewSection, setActiveOverviewSection] = useState<OverviewSection>(readOverviewSection);
   const [runtimeData, setRuntimeData] = useState<RuntimeData>(() =>
     mergeDefaultRuntimeData(readJson(storageKeys.runtimeData, defaultRuntimeData)),
@@ -92,6 +97,10 @@ export default function App() {
     document.documentElement.classList.toggle("light", theme === "light");
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
+
+  useEffect(() => {
+    writeJson(storageKeys.experienceMode, experienceMode);
+  }, [experienceMode]);
 
   useEffect(() => {
     writeJson(storageKeys.overviewSection, activeOverviewSection);
@@ -141,7 +150,9 @@ export default function App() {
   return (
     <div className={`${theme} stadium-bg min-h-screen text-slate-100 light:text-slate-900`}>
       <Header
+        experienceMode={experienceMode}
         mode={mode}
+        setExperienceMode={setExperienceMode}
         setMode={setMode}
         theme={theme}
         toggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -186,6 +197,7 @@ export default function App() {
                 onSelectPlayer={setSelectedPlayer}
                 onSelectTeam={setSelectedTeam}
                 players={runtimeData.players}
+                experienceMode={experienceMode}
                 setActiveSection={setActiveOverviewSection}
                 teams={runtimeData.teams}
               />
@@ -195,7 +207,13 @@ export default function App() {
               <>
                 <FilterBar filters={filters} setFilters={setFilters} />
                 <GroupStagePredictor groups={groups} teams={runtimeData.teams} />
-                <GroupGrid groups={groups} teams={visibleTeams} filters={filters} onSelectTeam={setSelectedTeam} />
+                <GroupGrid
+                  experienceMode={experienceMode}
+                  groups={groups}
+                  teams={visibleTeams}
+                  filters={filters}
+                  onSelectTeam={setSelectedTeam}
+                />
                 <RegionOverview teams={runtimeData.teams} />
               </>
             )}
@@ -227,7 +245,9 @@ export default function App() {
 
             {activeOverviewSection === "beginner" && (
               <>
+                <BeginnerPathPanel />
                 <BeginnerIntroPanel />
+                <MatchWatchingGuide teams={runtimeData.teams} players={runtimeData.players} experienceMode={experienceMode} />
                 <WatchGuidePanel teams={runtimeData.teams} />
                 <GlossaryPanel />
               </>
@@ -285,6 +305,7 @@ export default function App() {
           onClose={() => setSelectedTeam(null)}
           onSelectPlayer={setSelectedPlayer}
           players={selectedTeamPlayers}
+          experienceMode={experienceMode}
           team={selectedTeam}
         />
       )}

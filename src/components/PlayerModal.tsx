@@ -4,6 +4,7 @@ import type { Player, Team } from "../types/worldCup";
 import { qualityLabel, squadStatusLabel } from "../utils/format";
 import { displayClubName, displayPlayerName, displayTeamName } from "../utils/localizedNames";
 import { photoSourceLabel } from "../utils/photos";
+import { DataQualityBadge } from "./DataQualityBadge";
 import { PlayerAvatar } from "./PlayerAvatar";
 import { TeamFlag } from "./TeamFlag";
 
@@ -78,6 +79,9 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
             <p className="mt-1 font-bold text-white light:text-slate-950">
               {qualityLabel(player.dataQuality, t)} · {player.lastUpdated ?? "N/A"}
             </p>
+            <div className="mt-2">
+              <DataQualityBadge quality={player.dataQuality} />
+            </div>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50 sm:col-span-2">
             <p className="text-xs uppercase text-slate-500">{t("photoSource")}</p>
