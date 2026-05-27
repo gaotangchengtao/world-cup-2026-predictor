@@ -26,6 +26,51 @@ export const DataImportExport = ({
   const isWrappedPrediction = (value: unknown): value is { bracketState: BracketPredictionState } =>
     isRecord(value) && isRecord(value.bracketState);
 
+  const downloadText = (filename: string, content: string, type: string) => {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportCsvTemplate = () => {
+    const header = [
+      "playerId",
+      "teamId",
+      "name",
+      "club",
+      "marketValue",
+      "marketValueEurM",
+      "photoUrl",
+      "photoSource",
+      "photoCredit",
+      "photoLastUpdated",
+      "transfermarktUrl",
+      "lastUpdated",
+      "dataQuality",
+    ];
+    const example = [
+      "argentina-1-lionel-messi",
+      "argentina",
+      "Lionel Messi",
+      "Inter Miami",
+      "€20.00m",
+      "20",
+      "https://example.com/photo.jpg",
+      "manual",
+      "Photographer / Rights cleared",
+      "2026-05-27",
+      "https://www.transfermarkt.com/",
+      "2026-05-27",
+      "manual",
+    ];
+
+    downloadText("wc2026-player-template.csv", `${header.join(",")}\n${example.join(",")}\n`, "text/csv;charset=utf-8");
+  };
+
   const handleImport = async (file?: File) => {
     if (!file) return;
 
@@ -52,9 +97,8 @@ export const DataImportExport = ({
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-lg font-black text-white light:text-slate-950">{t("jsonImportExport")}</h2>
-          <p className="text-sm text-slate-400 light:text-slate-600">
-            {t("importRuntimeNote")}
-          </p>
+          <p className="text-sm text-slate-400 light:text-slate-600">{t("importRuntimeNote")}</p>
+          <p className="mt-1 text-xs text-slate-500 light:text-slate-600">{t("csvTemplateDescription")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
@@ -72,6 +116,14 @@ export const DataImportExport = ({
           >
             <Download size={16} />
             {t("exportDataTemplate")}
+          </button>
+          <button
+            className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-bold text-slate-200 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
+            onClick={handleExportCsvTemplate}
+            type="button"
+          >
+            <Download size={16} />
+            {t("downloadCsvTemplate")}
           </button>
           <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-trophy-500 px-3 py-2 text-sm font-black text-slate-950 hover:bg-trophy-300">
             <Upload size={16} />

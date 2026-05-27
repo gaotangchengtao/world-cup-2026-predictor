@@ -1,4 +1,4 @@
-import type { BracketPredictionState, BracketRound as BracketRoundType, Team } from "../types/worldCup";
+import type { BracketPredictionState, BracketRound as BracketRoundType, Player, Team } from "../types/worldCup";
 import { useLanguage } from "../i18n";
 import { BracketMatch } from "./BracketMatch";
 
@@ -6,11 +6,12 @@ interface BracketRoundProps {
   round: BracketRoundType;
   bracketState: BracketPredictionState;
   teams: Team[];
+  players: Player[];
   onSlotChange: (matchId: string, slotKey: "slotA" | "slotB", teamId: string) => void;
   onChooseWinner: (matchId: string, teamId: string) => void;
 }
 
-export const BracketRound = ({ round, bracketState, teams, onSlotChange, onChooseWinner }: BracketRoundProps) => {
+export const BracketRound = ({ round, bracketState, teams, players, onSlotChange, onChooseWinner }: BracketRoundProps) => {
   const { t } = useLanguage();
   const roundName =
     round.id === "round-32"
@@ -39,6 +40,7 @@ export const BracketRound = ({ round, bracketState, teams, onSlotChange, onChoos
           matchState={bracketState[match.id] ?? {}}
           onChooseWinner={onChooseWinner}
           onSlotChange={onSlotChange}
+          players={players}
           teams={teams}
         />
       ))}

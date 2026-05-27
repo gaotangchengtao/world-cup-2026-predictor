@@ -11,7 +11,10 @@ import {
   displayTeamName,
   playerSearchText,
 } from "../utils/localizedNames";
+import { getTopTeamPlayers } from "../utils/insights";
+import { ExplanationCard } from "./ExplanationCard";
 import { PlayerCard } from "./PlayerCard";
+import { TeamStyleTags } from "./TeamStyleTags";
 import { TeamFlag } from "./TeamFlag";
 
 interface TeamModalProps {
@@ -67,6 +70,7 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
 
   const totalValue = players.reduce((sum, player) => sum + player.marketValueEurM, 0);
   const keyPlayers = players.filter((player) => player.isKeyPlayer).length;
+  const spotlightPlayers = getTopTeamPlayers(team.id, players);
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
@@ -86,6 +90,9 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300 light:text-slate-700">
                 {guide.beginnerIntro}
               </p>
+              <div className="mt-3">
+                <TeamStyleTags team={team} />
+              </div>
             </div>
           </div>
           <button
@@ -204,6 +211,38 @@ export const TeamModal = ({ team, players, onClose, onSelectPlayer }: TeamModalP
               <h4 className="text-sm font-black text-trophy-200 light:text-trophy-800">{t("whyTheyMatter")}</h4>
               <p className="mt-1 text-sm leading-6 text-slate-300 light:text-slate-700">{guide.whyTheyMatter}</p>
             </div>
+          </div>
+        </section>
+
+        <div className="mt-6">
+          <ExplanationCard players={players} team={team} />
+        </div>
+
+        <section className="mt-6 rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-black text-white light:text-slate-950">{t("keyPlayerTrioTitle")}</h3>
+              <p className="text-sm text-slate-400 light:text-slate-600">{t("keyPlayerTrioDescription")}</p>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {spotlightPlayers.map((player) => (
+              <button
+                className="rounded-lg border border-white/10 bg-slate-950/45 p-4 text-left transition hover:border-trophy-500 light:border-slate-900/10 light:bg-white"
+                key={player.playerId}
+                onClick={() => onSelectPlayer(player)}
+                type="button"
+              >
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{player.position}</p>
+                <p className="mt-2 text-lg font-black text-white light:text-slate-950">
+                  {displayPlayerName(player, language)}
+                </p>
+                <p className="mt-1 text-sm text-slate-400 light:text-slate-600">
+                  {displayClubName(player.club, language)}
+                </p>
+                <p className="mt-3 text-sm font-bold text-trophy-300 light:text-trophy-700">{player.marketValue ?? "N/A"}</p>
+              </button>
+            ))}
           </div>
         </section>
 

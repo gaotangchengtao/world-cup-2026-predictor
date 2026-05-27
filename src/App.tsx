@@ -1,15 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { BracketView } from "./components/BracketView";
+import { DataQualityPanel } from "./components/DataQualityPanel";
 import { DataImportExport } from "./components/DataImportExport";
 import { FilterBar } from "./components/FilterBar";
+import { GlossaryPanel } from "./components/GlossaryPanel";
 import { GroupGrid } from "./components/GroupGrid";
 import { GroupStagePredictor } from "./components/GroupStagePredictor";
 import { Header } from "./components/Header";
 import { PlayerModal } from "./components/PlayerModal";
+import { PhotoAuditPanel } from "./components/PhotoAuditPanel";
+import { PosterExportPanel } from "./components/PosterExportPanel";
 import { PredictionSummary } from "./components/PredictionSummary";
+import { RegionOverview } from "./components/RegionOverview";
 import { TeamCompare } from "./components/TeamCompare";
 import { TeamModal } from "./components/TeamModal";
 import { TopPlayers } from "./components/TopPlayers";
+import { WatchGuidePanel } from "./components/WatchGuidePanel";
 import { groups } from "./data/groups";
 import { players as defaultPlayers } from "./data/players";
 import { teams as defaultTeams } from "./data/teams";
@@ -134,9 +140,19 @@ export default function App() {
           <>
             <FilterBar filters={filters} setFilters={setFilters} />
             <GroupStagePredictor groups={groups} teams={runtimeData.teams} />
+            <WatchGuidePanel teams={runtimeData.teams} />
             <GroupGrid groups={groups} teams={visibleTeams} filters={filters} onSelectTeam={setSelectedTeam} />
+            <RegionOverview teams={runtimeData.teams} />
             <TopPlayers players={runtimeData.players} teams={runtimeData.teams} onSelectPlayer={setSelectedPlayer} />
             <TeamCompare teams={runtimeData.teams} players={runtimeData.players} />
+            <GlossaryPanel />
+            <PhotoAuditPanel players={runtimeData.players} />
+            <DataQualityPanel players={runtimeData.players} teams={runtimeData.teams} />
+            <PosterExportPanel
+              bracketState={bracketState}
+              players={runtimeData.players}
+              teams={runtimeData.teams}
+            />
             <DataImportExport
               bracketState={bracketState}
               onImportPrediction={setBracketState}
@@ -146,7 +162,17 @@ export default function App() {
           </>
         ) : (
           <>
-            <BracketView bracketState={bracketState} setBracketState={setBracketState} teams={runtimeData.teams} />
+            <BracketView
+              bracketState={bracketState}
+              players={runtimeData.players}
+              setBracketState={setBracketState}
+              teams={runtimeData.teams}
+            />
+            <PosterExportPanel
+              bracketState={bracketState}
+              players={runtimeData.players}
+              teams={runtimeData.teams}
+            />
             <DataImportExport
               bracketState={bracketState}
               onImportPrediction={setBracketState}

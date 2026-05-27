@@ -1,14 +1,17 @@
 import { Trophy } from "lucide-react";
 import { useLanguage } from "../i18n";
-import type { BracketMatch as BracketMatchType, BracketMatchState, Team } from "../types/worldCup";
+import type { BracketMatch as BracketMatchType, BracketMatchState, Player, Team } from "../types/worldCup";
 import { getTeamById } from "../utils/format";
 import { displayTeamName } from "../utils/localizedNames";
+import { getWinProbability } from "../utils/insights";
+import { ExplanationCard } from "./ExplanationCard";
 import { TeamFlag } from "./TeamFlag";
 
 interface BracketMatchProps {
   match: BracketMatchType;
   matchState: BracketMatchState;
   teams: Team[];
+  players: Player[];
   onSlotChange: (matchId: string, slotKey: "slotA" | "slotB", teamId: string) => void;
   onChooseWinner: (matchId: string, teamId: string) => void;
 }
@@ -78,8 +81,18 @@ const BracketSlot = ({ label, slotKey, teamId, teams, isWinner, onSlotChange, on
   );
 };
 
-export const BracketMatch = ({ match, matchState, teams, onSlotChange, onChooseWinner }: BracketMatchProps) => {
-  const { t } = useLanguage();
+export const BracketMatch = ({ match, matchState, teams, players, onSlotChange, onChooseWinner }: BracketMatchProps) => {
+  const { language, t } = useLanguage();
+  const teamA = getTeamById(teams, matchState.slotA);
+  const teamB = getTeamById(teams, matchState.slotB);
+  const probabilities = getWinProbability(teamA, teamB);
+  const favorite = probabilities && probabilities.teamA >= probabilities.teamB ? teamA : teamB;
+  const noteLabels = {
+    strengthScore: t("strengthScore"),
+    strengthRank: t("strengthRank"),
+    predictedStage: t("predictedStage"),
+    squadValue: t("squadValue"),
+  };
   const roundName =
     match.roundId === "round-32"
       ? t("stageRoundOf32")
@@ -121,6 +134,33 @@ export const BracketMatch = ({ match, matchState, teams, onSlotChange, onChooseW
           teams={teams}
         />
       </div>
+      {probabilities && teamA && teamB && (
+        <div className="mt-3 rounded-lg border border-sky-400/20 bg-sky-500/10 p-3">
+          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.16em] text-sky-200 light:text-sky-800">
+            <span>{t("winProbability")}</span>
+            <span>{t("simpleModelNote")}</span>
+          </div>
+          <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-900/70 light:bg-slate-200">
+            <div className="flex h-full">
+              <div className="bg-emerald-400" style={{ width: `${(probabilities.teamA * 100).toFixed(1)}%` }} />
+              <div className="bg-orange-400" style={{ width: `${(probabilities.teamB * 100).toFixed(1)}%` }} />
+            </div>
+          </div>
+          <div className="mt-2 flex items-center justify-between text-xs text-slate-300 light:text-slate-700">
+            <span>{displayTeamName(teamA, language)}</span>
+            <span>{Math.round(probabilities.teamA * 100)}% - {Math.round(probabilities.teamB * 100)}%</span>
+            <span>{displayTeamName(teamB, language)}</span>
+          </div>
+          <p className="mt-2 text-xs text-slate-400 light:text-slate-600">
+            {t("simpleModelFactors")} {probabilities.modelNotes.map((note) => noteLabels[note]).join(" / ")}
+          </p>
+        </div>
+      )}
+      {favorite && (
+        <div className="mt-3">
+          <ExplanationCard compact players={players} team={favorite} />
+        </div>
+      )}
     </article>
   );
 };

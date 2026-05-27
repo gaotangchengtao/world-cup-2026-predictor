@@ -1,20 +1,22 @@
 import { Download, RotateCcw, Trophy } from "lucide-react";
 import { defaultBracketRounds } from "../data/bracket";
 import { useLanguage } from "../i18n";
-import type { BracketPredictionState, Team } from "../types/worldCup";
+import type { BracketPredictionState, Player, Team } from "../types/worldCup";
 import { chooseWinner, createInitialBracketState, getChampionId, updateSlot } from "../utils/bracket";
 import { downloadJson, getTeamById } from "../utils/format";
 import { displayTeamName } from "../utils/localizedNames";
 import { BracketRound } from "./BracketRound";
+import { ExplanationCard } from "./ExplanationCard";
 import { TeamFlag } from "./TeamFlag";
 
 interface BracketViewProps {
   teams: Team[];
+  players: Player[];
   bracketState: BracketPredictionState;
   setBracketState: (state: BracketPredictionState) => void;
 }
 
-export const BracketView = ({ teams, bracketState, setBracketState }: BracketViewProps) => {
+export const BracketView = ({ teams, players, bracketState, setBracketState }: BracketViewProps) => {
   const { language, t } = useLanguage();
   const champion = getTeamById(teams, getChampionId(bracketState));
 
@@ -65,6 +67,7 @@ export const BracketView = ({ teams, bracketState, setBracketState }: BracketVie
               onSlotChange={handleSlotChange}
               round={round}
               teams={teams}
+              players={players}
             />
           ))}
           <section className="flex min-w-[300px] flex-col gap-3">
@@ -86,6 +89,7 @@ export const BracketView = ({ teams, bracketState, setBracketState }: BracketVie
                 </p>
               )}
             </article>
+            {champion && <ExplanationCard compact players={players} team={champion} />}
           </section>
         </div>
       </div>
