@@ -97,10 +97,25 @@ npm run ml:train
 
 `npm run ml:train` 会自动尝试系统 `python`、Windows `py -3` 和 Codex 自带 Python。若你安装了 Python 但不在 PATH 中，也可以设置 `PYTHON` 环境变量指向完整的 `python.exe`。
 
+如果使用 Vincent 当前下载的历史资料，推荐运行：
+
+```bash
+npm run ml:train -- --input "D:\世界杯历史资料\results.csv"
+```
+
+这会保留所有已赛国家队比赛，同时让 `FIFA World Cup` 正赛拥有最高训练权重。像 2026 年未赛赛程这种比分为空的行会自动排除。
+
+如果你只想做世界杯正赛实验，也可以额外加：
+
+```bash
+npm run ml:train -- --input "D:\世界杯历史资料\results.csv" --world-cup-only
+```
+
 训练脚本会：
 
 - 读取历史比赛结果
 - 构建 Elo、近 10 场状态、净胜球、进攻趋势、防守趋势、比赛类型权重等特征
+- 使用样本权重训练：世界杯正赛最高，洲际杯次之，预选赛和友谊赛较低
 - 训练 `HistGradientBoostingClassifier`
 - 同时训练 Logistic Regression 作为基线对照
 - 选择验证准确率更好的模型

@@ -43,13 +43,13 @@ def clamp(value: float, low: float, high: float) -> float:
 def tournament_weight(name: str) -> float:
     lowered = name.lower()
     if "world cup" in lowered and "qualification" not in lowered:
-        return 1.35
+        return 2.2
     if any(token in lowered for token in ["euro", "copa america", "africa cup", "asian cup", "gold cup", "nations league"]):
-        return 1.18
+        return 1.25
     if "qualification" in lowered or "qualifier" in lowered:
-        return 1.08
+        return 1.05
     if "friendly" in lowered:
-        return 0.72
+        return 0.65
     return 1.0
 
 
@@ -112,6 +112,11 @@ def main() -> int:
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT, help="Historical results CSV path.")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="TypeScript output path.")
     parser.add_argument("--model-dir", type=Path, default=DEFAULT_MODEL_DIR, help="Optional local model artifact directory.")
+    parser.add_argument(
+        "--world-cup-only",
+        action="store_true",
+        help="Train only on FIFA World Cup final tournament matches. Qualification and future fixtures without scores are excluded.",
+    )
     args = parser.parse_args()
 
     if not args.input.exists():
@@ -147,8 +152,13 @@ def main() -> int:
         return 1
 
     results = results.dropna(subset=["date", "home_team", "away_team", "home_score", "away_score"])
+    if args.world_cup_only:
+        results = results[results["tournament"].eq("FIFA World Cup")]
     results["date"] = pd.to_datetime(results["date"], errors="coerce")
     results = results.dropna(subset=["date"]).sort_values("date")
+    if results.empty:
+        print("No scored matches were available after filtering.")
+        return 1
 
     elo = defaultdict(lambda: 1500.0)
     recent_points: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
@@ -157,6 +167,7 @@ def main() -> int:
     recent_goals_against: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
     features: list[list[float]] = []
     labels: list[int] = []
+    sample_weights: list[float] = []
 
     for row in results.itertuples(index=False):
         home = normalize_name(str(row.home_team))
@@ -181,6 +192,7 @@ def main() -> int:
             ]
         )
         labels.append(0 if home_score > away_score else 1 if home_score == away_score else 2)
+        sample_weights.append(weight)
 
         result_home = 1.0 if home_score > away_score else 0.5 if home_score == away_score else 0.0
         elo[home], elo[away] = update_elo(elo[home], elo[away], result_home, weight)
@@ -197,11 +209,17 @@ def main() -> int:
         print("Not enough historical rows to train a useful model. Provide a larger results.csv.")
         return 1
 
-    x_train, x_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, shuffle=False)
+    x_train, x_test, y_train, y_test, w_train, w_test = train_test_split(
+        features,
+        labels,
+        sample_weights,
+        test_size=0.2,
+        shuffle=False,
+    )
     model = HistGradientBoostingClassifier(max_iter=220, learning_rate=0.045, random_state=42)
-    baseline = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, multi_class="auto"))
-    model.fit(x_train, y_train)
-    baseline.fit(x_train, y_train)
+    baseline = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
+    model.fit(x_train, y_train, sample_weight=w_train)
+    baseline.fit(x_train, y_train, logisticregression__sample_weight=w_train)
     model_accuracy = float(accuracy_score(y_test, model.predict(x_test)))
     baseline_accuracy = float(accuracy_score(y_test, baseline.predict(x_test)))
 
@@ -256,12 +274,13 @@ def main() -> int:
         "trainedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "trainingDataCutoff": str(results["date"].max().date()),
         "dataSources": [
-            "Local data/raw/results.csv",
+            str(args.input),
+            "FIFA World Cup final tournament matches only" if args.world_cup_only else "All scored international matches in input CSV",
             "Project team strength data",
             "Projected squad and market-value fields",
         ],
         "validationAccuracy": round(validation_accuracy, 4),
-        "notes": f"Baseline validation accuracy: {baseline_accuracy:.3f}. Selected model validation accuracy: {validation_accuracy:.3f}.",
+        "notes": f"Trained on {len(results)} scored matches with FIFA World Cup final tournament matches weighted highest. Baseline validation accuracy: {baseline_accuracy:.3f}. Selected model validation accuracy: {validation_accuracy:.3f}.",
     }
 
     output = f'''import type {{ ModelPredictionProfile, PredictionModelMeta }} from "../types/worldCup";
