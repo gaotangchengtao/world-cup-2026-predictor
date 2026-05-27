@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { BeginnerIntroPanel } from "./components/BeginnerIntroPanel";
 import { BracketView } from "./components/BracketView";
 import { DataQualityPanel } from "./components/DataQualityPanel";
 import { DataImportExport } from "./components/DataImportExport";
@@ -7,6 +8,8 @@ import { GlossaryPanel } from "./components/GlossaryPanel";
 import { GroupGrid } from "./components/GroupGrid";
 import { GroupStagePredictor } from "./components/GroupStagePredictor";
 import { Header } from "./components/Header";
+import { OverviewHome } from "./components/OverviewHome";
+import { OverviewSectionNav, overviewSectionMeta } from "./components/OverviewSectionNav";
 import { PlayerModal } from "./components/PlayerModal";
 import { PhotoAuditPanel } from "./components/PhotoAuditPanel";
 import { PosterExportPanel } from "./components/PosterExportPanel";
@@ -20,7 +23,7 @@ import { groups } from "./data/groups";
 import { players as defaultPlayers } from "./data/players";
 import { teams as defaultTeams } from "./data/teams";
 import { useLanguage } from "./i18n";
-import type { BracketPredictionState, FilterState, Player, RuntimeData, Team } from "./types/worldCup";
+import type { BracketPredictionState, FilterState, OverviewSection, Player, RuntimeData, Team } from "./types/worldCup";
 import { completeBracketState, createInitialBracketState } from "./utils/bracket";
 import { stageOrder } from "./utils/format";
 import { teamSearchText } from "./utils/localizedNames";
@@ -42,6 +45,12 @@ const defaultRuntimeData: RuntimeData = {
 };
 
 const contenderStages = new Set(["Champion", "Final", "Semi-final", "Quarter-final"]);
+const overviewSectionIds: OverviewSection[] = ["home", "groups", "knockout", "players", "beginner", "data"];
+
+const readOverviewSection = () => {
+  const saved = readJson(storageKeys.overviewSection, "home" as OverviewSection);
+  return overviewSectionIds.includes(saved) ? saved : "home";
+};
 
 export default function App() {
   const { t } = useLanguage();
@@ -49,6 +58,7 @@ export default function App() {
     readJson(storageKeys.mode, "overview" as "overview" | "predictor"),
   );
   const [theme, setTheme] = useState<"dark" | "light">(() => readJson(storageKeys.theme, "dark" as "dark" | "light"));
+  const [activeOverviewSection, setActiveOverviewSection] = useState<OverviewSection>(readOverviewSection);
   const [runtimeData, setRuntimeData] = useState<RuntimeData>(() =>
     readJson(storageKeys.runtimeData, defaultRuntimeData),
   );
@@ -71,6 +81,10 @@ export default function App() {
     document.documentElement.classList.toggle("light", theme === "light");
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
+
+  useEffect(() => {
+    writeJson(storageKeys.overviewSection, activeOverviewSection);
+  }, [activeOverviewSection]);
 
   useEffect(() => {
     writeJson(storageKeys.bracketPredictions, bracketState);
@@ -109,6 +123,8 @@ export default function App() {
   const selectedPlayerTeam = selectedPlayer
     ? runtimeData.teams.find((team) => team.id === selectedPlayer.teamId)
     : undefined;
+  const activeOverviewMeta =
+    overviewSectionMeta.find((section) => section.id === activeOverviewSection) ?? overviewSectionMeta[0];
 
   return (
     <div className={`${theme} stadium-bg min-h-screen text-slate-100 light:text-slate-900`}>
@@ -119,49 +135,112 @@ export default function App() {
         toggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")}
       />
 
-      <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:py-8">
-        <section className="glass-panel rounded-lg p-5 sm:p-7">
+      <main className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:py-6">
+        <section className="glass-panel rounded-lg p-4 sm:p-5">
           <div className="max-w-4xl">
             <p className="text-sm font-bold uppercase tracking-[0.24em] text-trophy-300 light:text-trophy-700">
               {t("heroKicker")}
             </p>
-            <h2 className="mt-3 text-3xl font-black text-white light:text-slate-950 sm:text-5xl">
+            <h2 className="mt-2 text-2xl font-black text-white light:text-slate-950 sm:text-4xl">
               {t("heroTitle")}
             </h2>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300 light:text-slate-700">
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300 light:text-slate-700 sm:text-base">
               {t("heroDescription")}
             </p>
           </div>
         </section>
 
-        <PredictionSummary teams={runtimeData.teams} players={runtimeData.players} bracketState={bracketState} />
-
         {mode === "overview" ? (
           <>
-            <FilterBar filters={filters} setFilters={setFilters} />
-            <GroupStagePredictor groups={groups} teams={runtimeData.teams} />
-            <WatchGuidePanel teams={runtimeData.teams} />
-            <GroupGrid groups={groups} teams={visibleTeams} filters={filters} onSelectTeam={setSelectedTeam} />
-            <RegionOverview teams={runtimeData.teams} />
-            <TopPlayers players={runtimeData.players} teams={runtimeData.teams} onSelectPlayer={setSelectedPlayer} />
-            <TeamCompare teams={runtimeData.teams} players={runtimeData.players} />
-            <GlossaryPanel />
-            <PhotoAuditPanel players={runtimeData.players} />
-            <DataQualityPanel players={runtimeData.players} teams={runtimeData.teams} />
-            <PosterExportPanel
-              bracketState={bracketState}
-              players={runtimeData.players}
-              teams={runtimeData.teams}
+            <OverviewSectionNav
+              activeSection={activeOverviewSection}
+              setActiveSection={setActiveOverviewSection}
             />
-            <DataImportExport
-              bracketState={bracketState}
-              onImportPrediction={setBracketState}
-              onImportRuntimeData={setRuntimeData}
-              runtimeData={runtimeData}
-            />
+            <section className="rounded-lg border border-white/10 bg-slate-950/35 p-4 light:border-slate-900/10 light:bg-white/70">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-trophy-300 light:text-trophy-700">
+                {t("overviewCurrentSection")}
+              </p>
+              <h2 className="mt-1 text-2xl font-black text-white light:text-slate-950">
+                {t(activeOverviewMeta.titleKey)}
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300 light:text-slate-700">
+                {t(activeOverviewMeta.descriptionKey)}
+              </p>
+            </section>
+
+            {activeOverviewSection === "home" && (
+              <OverviewHome
+                bracketState={bracketState}
+                onSelectPlayer={setSelectedPlayer}
+                onSelectTeam={setSelectedTeam}
+                players={runtimeData.players}
+                setActiveSection={setActiveOverviewSection}
+                teams={runtimeData.teams}
+              />
+            )}
+
+            {activeOverviewSection === "groups" && (
+              <>
+                <FilterBar filters={filters} setFilters={setFilters} />
+                <GroupStagePredictor groups={groups} teams={runtimeData.teams} />
+                <GroupGrid groups={groups} teams={visibleTeams} filters={filters} onSelectTeam={setSelectedTeam} />
+                <RegionOverview teams={runtimeData.teams} />
+              </>
+            )}
+
+            {activeOverviewSection === "knockout" && (
+              <>
+                <PredictionSummary teams={runtimeData.teams} players={runtimeData.players} bracketState={bracketState} />
+                <BracketView
+                  bracketState={bracketState}
+                  players={runtimeData.players}
+                  setBracketState={setBracketState}
+                  teams={runtimeData.teams}
+                />
+                <PosterExportPanel
+                  bracketState={bracketState}
+                  players={runtimeData.players}
+                  teams={runtimeData.teams}
+                />
+              </>
+            )}
+
+            {activeOverviewSection === "players" && (
+              <>
+                <TopPlayers players={runtimeData.players} teams={runtimeData.teams} onSelectPlayer={setSelectedPlayer} />
+                <TeamCompare teams={runtimeData.teams} players={runtimeData.players} />
+                <PhotoAuditPanel players={runtimeData.players} />
+              </>
+            )}
+
+            {activeOverviewSection === "beginner" && (
+              <>
+                <BeginnerIntroPanel />
+                <WatchGuidePanel teams={runtimeData.teams} />
+                <GlossaryPanel />
+              </>
+            )}
+
+            {activeOverviewSection === "data" && (
+              <>
+                <DataQualityPanel players={runtimeData.players} teams={runtimeData.teams} />
+                <DataImportExport
+                  bracketState={bracketState}
+                  onImportPrediction={setBracketState}
+                  onImportRuntimeData={setRuntimeData}
+                  runtimeData={runtimeData}
+                />
+                <PosterExportPanel
+                  bracketState={bracketState}
+                  players={runtimeData.players}
+                  teams={runtimeData.teams}
+                />
+              </>
+            )}
           </>
         ) : (
           <>
+            <PredictionSummary teams={runtimeData.teams} players={runtimeData.players} bracketState={bracketState} />
             <BracketView
               bracketState={bracketState}
               players={runtimeData.players}

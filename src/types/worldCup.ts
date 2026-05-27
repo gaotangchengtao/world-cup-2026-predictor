@@ -173,6 +173,8 @@ export interface RuntimeData {
   importedAt?: string;
 }
 
+export type OverviewSection = "home" | "groups" | "knockout" | "players" | "beginner" | "data";
+
 export interface FilterState {
   query: string;
   group: "all" | GroupCode;

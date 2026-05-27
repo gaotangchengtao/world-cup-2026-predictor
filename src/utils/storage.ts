@@ -1,6 +1,7 @@
 export const storageKeys = {
   theme: "wc2026.theme",
   mode: "wc2026.mode",
+  overviewSection: "wc2026.overview.section",
   bracketPredictions: "wc2026.bracket.predictions",
   groupStagePredictions: "wc2026.groupStage.predictions",
   runtimeData: "wc2026.runtimeData",
