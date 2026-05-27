@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
 const scriptArgs = ["scripts/train_model.py", ...process.argv.slice(2)];
+const condaRunArgs = ["run", "-n", "wc2026", "python", ...scriptArgs];
 const bundledPython = join(
   homedir(),
   ".cache",
@@ -13,8 +14,11 @@ const bundledPython = join(
   "python",
   "python.exe",
 );
+const localAnacondaConda = "D:\\AnacondaTools\\anac\\condabin\\conda.bat";
 
 const candidates = [
+  existsSync(localAnacondaConda) ? { command: localAnacondaConda, args: condaRunArgs } : null,
+  { command: "conda", args: condaRunArgs },
   process.env.PYTHON ? { command: process.env.PYTHON, args: scriptArgs } : null,
   { command: "python", args: scriptArgs },
   { command: "py", args: ["-3", ...scriptArgs] },
@@ -24,7 +28,7 @@ const candidates = [
 for (const candidate of candidates) {
   const result = spawnSync(candidate.command, candidate.args, {
     stdio: "inherit",
-    shell: false,
+    shell: process.platform === "win32" && candidate.command.toLowerCase().endsWith(".bat"),
   });
 
   if (result.error?.code === "ENOENT") continue;
@@ -32,5 +36,5 @@ for (const candidate of candidates) {
 }
 
 console.error("No Python executable was found.");
-console.error("Install Python 3, or set PYTHON to the full python.exe path, then run npm run ml:train again.");
+console.error("Install Anaconda, create the wc2026 environment, or set PYTHON to the full python.exe path, then run npm run ml:train again.");
 process.exit(1);
