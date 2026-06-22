@@ -80,7 +80,27 @@ export const en = {
   knockoutStage: "Knockout Stage",
   bracketTitle: "Knockout Bracket",
   bracketDescription:
-    "The bracket starts with a complete integrated prediction from the Round of 32 to champion. You can still change any slot or winner, and winners automatically advance to the next round. On mobile, scroll horizontally to view the full bracket.",
+    "The bracket starts with a complete integrated prediction from the Round of 32 to champion. Team changes follow the official group and upstream match path.",
+  roadKicker: "Canada · Mexico · United States 2026",
+  roadTitle: "WORLD CUP CHAMPIONSHIP ROAD",
+  roadChampionPrediction: "My champion pick:",
+  roadInteractiveTitle: "Interactive championship road",
+  roadInteractiveDescription:
+    "Click a branch to open its matchup forecast. Left-click a flag to change the team, but only legal teams from that group seed or upstream match can be selected.",
+  roadPathLocked: "Official path constraints enabled",
+  roadClickBranchHint: "Click a branch or matchup to view its forecast.",
+  roadClickFlagHint: "Left-click a flag to view legal replacement teams.",
+  roadUpperHalf: "Upper half",
+  roadLowerHalf: "Lower half",
+  roadLegalCandidates: "Legal path candidates",
+  roadGroupSourceRule:
+    "This Round of 32 position only accepts an unused team from the slot's specified group source.",
+  roadUpstreamRule:
+    "This position must be the winner of its linked upstream match. Changing it also changes that upstream winner.",
+  roadNoLegalCandidates: "No legal replacement is currently available for this path position.",
+  roadMatchPrediction: "Match forecast",
+  roadModelFavors: "Integrated forecast favors",
+  roadWaitingForTeams: "Complete the linked upstream path before viewing this matchup forecast.",
   resetPrediction: "Reset Prediction",
   exportJson: "Export JSON",
   champion: "Champion",

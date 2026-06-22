@@ -135,3 +135,116 @@ select {
 .bracket-scroll {
   scrollbar-color: rgba(228, 173, 40, 0.75) rgba(15, 23, 42, 0.2);
 }
+
+.championship-road-canvas {
+  color-scheme: dark;
+  background-color: #07133f;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.035) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+.championship-road-canvas::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 120px rgba(2, 6, 23, 0.48);
+}
+
+.road-corner {
+  position: absolute;
+  z-index: 0;
+  width: 320px;
+  height: 190px;
+  pointer-events: none;
+}
+
+.road-corner-left {
+  top: 0;
+  left: 0;
+  background: #3655ff;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.road-corner-right {
+  top: 0;
+  right: 0;
+  background: #ef4d2b;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.road-match-node {
+  cursor: pointer;
+  overflow: hidden;
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  border-radius: 8px;
+  background: rgba(5, 18, 64, 0.96);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 10px 30px rgba(2, 6, 23, 0.32);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.road-match-node:hover {
+  z-index: 20;
+  border-color: rgba(125, 211, 252, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 26px rgba(56, 189, 248, 0.22);
+  transform: translateY(-2px);
+}
+
+.road-match-node-selected {
+  border-color: #38bdf8;
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.32);
+}
+
+.road-match-node-champion {
+  border-color: rgba(253, 224, 71, 0.62);
+}
+
+.road-final-stage {
+  z-index: 15;
+  cursor: pointer;
+  border: 1px solid rgba(253, 224, 71, 0.46);
+  border-radius: 8px;
+  background: #0a194f;
+  padding: 14px;
+  text-align: center;
+  box-shadow:
+    0 0 46px rgba(253, 224, 71, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.road-final-stage:hover,
+.road-final-stage-selected {
+  border-color: #fde047;
+  box-shadow:
+    0 0 58px rgba(253, 224, 71, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.road-jump-button {
+  flex: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px 12px;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.road-jump-button:hover {
+  border-color: rgba(253, 224, 71, 0.6);
+  color: #fde047;
+}

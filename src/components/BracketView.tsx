@@ -1,15 +1,27 @@
-import { Download, RotateCcw, Sparkles, Trophy } from "lucide-react";
-import { useState } from "react";
-import { defaultBracketRounds } from "../data/bracket";
+import {
+  Download,
+  LockKeyhole,
+  MousePointerClick,
+  RotateCcw,
+  Sparkles,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLanguage } from "../i18n";
 import type { BracketPredictionState, Player, Team } from "../types/worldCup";
-import { chooseWinner, createRecommendedBracketState, getChampionId, updateSlot } from "../utils/bracket";
+import {
+  chooseWinner,
+  createRecommendedBracketState,
+  findFeederMatch,
+  findMatch,
+  getLegalSlotCandidates,
+  selectLegalSlotTeam,
+  type WinnerPicker,
+} from "../utils/bracket";
 import { downloadJson, getTeamById } from "../utils/format";
-import { displayTeamName } from "../utils/localizedNames";
-import { getRecommendedWinnerId } from "../utils/modelPredictions";
-import { BracketRound } from "./BracketRound";
-import { ExplanationCard } from "./ExplanationCard";
-import { TeamFlag } from "./TeamFlag";
+import { getMatchupPrediction, getRecommendedWinnerId } from "../utils/modelPredictions";
+import { BracketMatchDrawer } from "./BracketMatchDrawer";
+import { BracketTeamPicker } from "./BracketTeamPicker";
+import { ChampionshipRoad } from "./ChampionshipRoad";
 
 interface BracketViewProps {
   teams: Team[];
@@ -18,50 +30,119 @@ interface BracketViewProps {
   setBracketState: (state: BracketPredictionState) => void;
 }
 
-export const BracketView = ({ teams, players, bracketState, setBracketState }: BracketViewProps) => {
-  const { language, t } = useLanguage();
-  const [activeMobileRound, setActiveMobileRound] = useState("round-32");
-  const champion = getTeamById(teams, getChampionId(bracketState));
+interface PickerTarget {
+  matchId: string;
+  slotKey: "slotA" | "slotB";
+}
 
-  const handleSlotChange = (matchId: string, slotKey: "slotA" | "slotB", teamId: string) => {
-    setBracketState(updateSlot(bracketState, matchId, slotKey, teamId, teams));
+export const BracketView = ({
+  teams,
+  players,
+  bracketState,
+  setBracketState,
+}: BracketViewProps) => {
+  const { t } = useLanguage();
+  const [selectedMatchId, setSelectedMatchId] = useState<string>();
+  const [pickerTarget, setPickerTarget] = useState<PickerTarget>();
+  const roadScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const scrollContainer = roadScrollRef.current;
+    if (!scrollContainer || window.innerWidth >= 640) return;
+    scrollContainer.scrollLeft =
+      (scrollContainer.scrollWidth - scrollContainer.clientWidth) / 2;
+  }, []);
+
+  const modelWinnerPicker: WinnerPicker = (slotA, slotB, availableTeams) => {
+    const teamA = getTeamById(availableTeams, slotA);
+    const teamB = getTeamById(availableTeams, slotB);
+    return getRecommendedWinnerId(teamA, teamB, players);
+  };
+
+  const selectedMatch = selectedMatchId ? findMatch(selectedMatchId) : undefined;
+  const selectedMatchState = selectedMatch ? bracketState[selectedMatch.id] ?? {} : undefined;
+  const selectedPrediction = selectedMatchState
+    ? getMatchupPrediction(
+        getTeamById(teams, selectedMatchState.slotA),
+        getTeamById(teams, selectedMatchState.slotB),
+        players,
+      )
+    : null;
+
+  const pickerMatch = pickerTarget ? findMatch(pickerTarget.matchId) : undefined;
+  const pickerCandidates = useMemo(
+    () =>
+      pickerTarget
+        ? getLegalSlotCandidates(
+            bracketState,
+            pickerTarget.matchId,
+            pickerTarget.slotKey,
+            teams,
+          )
+        : [],
+    [bracketState, pickerTarget, teams],
+  );
+
+  const handleModelRecommendation = () => {
+    setBracketState(createRecommendedBracketState(teams, modelWinnerPicker));
   };
 
   const handleChooseWinner = (matchId: string, teamId: string) => {
-    setBracketState(chooseWinner(bracketState, matchId, teamId, teams));
-  };
-
-  const handleModelRecommendation = () => {
     setBracketState(
-      createRecommendedBracketState(teams, (slotA, slotB, availableTeams) => {
-        const teamA = getTeamById(availableTeams, slotA);
-        const teamB = getTeamById(availableTeams, slotB);
-        return getRecommendedWinnerId(teamA, teamB, players);
-      }),
+      chooseWinner(bracketState, matchId, teamId, teams, modelWinnerPicker),
     );
   };
 
-  const scrollToRound = (roundId: string) => {
-    setActiveMobileRound(roundId);
-    document.getElementById(`bracket-${roundId}`)?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+  const handleSelectLegalTeam = (teamId: string) => {
+    if (!pickerTarget) return;
+    setBracketState(
+      selectLegalSlotTeam(
+        bracketState,
+        pickerTarget.matchId,
+        pickerTarget.slotKey,
+        teamId,
+        teams,
+        modelWinnerPicker,
+      ),
+    );
+    setSelectedMatchId(pickerTarget.matchId);
+    setPickerTarget(undefined);
   };
 
-  const scrollToChampion = () => {
-    setActiveMobileRound("champion");
-    document.getElementById("bracket-champion")?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+  const jumpTo = (anchorId: string) => {
+    const anchor = document.getElementById(anchorId);
+    anchor?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "center",
+    });
+    const scrollContainer = roadScrollRef.current;
+    scrollContainer?.scrollTo({
+      behavior: "smooth",
+      left: (scrollContainer.scrollWidth - scrollContainer.clientWidth) / 2,
+    });
   };
 
   return (
     <section className="space-y-4">
-      <div className="glass-panel rounded-lg p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="rounded-lg border border-white/10 bg-[#07133f] p-4 shadow-[0_24px_80px_rgba(2,6,23,0.35)]">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <h2 className="text-2xl font-black text-white light:text-slate-950">{t("bracketTitle")}</h2>
-            <p className="text-sm text-slate-400 light:text-slate-600">{t("bracketDescription")}</p>
+            <div className="flex items-center gap-2 text-yellow-300">
+              <LockKeyhole size={18} />
+              <p className="text-xs font-black uppercase tracking-[0.18em]">
+                {t("roadPathLocked")}
+              </p>
+            </div>
+            <h2 className="mt-2 text-2xl font-black text-white">{t("roadInteractiveTitle")}</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+              {t("roadInteractiveDescription")}
+            </p>
           </div>
+
           <div className="flex flex-wrap gap-2">
             <button
-              className="inline-flex items-center gap-2 rounded-lg border border-trophy-500/30 bg-trophy-500/10 px-3 py-2 text-sm font-black text-trophy-100 hover:border-trophy-500 light:text-trophy-800"
+              className="inline-flex items-center gap-2 rounded-lg border border-yellow-300/30 bg-yellow-300/10 px-3 py-2 text-sm font-black text-yellow-100 hover:border-yellow-300"
               onClick={handleModelRecommendation}
               type="button"
             >
@@ -69,7 +150,7 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
               {t("useModelRecommendation")}
             </button>
             <button
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-bold text-slate-200 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-bold text-slate-200 hover:bg-white/10"
               onClick={handleModelRecommendation}
               type="button"
             >
@@ -77,8 +158,10 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
               {t("resetPrediction")}
             </button>
             <button
-              className="inline-flex items-center gap-2 rounded-lg bg-trophy-500 px-3 py-2 text-sm font-black text-slate-950 hover:bg-trophy-300"
-              onClick={() => downloadJson("wc2026-bracket-prediction.json", { bracketState })}
+              className="inline-flex items-center gap-2 rounded-lg bg-yellow-300 px-3 py-2 text-sm font-black text-[#07133f] hover:bg-yellow-200"
+              onClick={() =>
+                downloadJson("wc2026-championship-road.json", { bracketState })
+              }
               type="button"
             >
               <Download size={16} />
@@ -86,82 +169,72 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="bracket-scroll overflow-x-auto rounded-lg border border-white/10 bg-slate-950/35 p-4 light:border-slate-900/10 light:bg-white/50">
-        <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400 light:text-slate-600 md:hidden">
-          {t("swipeBracketHint")}
-        </p>
-        <div className="sticky top-16 z-20 mb-3 flex min-w-max gap-2 rounded-lg border border-white/10 bg-slate-950/85 p-1 backdrop-blur md:hidden">
-          {defaultBracketRounds.map((round) => (
-            <button
-              className={`rounded-md px-3 py-2 text-xs font-black transition ${
-                activeMobileRound === round.id
-                  ? "bg-trophy-500 text-slate-950"
-                  : "border border-white/10 bg-white/5 text-slate-200 light:border-slate-900/10 light:bg-white light:text-slate-700"
-              }`}
-              key={round.id}
-              onClick={() => scrollToRound(round.id)}
-              type="button"
-            >
-              {round.id === "round-32"
-                ? t("stageRoundOf32")
-                : round.id === "round-16"
-                  ? t("stageRoundOf16")
-                  : round.id === "quarter-finals"
-                    ? t("stageQuarterFinal")
-                    : round.id === "semi-finals"
-                      ? t("stageSemiFinal")
-                      : t("stageFinal")}
-            </button>
-          ))}
-          <button
-            className={`rounded-md px-3 py-2 text-xs font-black transition ${
-              activeMobileRound === "champion"
-                ? "bg-trophy-500 text-slate-950"
-                : "border border-white/10 bg-white/5 text-slate-200 light:border-slate-900/10 light:bg-white light:text-slate-700"
-            }`}
-            onClick={scrollToChampion}
-            type="button"
-          >
-            {t("champion")}
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1 sm:hidden">
+          <button className="road-jump-button" onClick={() => jumpTo("road-top")} type="button">
+            {t("roadUpperHalf")}
+          </button>
+          <button className="road-jump-button" onClick={() => jumpTo("road-final")} type="button">
+            {t("stageFinal")}
+          </button>
+          <button className="road-jump-button" onClick={() => jumpTo("road-bottom")} type="button">
+            {t("roadLowerHalf")}
           </button>
         </div>
-        <div className="flex min-w-full snap-x snap-mandatory gap-4 md:min-w-max">
-          {defaultBracketRounds.map((round) => (
-            <BracketRound
-              bracketState={bracketState}
-              key={round.id}
-              onChooseWinner={handleChooseWinner}
-              onSlotChange={handleSlotChange}
-              round={round}
-              teams={teams}
-              players={players}
-            />
-          ))}
-          <section className="flex min-w-[calc(100vw-2rem)] snap-start flex-col gap-3 sm:min-w-[320px]" id="bracket-champion">
-            <div className="sticky top-20 z-10 rounded-lg border border-trophy-500/40 bg-trophy-500/20 px-4 py-3 text-center">
-              <h2 className="text-base font-black text-trophy-100 light:text-trophy-800">{t("champion")}</h2>
-              <p className="text-xs text-trophy-200 light:text-trophy-700">{t("finalWinner")}</p>
-            </div>
-            <article className="rounded-lg border border-trophy-500/50 bg-trophy-500/15 p-5 text-center shadow-glow">
-              <Trophy className="mx-auto text-trophy-300" size={36} />
-              <div className="mt-3 flex justify-center">
-                <TeamFlag team={champion} size="xl" />
-              </div>
-              <h3 className="mt-3 text-2xl font-black text-white light:text-slate-950">
-                {champion ? displayTeamName(champion, language) : t("selectFinalWinner")}
-              </h3>
-              {champion && (
-                <p className="mt-2 text-sm font-bold text-trophy-200 light:text-trophy-800">
-                  #{champion.strengthRank} · {t("score")} {champion.strengthScore}
-                </p>
-              )}
-            </article>
-            {champion && <ExplanationCard compact players={players} team={champion} />}
-          </section>
+
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 pt-3 text-xs text-slate-400">
+          <span className="inline-flex items-center gap-2">
+            <MousePointerClick className="text-sky-300" size={15} />
+            {t("roadClickBranchHint")}
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <LockKeyhole className="text-yellow-300" size={15} />
+            {t("roadClickFlagHint")}
+          </span>
         </div>
       </div>
+
+      <div
+        className="bracket-scroll overflow-x-auto rounded-lg border border-white/10 bg-[#030a2b] shadow-[0_30px_100px_rgba(2,6,23,0.45)]"
+        ref={roadScrollRef}
+      >
+        <div className="min-w-[1280px]">
+          <ChampionshipRoad
+            bracketState={bracketState}
+            onOpenTeamPicker={(matchId, slotKey) => setPickerTarget({ matchId, slotKey })}
+            onSelectMatch={setSelectedMatchId}
+            players={players}
+            selectedMatchId={selectedMatchId}
+            teams={teams}
+          />
+        </div>
+      </div>
+
+      {selectedMatch && selectedMatchState && (
+        <BracketMatchDrawer
+          match={selectedMatch}
+          matchState={selectedMatchState}
+          onChooseWinner={(teamId) => handleChooseWinner(selectedMatch.id, teamId)}
+          onClose={() => setSelectedMatchId(undefined)}
+          players={players}
+          prediction={selectedPrediction}
+          teams={teams}
+        />
+      )}
+
+      {pickerTarget && pickerMatch && (
+        <BracketTeamPicker
+          candidates={pickerCandidates}
+          currentTeamId={bracketState[pickerTarget.matchId]?.[pickerTarget.slotKey]}
+          isUpstreamChoice={Boolean(
+            findFeederMatch(pickerTarget.matchId, pickerTarget.slotKey),
+          )}
+          match={pickerMatch}
+          onClose={() => setPickerTarget(undefined)}
+          onSelect={handleSelectLegalTeam}
+          slotKey={pickerTarget.slotKey}
+        />
+      )}
     </section>
   );
 };

@@ -226,6 +226,7 @@ export default function App() {
       />
 
       <main className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:py-6">
+        {mode === "overview" && (
         <section className="glass-panel hero-panel rounded-lg p-4 sm:p-5" style={heroPanelStyle}>
           <div className="grid gap-4 lg:grid-cols-[1fr_320px] lg:items-end">
           <div className="max-w-4xl">
@@ -252,6 +253,7 @@ export default function App() {
           </div>
           </div>
         </section>
+        )}
 
         <Suspense fallback={<LazyPanelFallback />}>
         {mode === "overview" ? (
@@ -355,26 +357,12 @@ export default function App() {
             )}
           </>
         ) : (
-          <>
-            <PredictionSummary teams={runtimeData.teams} players={runtimeData.players} bracketState={bracketState} />
-            <BracketView
-              bracketState={bracketState}
-              players={runtimeData.players}
-              setBracketState={setBracketState}
-              teams={runtimeData.teams}
-            />
-            <PosterExportPanel
-              bracketState={bracketState}
-              players={runtimeData.players}
-              teams={runtimeData.teams}
-            />
-            <DataImportExport
-              bracketState={bracketState}
-              onImportPrediction={setBracketState}
-              onImportRuntimeData={importRuntimeData}
-              runtimeData={runtimeData}
-            />
-          </>
+          <BracketView
+            bracketState={bracketState}
+            players={runtimeData.players}
+            setBracketState={setBracketState}
+            teams={runtimeData.teams}
+          />
         )}
         </Suspense>
       </main>
