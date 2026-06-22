@@ -3,7 +3,7 @@ import { useState } from "react";
 import { defaultBracketRounds } from "../data/bracket";
 import { useLanguage } from "../i18n";
 import type { BracketPredictionState, Player, Team } from "../types/worldCup";
-import { chooseWinner, createInitialBracketState, createRecommendedBracketState, getChampionId, updateSlot } from "../utils/bracket";
+import { chooseWinner, createRecommendedBracketState, getChampionId, updateSlot } from "../utils/bracket";
 import { downloadJson, getTeamById } from "../utils/format";
 import { displayTeamName } from "../utils/localizedNames";
 import { getRecommendedWinnerId } from "../utils/modelPredictions";
@@ -70,7 +70,7 @@ export const BracketView = ({ teams, players, bracketState, setBracketState }: B
             </button>
             <button
               className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-bold text-slate-200 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
-              onClick={() => setBracketState(createInitialBracketState(teams))}
+              onClick={handleModelRecommendation}
               type="button"
             >
               <RotateCcw size={16} />

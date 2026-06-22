@@ -104,8 +104,8 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
   const predictionText = {
     reason:
       language === "zh"
-        ? `${teamName} 的综合预测主要来自强度评分、阵容深度、核心球员数量和预计晋级阶段。`
-        : `${teamName}'s projection is based on integrated strength, squad depth, key-player count, and predicted stage.`,
+        ? `${teamName} 的综合预测结合本届状态、人员可用性、战术适配、阵容默契、教练调整能力和近期加权历史表现。`
+        : `${teamName}'s projection blends current tournament form, squad availability, tactical fit, role cohesion, coach adaptability, and recency-weighted history.`,
     upset:
       language === "zh"
         ? team.strengthRank <= 8
@@ -210,10 +210,14 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
             <Metric label={t("beginnerFocus")} value={styleTags.slice(0, 2).map((tag) => styleLabel[tag]).join(" / ")} />
           </div>
         ) : (
-          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-6">
             <Metric label={t("strengthRank")} value={`#${team.strengthRank}`} tone="trophy" />
             <Metric label={t("mlStrengthScore")} value={`${modelProfile.mlStrengthScore}`} hint={t("strengthScoreHint")} />
-            <Metric label={t("recentFormScore")} value={`${modelProfile.recentFormScore}`} />
+            <Metric
+              label={t("currentTournamentForm")}
+              value={`${modelProfile.tournamentFormScore ?? modelProfile.recentFormScore}`}
+            />
+            <Metric label={t("squadAvailability")} value={`${modelProfile.squadAvailabilityScore ?? 85}`} />
             <Metric label={t("squadStatus")} value={rosterStatus} />
             <Metric label={t("modelConfidence")} value={`${modelProfile.confidenceScore}/100`} />
           </div>
@@ -302,10 +306,61 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
               <p className="text-sm leading-6 text-slate-300 light:text-slate-700">{predictionText.reason}</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <ScoreMeter label={t("mlStrengthScore")} value={modelProfile.mlStrengthScore} tone="trophy" />
-                <ScoreMeter label={t("recentFormScore")} value={modelProfile.recentFormScore} tone="sky" />
+                <ScoreMeter
+                  label={t("currentTournamentForm")}
+                  value={modelProfile.tournamentFormScore ?? modelProfile.recentFormScore}
+                  tone="sky"
+                />
                 <ScoreMeter label={t("attackTrend")} value={modelProfile.attackTrend} tone="emerald" />
                 <ScoreMeter label={t("defenseTrend")} value={modelProfile.defenseTrend} tone="orange" />
+                <ScoreMeter
+                  label={t("squadAvailability")}
+                  value={modelProfile.squadAvailabilityScore ?? 85}
+                  tone="emerald"
+                />
+                <ScoreMeter label={t("tacticalFit")} value={modelProfile.tacticalFitScore ?? 80} tone="sky" />
+                <ScoreMeter label={t("playerFit")} value={modelProfile.playerFitScore ?? 80} tone="emerald" />
+                <ScoreMeter
+                  label={t("currentSquadSignal")}
+                  value={modelProfile.currentSquadSignalScore ?? 55}
+                  tone="sky"
+                />
+                <ScoreMeter label={t("squadCohesion")} value={modelProfile.squadCohesionScore ?? 80} tone="trophy" />
+                <ScoreMeter
+                  label={t("coachAdaptability")}
+                  value={modelProfile.coachAdaptabilityScore ?? 80}
+                  tone="orange"
+                />
               </div>
+              {((language === "zh" ? modelProfile.keyAbsencesZh : modelProfile.keyAbsences)?.length
+                || (language === "zh" ? modelProfile.tacticalNotesZh : modelProfile.tacticalNotes)?.length) && (
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  {Boolean((language === "zh" ? modelProfile.keyAbsencesZh : modelProfile.keyAbsences)?.length) && (
+                    <div className="rounded-lg border border-orange-400/20 bg-orange-500/10 p-3">
+                      <p className="text-xs font-black uppercase text-orange-200 light:text-orange-700">
+                        {t("keyAbsences")}
+                      </p>
+                      <ul className="mt-2 space-y-1 text-xs leading-5 text-slate-300 light:text-slate-700">
+                        {(language === "zh" ? modelProfile.keyAbsencesZh : modelProfile.keyAbsences)?.map((item) => (
+                          <li key={item}>- {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {Boolean((language === "zh" ? modelProfile.tacticalNotesZh : modelProfile.tacticalNotes)?.length) && (
+                    <div className="rounded-lg border border-sky-400/20 bg-sky-500/10 p-3">
+                      <p className="text-xs font-black uppercase text-sky-200 light:text-sky-700">
+                        {t("tacticalNotes")}
+                      </p>
+                      <ul className="mt-2 space-y-1 text-xs leading-5 text-slate-300 light:text-slate-700">
+                        {(language === "zh" ? modelProfile.tacticalNotesZh : modelProfile.tacticalNotes)?.map((item) => (
+                          <li key={item}>- {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="mt-4 rounded-lg border border-trophy-500/20 bg-trophy-500/10 p-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-black text-white light:text-slate-950">{t("modelConfidence")}</p>

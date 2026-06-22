@@ -181,10 +181,23 @@ export interface ModelPredictionProfile {
   teamId: string;
   mlStrengthScore: number;
   recentFormScore: number;
+  tournamentFormScore?: number;
   attackTrend: number;
   defenseTrend: number;
+  squadAvailabilityScore?: number;
+  tacticalFitScore?: number;
+  playerFitScore?: number;
+  squadCohesionScore?: number;
+  currentSquadSignalScore?: number;
+  coachAdaptabilityScore?: number;
+  currentMatchCount?: number;
   confidenceScore: number;
   upsetRisk: PredictionRisk;
+  keyAbsences?: string[];
+  keyAbsencesZh?: string[];
+  tacticalNotes?: string[];
+  tacticalNotesZh?: string[];
+  updatedAt?: string;
   explanation: string;
 }
 

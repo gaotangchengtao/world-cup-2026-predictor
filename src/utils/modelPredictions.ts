@@ -62,24 +62,53 @@ export const getMatchupPrediction = (
   const profileA = getModelProfile(teamA, players);
   const profileB = getModelProfile(teamB, players);
   const scoreEdge = profileA.mlStrengthScore - profileB.mlStrengthScore;
-  const formEdge = profileA.recentFormScore - profileB.recentFormScore;
-  const attackDefenseEdge = (profileA.attackTrend - profileB.defenseTrend + profileA.defenseTrend - profileB.attackTrend) / 2;
-  const rankEdge = (teamB.strengthRank - teamA.strengthRank) * 0.55;
-  const squadEdge = ((teamA.squadValueEurM ?? 0) - (teamB.squadValueEurM ?? 0)) / 42;
-  const edge = scoreEdge * 0.48 + formEdge * 0.2 + attackDefenseEdge * 0.16 + rankEdge + squadEdge * 0.16;
+  const tournamentFormEdge =
+    (profileA.tournamentFormScore ?? profileA.recentFormScore)
+    - (profileB.tournamentFormScore ?? profileB.recentFormScore);
+  const attackDefenseEdge =
+    (profileA.attackTrend - profileB.defenseTrend + profileA.defenseTrend - profileB.attackTrend) / 2;
+  const availabilityEdge =
+    (profileA.squadAvailabilityScore ?? 85) - (profileB.squadAvailabilityScore ?? 85);
+  const tacticalEdge = (profileA.tacticalFitScore ?? 80) - (profileB.tacticalFitScore ?? 80);
+  const playerFitEdge = (profileA.playerFitScore ?? 80) - (profileB.playerFitScore ?? 80);
+  const cohesionEdge = (profileA.squadCohesionScore ?? 80) - (profileB.squadCohesionScore ?? 80);
+  const coachEdge = (profileA.coachAdaptabilityScore ?? 80) - (profileB.coachAdaptabilityScore ?? 80);
+  const edge =
+    scoreEdge * 0.36
+    + tournamentFormEdge * 0.22
+    + attackDefenseEdge * 0.1
+    + availabilityEdge * 0.08
+    + tacticalEdge * 0.08
+    + playerFitEdge * 0.08
+    + cohesionEdge * 0.05
+    + coachEdge * 0.03;
   const drawProbability = clamp(0.24 - Math.abs(edge) * 0.0025, 0.12, 0.28);
-  const teamAWinProbability = clamp((1 - drawProbability) * sigmoid(edge / 10.5), 0.04, 0.9);
+  const teamAWinProbability = clamp((1 - drawProbability) * sigmoid(edge / 8.5), 0.04, 0.9);
   const teamBWinProbability = clamp(1 - drawProbability - teamAWinProbability, 0.04, 0.9);
-  const teamAAdvanceProbability = clamp(teamAWinProbability + drawProbability * 0.5 + (teamA.strengthScore - teamB.strengthScore) * 0.0018, 0.05, 0.95);
+  const extraTimeContext =
+    ((profileA.squadCohesionScore ?? 80) - (profileB.squadCohesionScore ?? 80)) * 0.001
+    + ((profileA.coachAdaptabilityScore ?? 80) - (profileB.coachAdaptabilityScore ?? 80)) * 0.001;
+  const teamAAdvanceProbability = clamp(
+    teamAWinProbability + drawProbability * 0.5 + extraTimeContext,
+    0.05,
+    0.95,
+  );
   const teamBAdvanceProbability = clamp(1 - teamAAdvanceProbability, 0.05, 0.95);
   const gap = Math.abs(teamAAdvanceProbability - teamBAdvanceProbability);
-  const confidenceScore = clamp(Math.round(50 + gap * 100 * 0.62 + Math.max(profileA.confidenceScore, profileB.confidenceScore) * 0.18), 38, 96);
+  const confidenceScore = clamp(
+    Math.round(50 + gap * 100 * 0.62 + Math.max(profileA.confidenceScore, profileB.confidenceScore) * 0.18),
+    38,
+    96,
+  );
   const factors = [
-    { key: "mlStrength", value: Math.abs(scoreEdge) },
-    { key: "recentForm", value: Math.abs(formEdge) },
-    { key: "attackDefense", value: Math.abs(attackDefenseEdge) },
-    { key: "strengthRank", value: Math.abs(rankEdge) },
-    { key: "squadValue", value: Math.abs(squadEdge) },
+    { key: "currentTournamentForm", value: Math.abs(tournamentFormEdge * 0.22) },
+    { key: "mlStrength", value: Math.abs(scoreEdge * 0.36) },
+    { key: "attackDefense", value: Math.abs(attackDefenseEdge * 0.1) },
+    { key: "squadAvailability", value: Math.abs(availabilityEdge * 0.08) },
+    { key: "tacticalFit", value: Math.abs(tacticalEdge * 0.08) },
+    { key: "playerFit", value: Math.abs(playerFitEdge * 0.08) },
+    { key: "squadCohesion", value: Math.abs(cohesionEdge * 0.05) },
+    { key: "coachAdaptability", value: Math.abs(coachEdge * 0.03) },
   ]
     .sort((a, b) => b.value - a.value)
     .slice(0, 3)
@@ -104,6 +133,17 @@ export const getRecommendedWinnerId = (teamA: Team | undefined, teamB: Team | un
   if (!teamB) return teamA.id;
   const prediction = getMatchupPrediction(teamA, teamB, players);
   if (!prediction) return teamA.strengthRank <= teamB.strengthRank ? teamA.id : teamB.id;
+
+  const probabilityGap = Math.abs(prediction.teamAAdvanceProbability - prediction.teamBAdvanceProbability);
+  if (probabilityGap < 0.08) {
+    const profileA = getModelProfile(teamA, players);
+    const profileB = getModelProfile(teamB, players);
+    if (profileA.mlStrengthScore !== profileB.mlStrengthScore) {
+      return profileA.mlStrengthScore > profileB.mlStrengthScore ? teamA.id : teamB.id;
+    }
+    return profileA.confidenceScore >= profileB.confidenceScore ? teamA.id : teamB.id;
+  }
+
   return prediction.teamAAdvanceProbability >= prediction.teamBAdvanceProbability ? teamA.id : teamB.id;
 };
 

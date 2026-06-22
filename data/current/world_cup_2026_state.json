@@ -1,0 +1,713 @@
+{
+  "snapshotAt": "2026-06-23T00:50:00+08:00",
+  "competitionDateCutoff": "2026-06-21",
+  "status": "in-tournament",
+  "notes": "Analyst snapshot after the matches completed on June 21, 2026. Current World Cup results are treated as the freshest evidence; availability and tactical scores are manually maintained estimates, not official ratings.",
+  "sourceUrls": [
+    "https://www.sbnation.com/soccer/1117513/world-cup-schedule-2026-how-to-watch-every-match-scores-and-more",
+    "https://www.theguardian.com/football/live/2026/jun/21/new-zealand-v-egypt-world-cup-2026-live",
+    "https://www.si.com/soccer/spain-vs-saudi-arabia-score-live-updates-world-cup",
+    "https://www.si.com/soccer/uruguay-vs-cape-verde-score-live-updates-world-cup",
+    "https://worldsoccertalk.com/news/brazil-fear-raphinha-injury-ancelotti-provides-update-after-world-cup-setback/",
+    "https://www.goal.com/en-us/lists/world-cup-injury-blow-for-nico-schlotterbeck-germany-defender-ruled-out-of-2026-tournament-ankle-damage/bltd2cf4435f7afb3f0",
+    "https://www.espn.com/soccer/story/_/id/47047134/lamine-yamal-fully-fit-spain-2026-world-cup-coach",
+    "https://www.foxsports.com/stories/soccer/cristiano-ronaldo-start-portugals-opening-world-cup-match",
+    "https://www.skysports.com/football/news/12040/13475924/world-cup-2026-injuries-marcus-rashford-a-doubt-for-england-after-missing-training-with-tight-hamstring"
+  ],
+  "defaultFactors": {
+    "availabilityScore": 90,
+    "tacticalFitScore": 82,
+    "cohesionScore": 84,
+    "coachAdaptabilityScore": 82,
+    "keyAbsences": [],
+    "tacticalNotes": [],
+    "keyAbsencesZh": [],
+    "tacticalNotesZh": []
+  },
+  "teams": {
+    "mexico": {
+      "availabilityScore": 92,
+      "tacticalFitScore": 88,
+      "cohesionScore": 90,
+      "coachAdaptabilityScore": 86
+    },
+    "south-africa": {
+      "availabilityScore": 88,
+      "tacticalFitScore": 72,
+      "cohesionScore": 78,
+      "coachAdaptabilityScore": 72
+    },
+    "south-korea": {
+      "availabilityScore": 90,
+      "tacticalFitScore": 83,
+      "cohesionScore": 85,
+      "coachAdaptabilityScore": 80
+    },
+    "czechia": {
+      "availabilityScore": 86,
+      "tacticalFitScore": 78,
+      "cohesionScore": 79,
+      "coachAdaptabilityScore": 76
+    },
+    "canada": {
+      "availabilityScore": 92,
+      "tacticalFitScore": 90,
+      "cohesionScore": 88,
+      "coachAdaptabilityScore": 89,
+      "tacticalNotes": [
+        "High-tempo transitions and aggressive width have translated well into the tournament."
+      ],
+      "tacticalNotesZh": [
+        "高节奏转换和积极利用场地宽度的打法，已经在本届比赛中取得明显效果。"
+      ]
+    },
+    "bosnia-herzegovina": {
+      "availabilityScore": 87,
+      "tacticalFitScore": 75,
+      "cohesionScore": 78,
+      "coachAdaptabilityScore": 74
+    },
+    "qatar": {
+      "availabilityScore": 85,
+      "tacticalFitScore": 65,
+      "cohesionScore": 70,
+      "coachAdaptabilityScore": 68
+    },
+    "switzerland": {
+      "availabilityScore": 91,
+      "tacticalFitScore": 87,
+      "cohesionScore": 89,
+      "coachAdaptabilityScore": 86
+    },
+    "brazil": {
+      "availabilityScore": 82,
+      "tacticalFitScore": 88,
+      "cohesionScore": 86,
+      "coachAdaptabilityScore": 91,
+      "keyAbsences": [
+        "Raphinha - hamstring status uncertain"
+      ],
+      "tacticalNotes": [
+        "Ancelotti has several attacking alternatives, but the right-side combinations may change if Raphinha is unavailable."
+      ],
+      "keyAbsencesZh": [
+        "Raphinha - 腘绳肌伤势，出场状态待定"
+      ],
+      "tacticalNotesZh": [
+        "Ancelotti 拥有多种进攻替代方案，但如果 Raphinha 缺阵，右路配合方式需要调整。"
+      ]
+    },
+    "morocco": {
+      "availabilityScore": 92,
+      "tacticalFitScore": 91,
+      "cohesionScore": 92,
+      "coachAdaptabilityScore": 88
+    },
+    "haiti": {
+      "availabilityScore": 86,
+      "tacticalFitScore": 67,
+      "cohesionScore": 72,
+      "coachAdaptabilityScore": 68
+    },
+    "scotland": {
+      "availabilityScore": 90,
+      "tacticalFitScore": 80,
+      "cohesionScore": 84,
+      "coachAdaptabilityScore": 79
+    },
+    "usa": {
+      "availabilityScore": 93,
+      "tacticalFitScore": 91,
+      "cohesionScore": 90,
+      "coachAdaptabilityScore": 88,
+      "tacticalNotes": [
+        "The host has combined front-foot pressing with direct attacks into space."
+      ],
+      "tacticalNotesZh": [
+        "东道主目前把主动压迫和快速攻击身后空间结合得很好。"
+      ]
+    },
+    "paraguay": {
+      "availabilityScore": 91,
+      "tacticalFitScore": 84,
+      "cohesionScore": 86,
+      "coachAdaptabilityScore": 82
+    },
+    "australia": {
+      "availabilityScore": 92,
+      "tacticalFitScore": 83,
+      "cohesionScore": 88,
+      "coachAdaptabilityScore": 84
+    },
+    "turkiye": {
+      "availabilityScore": 88,
+      "tacticalFitScore": 72,
+      "cohesionScore": 80,
+      "coachAdaptabilityScore": 76
+    },
+    "germany": {
+      "availabilityScore": 84,
+      "tacticalFitScore": 92,
+      "cohesionScore": 90,
+      "coachAdaptabilityScore": 93,
+      "keyAbsences": [
+        "Nico Schlotterbeck - ankle ligament injury"
+      ],
+      "tacticalNotes": [
+        "The attacking structure is producing chances, while centre-back depth is the principal availability concern."
+      ],
+      "keyAbsencesZh": [
+        "Nico Schlotterbeck - 脚踝韧带受伤"
+      ],
+      "tacticalNotesZh": [
+        "进攻体系正在稳定制造机会，中后卫位置的阵容深度是主要人员风险。"
+      ]
+    },
+    "curacao": {
+      "availabilityScore": 88,
+      "tacticalFitScore": 68,
+      "cohesionScore": 74,
+      "coachAdaptabilityScore": 70
+    },
+    "cote-divoire": {
+      "availabilityScore": 89,
+      "tacticalFitScore": 82,
+      "cohesionScore": 84,
+      "coachAdaptabilityScore": 80
+    },
+    "ecuador": {
+      "availabilityScore": 91,
+      "tacticalFitScore": 85,
+      "cohesionScore": 86,
+      "coachAdaptabilityScore": 84
+    },
+    "netherlands": {
+      "availabilityScore": 91,
+      "tacticalFitScore": 90,
+      "cohesionScore": 89,
+      "coachAdaptabilityScore": 88,
+      "tacticalNotes": [
+        "Five goals against Sweden increased the model's attacking-form estimate, though transition defense remains a watch point."
+      ],
+      "tacticalNotesZh": [
+        "对 Sweden 打进五球显著提高了进攻状态评分，但由攻转守仍需持续观察。"
+      ]
+    },
+    "japan": {
+      "availabilityScore": 94,
+      "tacticalFitScore": 93,
+      "cohesionScore": 92,
+      "coachAdaptabilityScore": 91,
+      "tacticalNotes": [
+        "Excellent positional discipline and role familiarity make the squad more valuable than raw market value suggests."
+      ],
+      "tacticalNotesZh": [
+        "优秀的位置纪律和球员角色熟悉度，让这套阵容的实际价值高于单纯身价评价。"
+      ]
+    },
+    "sweden": {
+      "availabilityScore": 90,
+      "tacticalFitScore": 84,
+      "cohesionScore": 85,
+      "coachAdaptabilityScore": 82
+    },
+    "tunisia": {
+      "availabilityScore": 86,
+      "tacticalFitScore": 69,
+      "cohesionScore": 76,
+      "coachAdaptabilityScore": 70
+    },
+    "belgium": {
+      "availabilityScore": 84,
+      "tacticalFitScore": 68,
+      "cohesionScore": 72,
+      "coachAdaptabilityScore": 70,
+      "keyAbsences": [
+        "Nathan Ngoy - suspended after red card"
+      ],
+      "tacticalNotes": [
+        "Two draws and limited chance creation indicate that individual talent has not yet become a coherent attacking structure."
+      ],
+      "keyAbsencesZh": [
+        "Nathan Ngoy - 红牌停赛"
+      ],
+      "tacticalNotesZh": [
+        "连续两场平局且创造机会有限，说明个人天赋尚未形成连贯的整体进攻。"
+      ]
+    },
+    "egypt": {
+      "availabilityScore": 92,
+      "tacticalFitScore": 89,
+      "cohesionScore": 90,
+      "coachAdaptabilityScore": 87
+    },
+    "iran": {
+      "availabilityScore": 90,
+      "tacticalFitScore": 86,
+      "cohesionScore": 89,
+      "coachAdaptabilityScore": 84
+    },
+    "new-zealand": {
+      "availabilityScore": 90,
+      "tacticalFitScore": 76,
+      "cohesionScore": 84,
+      "coachAdaptabilityScore": 78
+    },
+    "spain": {
+      "availabilityScore": 93,
+      "tacticalFitScore": 95,
+      "cohesionScore": 92,
+      "coachAdaptabilityScore": 92,
+      "tacticalNotes": [
+        "Lamine Yamal is reported fully fit; Spain's positional play remains the strongest tactical fit in the field."
+      ],
+      "tacticalNotesZh": [
+        "Lamine Yamal 据报道已完全恢复；Spain 的位置打法仍是参赛队中战术适配度最高的一档。"
+      ]
+    },
+    "cape-verde": {
+      "availabilityScore": 94,
+      "tacticalFitScore": 92,
+      "cohesionScore": 95,
+      "coachAdaptabilityScore": 89,
+      "tacticalNotes": [
+        "The draw with Spain and comeback against Uruguay materially improve both form and cohesion estimates."
+      ],
+      "tacticalNotesZh": [
+        "战平 Spain、逆境中战平 Uruguay，明显提升了球队状态与阵容默契评分。"
+      ]
+    },
+    "saudi-arabia": {
+      "availabilityScore": 88,
+      "tacticalFitScore": 72,
+      "cohesionScore": 78,
+      "coachAdaptabilityScore": 76
+    },
+    "uruguay": {
+      "availabilityScore": 86,
+      "tacticalFitScore": 80,
+      "cohesionScore": 85,
+      "coachAdaptabilityScore": 82,
+      "tacticalNotes": [
+        "The first two group matches exposed defensive control issues despite strong individual quality."
+      ],
+      "tacticalNotesZh": [
+        "前两场小组赛暴露了防守控制问题，个人能力尚未转化为稳定的比赛掌控力。"
+      ]
+    },
+    "france": {
+      "availabilityScore": 94,
+      "tacticalFitScore": 94,
+      "cohesionScore": 92,
+      "coachAdaptabilityScore": 92
+    },
+    "senegal": {
+      "availabilityScore": 91,
+      "tacticalFitScore": 86,
+      "cohesionScore": 88,
+      "coachAdaptabilityScore": 84
+    },
+    "iraq": {
+      "availabilityScore": 88,
+      "tacticalFitScore": 70,
+      "cohesionScore": 76,
+      "coachAdaptabilityScore": 72
+    },
+    "norway": {
+      "availabilityScore": 93,
+      "tacticalFitScore": 90,
+      "cohesionScore": 91,
+      "coachAdaptabilityScore": 88,
+      "tacticalNotes": [
+        "The opening four-goal performance supports the direct-running and penalty-box threat already present in the squad."
+      ],
+      "tacticalNotesZh": [
+        "首战四球表现验证了球队的纵向冲击和禁区威胁。"
+      ]
+    },
+    "argentina": {
+      "availabilityScore": 95,
+      "tacticalFitScore": 94,
+      "cohesionScore": 96,
+      "coachAdaptabilityScore": 95,
+      "tacticalNotes": [
+        "The defending champion combines role continuity, elite game management, and a strong opening performance."
+      ],
+      "tacticalNotesZh": [
+        "卫冕冠军同时具备角色延续性、顶级比赛管理能力和强势的开局表现。"
+      ]
+    },
+    "algeria": {
+      "availabilityScore": 91,
+      "tacticalFitScore": 82,
+      "cohesionScore": 85,
+      "coachAdaptabilityScore": 82
+    },
+    "austria": {
+      "availabilityScore": 91,
+      "tacticalFitScore": 91,
+      "cohesionScore": 92,
+      "coachAdaptabilityScore": 90
+    },
+    "jordan": {
+      "availabilityScore": 90,
+      "tacticalFitScore": 76,
+      "cohesionScore": 82,
+      "coachAdaptabilityScore": 78
+    },
+    "portugal": {
+      "availabilityScore": 93,
+      "tacticalFitScore": 68,
+      "cohesionScore": 82,
+      "coachAdaptabilityScore": 72,
+      "tacticalNotes": [
+        "The model discounts Portugal until the forward roles and Cristiano Ronaldo's starting usage produce a clearer collective balance."
+      ],
+      "tacticalNotesZh": [
+        "在锋线角色和 Cristiano Ronaldo 的使用方式形成更清晰的整体平衡前，模型会下调 Portugal 的战术适配评分。"
+      ]
+    },
+    "dr-congo": {
+      "availabilityScore": 91,
+      "tacticalFitScore": 86,
+      "cohesionScore": 88,
+      "coachAdaptabilityScore": 84
+    },
+    "uzbekistan": {
+      "availabilityScore": 92,
+      "tacticalFitScore": 84,
+      "cohesionScore": 89,
+      "coachAdaptabilityScore": 86
+    },
+    "colombia": {
+      "availabilityScore": 94,
+      "tacticalFitScore": 92,
+      "cohesionScore": 92,
+      "coachAdaptabilityScore": 90,
+      "tacticalNotes": [
+        "The opening win reinforced the squad's pressing, ball-winning and transition profile."
+      ],
+      "tacticalNotesZh": [
+        "首战胜利进一步验证了球队的压迫、夺回球权和转换进攻能力。"
+      ]
+    },
+    "england": {
+      "availabilityScore": 90,
+      "tacticalFitScore": 90,
+      "cohesionScore": 88,
+      "coachAdaptabilityScore": 91,
+      "keyAbsences": [
+        "Marcus Rashford - hamstring tightness, availability uncertain"
+      ],
+      "tacticalNotes": [
+        "The attack started strongly, but the model keeps a modest availability deduction and monitors defensive transitions."
+      ],
+      "keyAbsencesZh": [
+        "Marcus Rashford - 腘绳肌紧张，出场状态待定"
+      ],
+      "tacticalNotesZh": [
+        "进攻开局强势，但模型仍保留轻微人员可用性扣分，并继续观察防守转换。"
+      ]
+    },
+    "croatia": {
+      "availabilityScore": 89,
+      "tacticalFitScore": 85,
+      "cohesionScore": 91,
+      "coachAdaptabilityScore": 88
+    },
+    "ghana": {
+      "availabilityScore": 92,
+      "tacticalFitScore": 87,
+      "cohesionScore": 89,
+      "coachAdaptabilityScore": 85
+    },
+    "panama": {
+      "availabilityScore": 90,
+      "tacticalFitScore": 78,
+      "cohesionScore": 84,
+      "coachAdaptabilityScore": 80
+    }
+  },
+  "actualResults": [
+    {
+      "date": "2026-06-11",
+      "homeTeamId": "mexico",
+      "awayTeamId": "south-africa",
+      "homeScore": 2,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-11",
+      "homeTeamId": "south-korea",
+      "awayTeamId": "czechia",
+      "homeScore": 2,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-12",
+      "homeTeamId": "canada",
+      "awayTeamId": "bosnia-herzegovina",
+      "homeScore": 1,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-12",
+      "homeTeamId": "qatar",
+      "awayTeamId": "switzerland",
+      "homeScore": 1,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-13",
+      "homeTeamId": "brazil",
+      "awayTeamId": "morocco",
+      "homeScore": 1,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-13",
+      "homeTeamId": "haiti",
+      "awayTeamId": "scotland",
+      "homeScore": 0,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-13",
+      "homeTeamId": "usa",
+      "awayTeamId": "paraguay",
+      "homeScore": 4,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-14",
+      "homeTeamId": "australia",
+      "awayTeamId": "turkiye",
+      "homeScore": 2,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-14",
+      "homeTeamId": "germany",
+      "awayTeamId": "curacao",
+      "homeScore": 7,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-14",
+      "homeTeamId": "cote-divoire",
+      "awayTeamId": "ecuador",
+      "homeScore": 1,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-14",
+      "homeTeamId": "netherlands",
+      "awayTeamId": "japan",
+      "homeScore": 2,
+      "awayScore": 2
+    },
+    {
+      "date": "2026-06-14",
+      "homeTeamId": "sweden",
+      "awayTeamId": "tunisia",
+      "homeScore": 5,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-15",
+      "homeTeamId": "belgium",
+      "awayTeamId": "egypt",
+      "homeScore": 1,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-15",
+      "homeTeamId": "iran",
+      "awayTeamId": "new-zealand",
+      "homeScore": 2,
+      "awayScore": 2
+    },
+    {
+      "date": "2026-06-15",
+      "homeTeamId": "spain",
+      "awayTeamId": "cape-verde",
+      "homeScore": 0,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-15",
+      "homeTeamId": "saudi-arabia",
+      "awayTeamId": "uruguay",
+      "homeScore": 1,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-16",
+      "homeTeamId": "france",
+      "awayTeamId": "senegal",
+      "homeScore": 3,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-16",
+      "homeTeamId": "iraq",
+      "awayTeamId": "norway",
+      "homeScore": 1,
+      "awayScore": 4
+    },
+    {
+      "date": "2026-06-16",
+      "homeTeamId": "argentina",
+      "awayTeamId": "algeria",
+      "homeScore": 3,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-17",
+      "homeTeamId": "austria",
+      "awayTeamId": "jordan",
+      "homeScore": 3,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-17",
+      "homeTeamId": "portugal",
+      "awayTeamId": "dr-congo",
+      "homeScore": 1,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-17",
+      "homeTeamId": "uzbekistan",
+      "awayTeamId": "colombia",
+      "homeScore": 1,
+      "awayScore": 3
+    },
+    {
+      "date": "2026-06-17",
+      "homeTeamId": "england",
+      "awayTeamId": "croatia",
+      "homeScore": 4,
+      "awayScore": 2
+    },
+    {
+      "date": "2026-06-17",
+      "homeTeamId": "ghana",
+      "awayTeamId": "panama",
+      "homeScore": 1,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-18",
+      "homeTeamId": "mexico",
+      "awayTeamId": "south-korea",
+      "homeScore": 1,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-18",
+      "homeTeamId": "czechia",
+      "awayTeamId": "south-africa",
+      "homeScore": 1,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-18",
+      "homeTeamId": "canada",
+      "awayTeamId": "qatar",
+      "homeScore": 6,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-18",
+      "homeTeamId": "switzerland",
+      "awayTeamId": "bosnia-herzegovina",
+      "homeScore": 4,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-19",
+      "homeTeamId": "brazil",
+      "awayTeamId": "haiti",
+      "homeScore": 3,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-19",
+      "homeTeamId": "morocco",
+      "awayTeamId": "scotland",
+      "homeScore": 1,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-19",
+      "homeTeamId": "usa",
+      "awayTeamId": "australia",
+      "homeScore": 2,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-19",
+      "homeTeamId": "paraguay",
+      "awayTeamId": "turkiye",
+      "homeScore": 1,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-20",
+      "homeTeamId": "germany",
+      "awayTeamId": "cote-divoire",
+      "homeScore": 2,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-20",
+      "homeTeamId": "ecuador",
+      "awayTeamId": "curacao",
+      "homeScore": 0,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-20",
+      "homeTeamId": "netherlands",
+      "awayTeamId": "sweden",
+      "homeScore": 5,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-20",
+      "homeTeamId": "japan",
+      "awayTeamId": "tunisia",
+      "homeScore": 4,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-21",
+      "homeTeamId": "belgium",
+      "awayTeamId": "iran",
+      "homeScore": 0,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-21",
+      "homeTeamId": "egypt",
+      "awayTeamId": "new-zealand",
+      "homeScore": 3,
+      "awayScore": 1
+    },
+    {
+      "date": "2026-06-21",
+      "homeTeamId": "spain",
+      "awayTeamId": "saudi-arabia",
+      "homeScore": 4,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-21",
+      "homeTeamId": "uruguay",
+      "awayTeamId": "cape-verde",
+      "homeScore": 2,
+      "awayScore": 2
+    }
+  ]
+}

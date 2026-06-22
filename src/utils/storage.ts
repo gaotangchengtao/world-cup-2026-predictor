@@ -4,8 +4,11 @@ export const storageKeys = {
   experienceMode: "wc2026.experienceMode",
   overviewSection: "wc2026.overview.section",
   bracketPredictions: "wc2026.bracket.predictions",
+  bracketPredictionVersion: "wc2026.bracket.predictionVersion",
   groupStagePredictions: "wc2026.groupStage.predictions",
+  groupStagePredictionVersion: "wc2026.groupStage.predictionVersion",
   runtimeData: "wc2026.runtimeData",
+  runtimeDataVersion: "wc2026.runtimeDataVersion",
 };
 
 export const readJson = <T,>(key: string, fallback: T): T => {

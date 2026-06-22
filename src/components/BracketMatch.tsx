@@ -3,7 +3,7 @@ import { useLanguage } from "../i18n";
 import type { BracketMatch as BracketMatchType, BracketMatchState, Player, Team } from "../types/worldCup";
 import { getTeamById } from "../utils/format";
 import { displayTeamName } from "../utils/localizedNames";
-import { getMatchupPrediction } from "../utils/modelPredictions";
+import { getMatchupPrediction, getRecommendedWinnerId } from "../utils/modelPredictions";
 import { ExplanationCard } from "./ExplanationCard";
 import { TeamFlag } from "./TeamFlag";
 
@@ -86,11 +86,18 @@ export const BracketMatch = ({ match, matchState, teams, players, onSlotChange, 
   const teamA = getTeamById(teams, matchState.slotA);
   const teamB = getTeamById(teams, matchState.slotB);
   const probabilities = getMatchupPrediction(teamA, teamB, players);
-  const favorite = probabilities && probabilities.teamAAdvanceProbability >= probabilities.teamBAdvanceProbability ? teamA : teamB;
+  const recommendedWinnerId = getRecommendedWinnerId(teamA, teamB, players);
+  const favorite = recommendedWinnerId === teamA?.id ? teamA : recommendedWinnerId === teamB?.id ? teamB : undefined;
   const noteLabels = {
     mlStrength: t("mlStrengthScore"),
     recentForm: t("recentFormScore"),
+    currentTournamentForm: t("currentTournamentForm"),
     attackDefense: t("attackDefenseBalance"),
+    squadAvailability: t("squadAvailability"),
+    tacticalFit: t("tacticalFit"),
+    playerFit: t("playerFit"),
+    squadCohesion: t("squadCohesion"),
+    coachAdaptability: t("coachAdaptability"),
     strengthRank: t("strengthRank"),
     squadValue: t("squadValue"),
   };

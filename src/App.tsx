@@ -8,9 +8,10 @@ import { players as defaultPlayers } from "./data/players";
 import { teams as defaultTeams } from "./data/teams";
 import { useLanguage } from "./i18n";
 import type { BracketPredictionState, ExperienceMode, FilterState, OverviewSection, Player, RuntimeData, Team } from "./types/worldCup";
-import { completeBracketState, createInitialBracketState } from "./utils/bracket";
+import { completeBracketState, createRecommendedBracketState } from "./utils/bracket";
 import { stageOrder } from "./utils/format";
 import { teamSearchText } from "./utils/localizedNames";
+import { getRecommendedWinnerId } from "./utils/modelPredictions";
 import { readJson, storageKeys, writeJson } from "./utils/storage";
 
 const BeginnerIntroPanel = lazy(() =>
@@ -75,19 +76,43 @@ const defaultRuntimeData: RuntimeData = {
   players: defaultPlayers,
 };
 
+const CURRENT_PREDICTION_VERSION = "2026-06-23-current-state-v1";
+
 const contenderStages = new Set(["Champion", "Final", "Semi-final", "Quarter-final"]);
 const overviewSectionIds: OverviewSection[] = ["home", "groups", "knockout", "players", "beginner", "stories", "data"];
 
-const mergeDefaultRuntimeData = (data: RuntimeData): RuntimeData => {
-  const teamIds = new Set(data.teams.map((team) => team.id));
+const mergeDefaultRuntimeData = (data: RuntimeData, refreshPredictions = false): RuntimeData => {
+  const defaultTeamById = new Map(defaultTeams.map((team) => [team.id, team]));
   const playerIds = new Set(data.players.map((player) => player.playerId));
+  const mergedTeams = data.teams.map((team) => {
+    const current = defaultTeamById.get(team.id);
+    if (!current || !refreshPredictions) return team;
+
+    return {
+      ...team,
+      group: current.group,
+      strengthRank: current.strengthRank,
+      strengthScore: current.strengthScore,
+      predictedGroupPosition: current.predictedGroupPosition,
+      predictedStage: current.predictedStage,
+      lastUpdated: current.lastUpdated,
+    };
+  });
+  const teamIds = new Set(mergedTeams.map((team) => team.id));
 
   return {
     ...data,
-    teams: [...data.teams, ...defaultTeams.filter((team) => !teamIds.has(team.id))],
+    teams: [...mergedTeams, ...defaultTeams.filter((team) => !teamIds.has(team.id))],
     players: [...data.players, ...defaultPlayers.filter((player) => !playerIds.has(player.playerId))],
   };
 };
+
+const createCurrentRecommendedBracket = (runtimeData: RuntimeData) =>
+  createRecommendedBracketState(runtimeData.teams, (slotA, slotB, availableTeams) => {
+    const teamA = availableTeams.find((team) => team.id === slotA);
+    const teamB = availableTeams.find((team) => team.id === slotB);
+    return getRecommendedWinnerId(teamA, teamB, runtimeData.players);
+  });
 
 const readOverviewSection = () => {
   const saved = readJson(storageKeys.overviewSection, "home" as OverviewSection);
@@ -107,15 +132,23 @@ export default function App() {
     readJson(storageKeys.experienceMode, "beginner" as ExperienceMode),
   );
   const [activeOverviewSection, setActiveOverviewSection] = useState<OverviewSection>(readOverviewSection);
-  const [runtimeData, setRuntimeData] = useState<RuntimeData>(() =>
-    mergeDefaultRuntimeData(readJson(storageKeys.runtimeData, defaultRuntimeData)),
-  );
-  const [bracketState, setBracketState] = useState<BracketPredictionState>(() =>
-    completeBracketState(
-      readJson(storageKeys.bracketPredictions, createInitialBracketState(runtimeData.teams)),
+  const [runtimeData, setRuntimeData] = useState<RuntimeData>(() => {
+    const refreshPredictions =
+      readJson<string>(storageKeys.runtimeDataVersion, "") !== CURRENT_PREDICTION_VERSION;
+    return mergeDefaultRuntimeData(
+      readJson(storageKeys.runtimeData, defaultRuntimeData),
+      refreshPredictions,
+    );
+  });
+  const [bracketState, setBracketState] = useState<BracketPredictionState>(() => {
+    const recommended = createCurrentRecommendedBracket(runtimeData);
+    const refreshBracket =
+      readJson<string>(storageKeys.bracketPredictionVersion, "") !== CURRENT_PREDICTION_VERSION;
+    return completeBracketState(
+      refreshBracket ? recommended : readJson(storageKeys.bracketPredictions, recommended),
       runtimeData.teams,
-    ),
-  );
+    );
+  });
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
@@ -140,10 +173,12 @@ export default function App() {
 
   useEffect(() => {
     writeJson(storageKeys.bracketPredictions, bracketState);
+    writeJson(storageKeys.bracketPredictionVersion, CURRENT_PREDICTION_VERSION);
   }, [bracketState]);
 
   useEffect(() => {
     writeJson(storageKeys.runtimeData, runtimeData);
+    writeJson(storageKeys.runtimeDataVersion, CURRENT_PREDICTION_VERSION);
   }, [runtimeData]);
 
   useEffect(() => {

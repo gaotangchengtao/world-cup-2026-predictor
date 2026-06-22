@@ -1,0 +1,246 @@
+{
+  "frozenAt": "2026-06-23",
+  "purpose": "Stable pre-tournament project inputs. Model output must not be fed back into its own training inputs.",
+  "teams": {
+    "mexico": {
+      "strengthRank": 17,
+      "strengthScore": 78,
+      "squadValueEurM": 210.0
+    },
+    "south-africa": {
+      "strengthRank": 37,
+      "strengthScore": 61,
+      "squadValueEurM": 34.0
+    },
+    "south-korea": {
+      "strengthRank": 24,
+      "strengthScore": 73,
+      "squadValueEurM": 185.0
+    },
+    "czechia": {
+      "strengthRank": 34,
+      "strengthScore": 66,
+      "squadValueEurM": 155.0
+    },
+    "canada": {
+      "strengthRank": 27,
+      "strengthScore": 71,
+      "squadValueEurM": 190.0
+    },
+    "bosnia-herzegovina": {
+      "strengthRank": 38,
+      "strengthScore": 60,
+      "squadValueEurM": 92.0
+    },
+    "qatar": {
+      "strengthRank": 32,
+      "strengthScore": 67,
+      "squadValueEurM": 28.0
+    },
+    "switzerland": {
+      "strengthRank": 15,
+      "strengthScore": 80,
+      "squadValueEurM": 275.0
+    },
+    "brazil": {
+      "strengthRank": 5,
+      "strengthScore": 91,
+      "squadValueEurM": 1220.0
+    },
+    "morocco": {
+      "strengthRank": 12,
+      "strengthScore": 82,
+      "squadValueEurM": 350.0
+    },
+    "haiti": {
+      "strengthRank": 47,
+      "strengthScore": 52,
+      "squadValueEurM": 24.0
+    },
+    "scotland": {
+      "strengthRank": 36,
+      "strengthScore": 64,
+      "squadValueEurM": 235.0
+    },
+    "usa": {
+      "strengthRank": 13,
+      "strengthScore": 81,
+      "squadValueEurM": 315.0
+    },
+    "turkiye": {
+      "strengthRank": 21,
+      "strengthScore": 75,
+      "squadValueEurM": 340.0
+    },
+    "australia": {
+      "strengthRank": 22,
+      "strengthScore": 74,
+      "squadValueEurM": 62.0
+    },
+    "paraguay": {
+      "strengthRank": 30,
+      "strengthScore": 69,
+      "squadValueEurM": 150.0
+    },
+    "germany": {
+      "strengthRank": 8,
+      "strengthScore": 88,
+      "squadValueEurM": 900.0
+    },
+    "curacao": {
+      "strengthRank": 48,
+      "strengthScore": 50,
+      "squadValueEurM": 32.0
+    },
+    "cote-divoire": {
+      "strengthRank": 25,
+      "strengthScore": 72,
+      "squadValueEurM": 260.0
+    },
+    "ecuador": {
+      "strengthRank": 23,
+      "strengthScore": 74,
+      "squadValueEurM": 260.0
+    },
+    "netherlands": {
+      "strengthRank": 7,
+      "strengthScore": 89,
+      "squadValueEurM": 720.0
+    },
+    "japan": {
+      "strengthRank": 16,
+      "strengthScore": 79,
+      "squadValueEurM": 310.0
+    },
+    "sweden": {
+      "strengthRank": 31,
+      "strengthScore": 68,
+      "squadValueEurM": 265.0
+    },
+    "tunisia": {
+      "strengthRank": 35,
+      "strengthScore": 65,
+      "squadValueEurM": 58.0
+    },
+    "belgium": {
+      "strengthRank": 9,
+      "strengthScore": 87,
+      "squadValueEurM": 610.0
+    },
+    "iran": {
+      "strengthRank": 26,
+      "strengthScore": 72,
+      "squadValueEurM": 62.0
+    },
+    "egypt": {
+      "strengthRank": 39,
+      "strengthScore": 59,
+      "squadValueEurM": 160.0
+    },
+    "new-zealand": {
+      "strengthRank": 40,
+      "strengthScore": 58,
+      "squadValueEurM": 28.0
+    },
+    "spain": {
+      "strengthRank": 2,
+      "strengthScore": 94,
+      "squadValueEurM": 1120.0
+    },
+    "cape-verde": {
+      "strengthRank": 42,
+      "strengthScore": 56,
+      "squadValueEurM": 52.0
+    },
+    "saudi-arabia": {
+      "strengthRank": 33,
+      "strengthScore": 67,
+      "squadValueEurM": 42.0
+    },
+    "uruguay": {
+      "strengthRank": 11,
+      "strengthScore": 84,
+      "squadValueEurM": 520.0
+    },
+    "france": {
+      "strengthRank": 1,
+      "strengthScore": 96,
+      "squadValueEurM": 1350.0
+    },
+    "senegal": {
+      "strengthRank": 18,
+      "strengthScore": 77,
+      "squadValueEurM": 295.0
+    },
+    "norway": {
+      "strengthRank": 20,
+      "strengthScore": 75,
+      "squadValueEurM": 520.0
+    },
+    "iraq": {
+      "strengthRank": 44,
+      "strengthScore": 54,
+      "squadValueEurM": 22.0
+    },
+    "argentina": {
+      "strengthRank": 3,
+      "strengthScore": 93,
+      "squadValueEurM": 870.0
+    },
+    "algeria": {
+      "strengthRank": 29,
+      "strengthScore": 69,
+      "squadValueEurM": 190.0
+    },
+    "austria": {
+      "strengthRank": 19,
+      "strengthScore": 76,
+      "squadValueEurM": 310.0
+    },
+    "jordan": {
+      "strengthRank": 43,
+      "strengthScore": 55,
+      "squadValueEurM": 20.0
+    },
+    "portugal": {
+      "strengthRank": 6,
+      "strengthScore": 90,
+      "squadValueEurM": 1050.0
+    },
+    "colombia": {
+      "strengthRank": 14,
+      "strengthScore": 81,
+      "squadValueEurM": 305.0
+    },
+    "uzbekistan": {
+      "strengthRank": 41,
+      "strengthScore": 57,
+      "squadValueEurM": 48.0
+    },
+    "dr-congo": {
+      "strengthRank": 46,
+      "strengthScore": 53,
+      "squadValueEurM": 92.0
+    },
+    "england": {
+      "strengthRank": 4,
+      "strengthScore": 92,
+      "squadValueEurM": 1250.0
+    },
+    "croatia": {
+      "strengthRank": 10,
+      "strengthScore": 85,
+      "squadValueEurM": 330.0
+    },
+    "ghana": {
+      "strengthRank": 28,
+      "strengthScore": 70,
+      "squadValueEurM": 210.0
+    },
+    "panama": {
+      "strengthRank": 45,
+      "strengthScore": 54,
+      "squadValueEurM": 30.0
+    }
+  }
+}

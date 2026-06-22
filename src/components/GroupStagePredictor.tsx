@@ -21,7 +21,11 @@ const scoreValue = (value: string) => {
   return Math.max(0, Math.min(99, Math.floor(parsed)));
 };
 
+const CURRENT_GROUP_PREDICTION_VERSION = "2026-06-23-current-state-v1";
+
 const readInitialPredictions = () => {
+  const version = readJson<string>(storageKeys.groupStagePredictionVersion, "");
+  if (version !== CURRENT_GROUP_PREDICTION_VERSION) return defaultGroupStagePredictions;
   const saved = readJson(storageKeys.groupStagePredictions, {} as GroupStagePredictionState);
   return Object.keys(saved).length > 0 ? saved : defaultGroupStagePredictions;
 };
@@ -42,6 +46,7 @@ export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps)
 
   useEffect(() => {
     writeJson(storageKeys.groupStagePredictions, predictions);
+    writeJson(storageKeys.groupStagePredictionVersion, CURRENT_GROUP_PREDICTION_VERSION);
   }, [predictions]);
 
   const updateScore = (matchId: string, side: "homeScore" | "awayScore", value: string) => {

@@ -25,12 +25,12 @@ export const ExplanationCard = ({ team, players, compact = false }: ExplanationC
   const advantages =
     language === "zh"
       ? [
-          `综合强度 ${profile.mlStrengthScore}，纸面基础稳定。`,
+          `当前综合强度 ${profile.mlStrengthScore}，同时纳入本届状态与人员可用性。`,
           `${coreCount} 名核心球员支撑关键位置。`,
           `预测阶段为 ${stageLabel(team.predictedStage, t)}。`,
         ]
       : [
-          `Integrated score of ${profile.mlStrengthScore} gives a strong baseline.`,
+          `Current-state score of ${profile.mlStrengthScore} blends tournament form and squad availability.`,
           `${coreCount} key players support the most important roles.`,
           `Projected stage: ${stageLabel(team.predictedStage, t)}.`,
         ];
@@ -61,8 +61,8 @@ export const ExplanationCard = ({ team, players, compact = false }: ExplanationC
       </div>
       <p className={`mt-2 text-slate-300 light:text-slate-700 ${compact ? "text-xs leading-5" : "text-sm leading-6"}`}>
         {language === "zh"
-          ? `${teamName} 的预测依据来自综合强度、近期状态、阵容价值、核心球员深度和预计阶段。`
-          : `${teamName}'s projection combines integrated strength, recent form, squad value, key-player depth, and projected stage.`}
+          ? `${teamName} 的预测综合本届赛事状态、人员可用性、战术适配、阵容默契、教练调整能力和时间衰减历史数据。`
+          : `${teamName}'s projection combines current tournament form, availability, tactical fit, cohesion, coach adaptability, and recency-weighted history.`}
       </p>
 
       {!compact && (
