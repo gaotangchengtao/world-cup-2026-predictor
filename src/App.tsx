@@ -150,8 +150,9 @@ const readOverviewSection = () => {
 
 export default function App() {
   const { t } = useLanguage();
+  const heroBackgroundUrl = new URL("assets/hero/stadium-night.webp", window.location.href).href;
   const heroPanelStyle = {
-    "--hero-bg-image": `url("assets/hero/stadium-night.webp")`,
+    "--hero-bg-image": `url("${heroBackgroundUrl}")`,
   } as CSSProperties;
   const [mode, setMode] = useState<"overview" | "predictor">(() =>
     readJson(storageKeys.mode, "overview" as "overview" | "predictor"),
