@@ -81,15 +81,21 @@ export interface Team {
 
 export interface Player {
   playerId: string;
+  fifaId?: number;
   teamId: string;
   name: string;
+  localizedNameZh?: string;
   photoUrl?: string;
   photoSource?: PlayerPhotoSource;
   photoCredit?: string;
   photoLastUpdated?: string;
   position: PlayerPosition;
+  dateOfBirth?: string;
   age?: number;
   club: string;
+  heightCm?: number;
+  internationalCaps?: number;
+  internationalGoals?: number;
   marketValue?: string;
   marketValueEurM: number;
   marketValueLastUpdated?: string;
@@ -106,6 +112,22 @@ export interface Player {
   lastUpdated?: string;
   sourceUrls: string[];
   dataQuality: DataQuality;
+}
+
+export interface PlayerTournamentStats {
+  playerId: string;
+  fifaId?: number;
+  teamId: string;
+  values: Array<number | null>;
+}
+
+export interface PlayerTournamentStatsSnapshot {
+  updatedAt: string;
+  competitionId: string;
+  sourceUrl: string;
+  dataQuality: DataQuality;
+  metricKeys: string[];
+  players: PlayerTournamentStats[];
 }
 
 export interface WorldCupGroup {

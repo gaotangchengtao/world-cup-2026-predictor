@@ -123,7 +123,7 @@ const regionByTeamId: Record<string, RegionKey> = {
   panama: "north-america",
 };
 
-const manualPhotoSources = new Set(["manual", "club_website", "national_team_website", "fifa"]);
+const manualPhotoSources = new Set(["manual", "club_website", "national_team_website"]);
 const orderedQualityKeys: DataQuality[] = ["official", "official-placeholder", "estimated", "projected", "mock", "manual"];
 
 const styleTagMap: Record<string, TeamStyleTag[]> = {
@@ -286,7 +286,9 @@ export const summarizeDataQuality = (teams: Team[], players: Player[]): QualityS
 };
 
 export const summarizePhotos = (players: Player[]): PhotoSummary => {
-  const realThumbnails = players.filter((player) => player.photoSource === "wikimedia").length;
+  const realThumbnails = players.filter(
+    (player) => player.photoSource === "wikimedia" || player.photoSource === "fifa",
+  ).length;
   const manualPhotos = players.filter((player) => manualPhotoSources.has(player.photoSource ?? "placeholder")).length;
   const placeholderPhotos = players.filter((player) => !player.photoSource || player.photoSource === "placeholder").length;
   const missingManualCandidates = players

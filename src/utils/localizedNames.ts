@@ -10,7 +10,7 @@ export const displayTeamName = (team: Team | undefined, language: Language) => {
 
 export const displayPlayerName = (player: Player | undefined, language: Language) => {
   if (!player) return "";
-  if (language === "zh") return playerNamesZh[player.name] ?? player.name;
+  if (language === "zh") return player.localizedNameZh || playerNamesZh[player.name] || player.name;
   return player.name;
 };
 

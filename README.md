@@ -5,6 +5,9 @@
 ## 核心功能
 
 - 48 支参赛队浏览，按 A-L 12 个小组展示
+- FIFA 官方 48 队 Final Squad，共 1248 名球员
+- 球员数据中心：进球、助攻、射门、传球、防守、黄红牌、扑救、跑动与身价榜单
+- FIFA 官方球员头像保存为本地压缩 WebP，外部图片不可用时自动回退占位头像
 - 球队搜索、分组筛选、预测阶段筛选、黑马筛选
 - 小组赛比分预测器，自动计算积分、净胜球和排名
 - 32 强到冠军的 bracket 预测，支持手动改签和自动晋级
@@ -40,7 +43,9 @@
 主要数据位于：
 
 - `src/data/teams.ts`：球队基础信息、实力、预测阶段、教练、阵型等
-- `src/data/players.ts`：球员名单、俱乐部、身价、照片来源、Transfermarkt 搜索链接
+- `src/data/players.ts`：把官方名单、身价状态和照片元数据组合为前端球员模型
+- `src/data/officialSquads.json`：FIFA 官方 48 队最终名单
+- `src/data/playerTournamentStats.json`：FIFA 官方本届赛事球员统计快照
 - `src/data/groups.ts`：12 个小组
 - `src/data/bracket.ts`：32 强淘汰赛结构
 - `src/data/modelPredictions.ts`：前端使用的轻量 ML 预测画像
@@ -130,6 +135,32 @@ date,home_team,away_team,home_score,away_score,tournament,neutral
 
 项目不会自动绕过网站限制抓取数据，也不会批量爬取受限制网站。Transfermarkt 仅用于人工核验公开页面中的参赛队总值和少量头部球员条目，不由脚本直接抓取。
 
+## 官方名单、赛事统计与球员照片
+
+球员数据更新脚本位于：
+
+```text
+scripts/update_official_player_data.py
+```
+
+它会读取 `data/raw/SquadLists-English.pdf`，并通过 FIFA 官网正在使用的公开 GameDay 接口同步赛事统计。脚本只使用公开接口，带有明确 User-Agent、失败重试、4 个并发下载线程和小尺寸图片限制，不登录、不绕过验证、不对抗反爬。
+
+运行：
+
+```bash
+npm run players:update
+```
+
+输出内容：
+
+- `src/data/officialSquads.json`
+- `src/data/playerTournamentStats.json`
+- `public/assets/players/*.webp`
+
+球员头像来源于 FIFA 赛事统计中的官方图片 URL，下载后统一压缩为 `192 × 192` WebP 并由网页本地加载。找不到官方照片或下载失败时，系统自动显示姓名占位头像。原始接口响应、失败日志与 PDF 保存在被 Git 排除的 `data/raw/`。
+
+赛事统计会随比赛更新，因此需要定期重新运行脚本。榜单中的“拦截与迫使失误”使用 FIFA 当前公开的 `forced_turnovers` 指标，不会把缺失的传统抢断数据伪造成官方统计。
+
 ### 训练步骤
 
 先安装 Python 依赖：
@@ -190,18 +221,18 @@ npm run ml:train -- --input "D:\世界杯历史资料\results.csv" --world-cup-o
 - 48 支球队总身价使用 2026-06-23 公开参赛队页面快照
 - 球员个人身价分为 `verified`、`estimated`、`stale` 三种状态；只有明确核验过的条目覆盖原估值
 - 球员可用性分为 `available`、`doubtful`、`injured`、`not-selected`
-- 球员真实照片建议手动维护，或使用你有权使用的合法公开来源
-- 当前前端会优先尝试公开 Wikimedia / Wikipedia 缩略图，失败后回退到占位头像
+- 球员照片优先使用已保存到项目中的 FIFA 官方赛事头像
+- 允许在运行时数据中手动覆盖照片；官方图片和手动图片都失败时回退到占位头像
 
 ## 名单状态
 
-当前 `src/data/players.ts` 是用于情报展示的代表性球员库，不冒充每队完整 Final Squad。页面会在球队详情、球员卡片和球员详情中显示 `squadStatus`：
+当前名单来自 FIFA 在 2026 年 6 月 23 日发布的官方 Squad List，共 48 队、1248 名球员。页面会在球队详情、球员卡片和球员详情中显示 `squadStatus`：
 
 - `projected`：预测/初选
 - `preliminary`：初选名单
 - `final`：Final Squad
 
-当前赛事已经开赛。明确确认的伤停和落选状态会单独标注，其余条目继续保留来源与可信度标签，待逐队官方名单复核后再批量升级为 `final`。
+当前官方名单统一标记为 `final`。伤停与临场可用性仍是独立状态，后续可以在 `src/data/marketValues.json` 或运行时数据中继续维护，不会改变球员是否进入最终名单这一事实。
 
 ## 主办国配色系统
 
@@ -269,6 +300,7 @@ git push origin master
 ## 维护建议
 
 - 如果新增球队，请同步更新 `src/data/teams.ts`、`src/data/groups.ts` 和 `src/data/localizedNames.ts`
-- 如果新增球员，请更新 `src/data/players.ts`，并补充中文姓名 / 俱乐部映射
+- 如果 FIFA 更新名单或赛事统计，请运行 `npm run players:update`
+- 如果新增中文球员名或俱乐部译名，请更新 `src/data/localizedNames.ts`
 - 如果要提高中文展示质量，优先维护 `src/data/localizedNames.ts`
 - 如果要补充新手内容，可继续扩展 `src/data/teamGuides.ts`

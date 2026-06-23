@@ -1,6 +1,7 @@
 import { ExternalLink, Star, X } from "lucide-react";
 import { useLanguage } from "../i18n";
-import type { Player, Team } from "../types/worldCup";
+import playerStatsJson from "../data/playerTournamentStats.json";
+import type { Player, PlayerTournamentStatsSnapshot, Team } from "../types/worldCup";
 import { qualityLabel, squadStatusLabel } from "../utils/format";
 import { displayClubName, displayPlayerName, displayTeamName } from "../utils/localizedNames";
 import { photoSourceLabel } from "../utils/photos";
@@ -20,7 +21,14 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
   const playerName = displayPlayerName(player, language);
   const teamName = displayTeamName(team, language);
   const clubName = displayClubName(player.club, language);
-  const photoSource = player.photoSource === "placeholder" ? "wikimedia" : player.photoSource;
+  const photoSource = player.photoSource;
+  const statsSnapshot = playerStatsJson as PlayerTournamentStatsSnapshot;
+  const tournamentStatRow = statsSnapshot.players.find((row) => row.playerId === player.playerId);
+  const tournamentStats = tournamentStatRow
+    ? (Object.fromEntries(
+        statsSnapshot.metricKeys.map((key, index) => [key, tournamentStatRow.values[index] ?? null]),
+      ) as Record<string, number | null>)
+    : undefined;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
@@ -56,6 +64,23 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-host-blue/30 bg-host-blue/10 p-4 sm:col-span-2">
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-200 light:text-host-blue">
+              {t("currentTournamentStats")}
+            </p>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {[
+                [t("statGoals"), tournamentStats?.goals ?? 0],
+                [t("statAssists"), tournamentStats?.assists ?? 0],
+                [t("statMinutes"), tournamentStats?.total_competition_minutes_played ?? 0],
+              ].map(([label, value]) => (
+                <div className="rounded-md bg-slate-950/25 p-2.5 text-center light:bg-white/70" key={label}>
+                  <p className="text-xl font-black text-white light:text-slate-950">{value}</p>
+                  <p className="mt-1 text-[10px] text-slate-400 light:text-slate-600">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
             <p className="text-xs uppercase text-slate-500">{t("club")}</p>
             <p className="mt-1 font-bold text-white light:text-slate-950">{clubName}</p>
@@ -92,6 +117,16 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
             </p>
             <p className="mt-1 text-xs font-bold text-trophy-300 light:text-trophy-700">
               {t("squadStatus")}: {squadStatusLabel(player.squadStatus, t)}
+            </p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
+            <p className="text-xs uppercase text-slate-500">{t("internationalRecord")}</p>
+            <p className="mt-1 font-bold text-white light:text-slate-950">
+              {player.internationalCaps ?? 0} {t("internationalCaps")} · {player.internationalGoals ?? 0}{" "}
+              {t("internationalGoals")}
+            </p>
+            <p className="mt-1 text-xs text-slate-400 light:text-slate-600">
+              {t("playerHeight")}: {player.heightCm ? `${player.heightCm} cm` : t("notAvailable")}
             </p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">

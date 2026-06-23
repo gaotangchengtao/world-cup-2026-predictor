@@ -9,7 +9,8 @@
     "preview": "node ./node_modules/vite/bin/vite.js preview",
     "lint": "node ./node_modules/typescript/bin/tsc --noEmit",
     "ml:train": "node scripts/run_ml_train.mjs",
-    "stories:fetch": "node scripts/run_fetch_stories.mjs"
+    "stories:fetch": "node scripts/run_fetch_stories.mjs",
+    "players:update": "node scripts/run_player_update.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.4",

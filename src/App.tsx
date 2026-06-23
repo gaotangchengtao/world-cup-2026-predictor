@@ -47,6 +47,9 @@ const OffFieldStoriesPanel = lazy(() =>
 const PhotoAuditPanel = lazy(() =>
   import("./components/PhotoAuditPanel").then((module) => ({ default: module.PhotoAuditPanel })),
 );
+const PlayerDataCenter = lazy(() =>
+  import("./components/PlayerDataCenter").then((module) => ({ default: module.PlayerDataCenter })),
+);
 const PlayerModal = lazy(() => import("./components/PlayerModal").then((module) => ({ default: module.PlayerModal })));
 const PosterExportPanel = lazy(() =>
   import("./components/PosterExportPanel").then((module) => ({ default: module.PosterExportPanel })),
@@ -56,7 +59,6 @@ const RegionOverview = lazy(() =>
 );
 const TeamCompare = lazy(() => import("./components/TeamCompare").then((module) => ({ default: module.TeamCompare })));
 const TeamModal = lazy(() => import("./components/TeamModal").then((module) => ({ default: module.TeamModal })));
-const TopPlayers = lazy(() => import("./components/TopPlayers").then((module) => ({ default: module.TopPlayers })));
 const WatchGuidePanel = lazy(() =>
   import("./components/WatchGuidePanel").then((module) => ({ default: module.WatchGuidePanel })),
 );
@@ -76,14 +78,13 @@ const defaultRuntimeData: RuntimeData = {
   players: defaultPlayers,
 };
 
-const CURRENT_PREDICTION_VERSION = "2026-06-23-current-state-v2";
+const CURRENT_PREDICTION_VERSION = "2026-06-23-official-squads-v3";
 
 const contenderStages = new Set(["Champion", "Final", "Semi-final", "Quarter-final"]);
 const overviewSectionIds: OverviewSection[] = ["home", "groups", "knockout", "players", "beginner", "stories", "data"];
 
 const mergeDefaultRuntimeData = (data: RuntimeData, refreshPredictions = false): RuntimeData => {
   const defaultTeamById = new Map(defaultTeams.map((team) => [team.id, team]));
-  const defaultPlayerById = new Map(defaultPlayers.map((player) => [player.playerId, player]));
   const mergedTeams = data.teams.map((team) => {
     const current = defaultTeamById.get(team.id);
     if (!current || !refreshPredictions) return team;
@@ -101,31 +102,45 @@ const mergeDefaultRuntimeData = (data: RuntimeData, refreshPredictions = false):
       sourceUrls: current.sourceUrls,
     };
   });
-  const mergedPlayers = data.players.map((player) => {
-    const current = defaultPlayerById.get(player.playerId);
-    if (!current || !refreshPredictions) return player;
-    const preserveManualPhoto = player.photoSource && player.photoSource !== "placeholder";
+  const previousByFifaId = new Map(
+    data.players.filter((player) => player.fifaId).map((player) => [player.fifaId, player]),
+  );
+  const playerIdentity = (player: Player) =>
+    `${player.teamId}:${player.name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "")}`;
+  const previousByIdentity = new Map(data.players.map((player) => [playerIdentity(player), player]));
+  const mergedPlayers = refreshPredictions
+    ? defaultPlayers.map((current) => {
+        const previous =
+          (current.fifaId ? previousByFifaId.get(current.fifaId) : undefined) ??
+          previousByIdentity.get(playerIdentity(current));
+        if (!previous) return current;
+        const preserveManualPhoto = previous.photoSource === "manual";
+        const preserveManualValue = previous.dataQuality === "manual" && previous.marketValueEurM > 0;
 
-    return {
-      ...player,
-      marketValue: current.marketValue,
-      marketValueEurM: current.marketValueEurM,
-      marketValueLastUpdated: current.marketValueLastUpdated,
-      marketValueSourceUrl: current.marketValueSourceUrl,
-      marketValueStatus: current.marketValueStatus,
-      availabilityStatus: current.availabilityStatus,
-      availabilityNote: current.availabilityNote,
-      availabilityNoteZh: current.availabilityNoteZh,
-      squadStatus: current.squadStatus,
-      lastUpdated: current.lastUpdated,
-      sourceUrls: current.sourceUrls,
-      dataQuality: current.dataQuality,
-      photoUrl: preserveManualPhoto ? player.photoUrl : current.photoUrl,
-      photoSource: preserveManualPhoto ? player.photoSource : current.photoSource,
-      photoCredit: preserveManualPhoto ? player.photoCredit : current.photoCredit,
-      photoLastUpdated: preserveManualPhoto ? player.photoLastUpdated : current.photoLastUpdated,
-    };
-  });
+        return {
+          ...current,
+          marketValue: preserveManualValue ? previous.marketValue : current.marketValue,
+          marketValueEurM: preserveManualValue ? previous.marketValueEurM : current.marketValueEurM,
+          marketValueLastUpdated: preserveManualValue
+            ? previous.marketValueLastUpdated
+            : current.marketValueLastUpdated,
+          marketValueSourceUrl: preserveManualValue
+            ? previous.marketValueSourceUrl
+            : current.marketValueSourceUrl,
+          marketValueStatus: preserveManualValue ? previous.marketValueStatus : current.marketValueStatus,
+          photoUrl: preserveManualPhoto ? previous.photoUrl : current.photoUrl,
+          photoSource: preserveManualPhoto ? previous.photoSource : current.photoSource,
+          photoCredit: preserveManualPhoto ? previous.photoCredit : current.photoCredit,
+          photoLastUpdated: preserveManualPhoto
+            ? previous.photoLastUpdated
+            : current.photoLastUpdated,
+        };
+      })
+    : data.players;
   const teamIds = new Set(mergedTeams.map((team) => team.id));
   const playerIds = new Set(mergedPlayers.map((player) => player.playerId));
 
@@ -355,9 +370,33 @@ export default function App() {
 
             {activeOverviewSection === "players" && (
               <>
-                <TopPlayers players={runtimeData.players} teams={runtimeData.teams} onSelectPlayer={setSelectedPlayer} />
-                <TeamCompare teams={runtimeData.teams} players={runtimeData.players} />
-                <PhotoAuditPanel players={runtimeData.players} />
+                <PlayerDataCenter
+                  onSelectPlayer={setSelectedPlayer}
+                  players={runtimeData.players}
+                  teams={runtimeData.teams}
+                />
+                <div className="hidden sm:block">
+                  <TeamCompare teams={runtimeData.teams} players={runtimeData.players} />
+                </div>
+                <details className="sm:hidden">
+                  <summary className="cursor-pointer rounded-lg border border-white/10 bg-[#06152d]/80 px-4 py-3 text-sm font-black text-white light:border-slate-900/10 light:bg-white light:text-slate-950">
+                    {t("teamCompare")}
+                  </summary>
+                  <div className="mt-2">
+                    <TeamCompare teams={runtimeData.teams} players={runtimeData.players} />
+                  </div>
+                </details>
+                <div className="hidden sm:block">
+                  <PhotoAuditPanel players={runtimeData.players} />
+                </div>
+                <details className="sm:hidden">
+                  <summary className="cursor-pointer rounded-lg border border-white/10 bg-[#06152d]/80 px-4 py-3 text-sm font-black text-white light:border-slate-900/10 light:bg-white light:text-slate-950">
+                    {t("photoPanelTitle")}
+                  </summary>
+                  <div className="mt-2">
+                    <PhotoAuditPanel players={runtimeData.players} />
+                  </div>
+                </details>
               </>
             )}
 

@@ -9,6 +9,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes("officialSquads.json")) return "squads-data";
+          if (id.includes("playerTournamentStats.json")) return "stats-data";
           if (id.includes("node_modules")) {
             if (id.includes("react") || id.includes("react-dom")) return "react-vendor";
             if (id.includes("lucide-react") || id.includes("lucide")) return "icons";
