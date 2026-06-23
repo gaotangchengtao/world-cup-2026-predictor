@@ -1,4 +1,5 @@
 import { ShieldCheck } from "lucide-react";
+import marketValueSnapshot from "../data/marketValues.json";
 import { useLanguage, type TranslationKey } from "../i18n";
 import type { DataQuality, Player, Team } from "../types/worldCup";
 import { qualityLabel } from "../utils/format";
@@ -21,6 +22,9 @@ const qualityMeaningKey: Record<DataQuality, TranslationKey> = {
 export const DataQualityPanel = ({ teams, players }: DataQualityPanelProps) => {
   const { t } = useLanguage();
   const rows = summarizeDataQuality(teams, players);
+  const verifiedPlayerValues = players.filter((player) => player.marketValueStatus === "verified").length;
+  const estimatedPlayerValues = players.filter((player) => player.marketValueStatus === "estimated").length;
+  const unavailablePlayers = players.filter((player) => player.availabilityStatus === "not-selected").length;
 
   return (
     <section className="glass-panel rounded-lg p-4">
@@ -29,6 +33,25 @@ export const DataQualityPanel = ({ teams, players }: DataQualityPanelProps) => {
         <h2 className="text-lg font-black text-white light:text-slate-950">{t("qualityPanelTitle")}</h2>
       </div>
       <p className="mt-2 text-sm text-slate-400 light:text-slate-600">{t("qualityPanelDescription")}</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          [t("teamValuesVerified"), `${Object.keys(marketValueSnapshot.teams).length}/48`],
+          [t("playerValuesVerified"), String(verifiedPlayerValues)],
+          [t("playerValuesEstimated"), String(estimatedPlayerValues)],
+          [t("playersUnavailable"), String(unavailablePlayers)],
+        ].map(([label, value]) => (
+          <article
+            className="rounded-lg border border-white/10 bg-white/5 p-3 light:border-slate-900/10 light:bg-slate-50"
+            key={label}
+          >
+            <p className="text-xs font-bold text-slate-400 light:text-slate-600">{label}</p>
+            <p className="mt-1 text-2xl font-black text-white light:text-slate-950">{value}</p>
+          </article>
+        ))}
+      </div>
+      <p className="mt-3 text-xs leading-5 text-slate-400 light:text-slate-600">
+        {t("marketSnapshotNote")} · {marketValueSnapshot.updatedAt}
+      </p>
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {rows.map((row) => (
           <article

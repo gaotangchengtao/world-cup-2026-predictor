@@ -7,6 +7,9 @@ const categoryTone: Record<OffFieldStoryCategory, string> = {
   logistics: "bg-sky-400/15 text-sky-200 light:text-sky-700",
   "team-camp": "bg-orange-400/15 text-orange-200 light:text-orange-700",
   climate: "bg-emerald-400/15 text-emerald-200 light:text-emerald-700",
+  injury: "bg-red-400/15 text-red-200 light:text-red-700",
+  matchday: "bg-blue-400/15 text-blue-200 light:text-blue-700",
+  venue: "bg-cyan-400/15 text-cyan-200 light:text-cyan-700",
   accessibility: "bg-violet-400/15 text-violet-200 light:text-violet-700",
   culture: "bg-pink-400/15 text-pink-200 light:text-pink-700",
   governance: "bg-trophy-400/15 text-trophy-200 light:text-trophy-800",
@@ -20,7 +23,7 @@ export const OffFieldStoriesPanel = () => {
 
   return (
     <section className="space-y-4">
-      <div className="glass-panel hero-panel rounded-lg p-4">
+      <div className="glass-panel hero-panel host-accent rounded-lg p-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-trophy-300 light:text-trophy-700">
@@ -29,6 +32,9 @@ export const OffFieldStoriesPanel = () => {
             <h2 className="mt-1 text-2xl font-black text-white light:text-slate-950">{t("offFieldTitle")}</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300 light:text-slate-700">
               {t("offFieldDescription")}
+            </p>
+            <p className="mt-3 text-xs font-bold text-slate-400 light:text-slate-600">
+              {t("newsUpdatedAt")}: 2026-06-23
             </p>
           </div>
           <div className="rounded-lg border border-white/10 bg-slate-950/35 p-3 light:border-slate-900/10 light:bg-white/70">
@@ -86,7 +92,12 @@ export const OffFieldStoriesPanel = () => {
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-400 light:text-slate-600">
                 <ShieldCheck size={14} />
-                {story.source} · {story.reliability === "official" ? t("officialSource") : t("reportedSource")}
+                {story.source} ·{" "}
+                {story.reliability === "official"
+                  ? t("officialSource")
+                  : story.reliability === "developing"
+                    ? t("developingSource")
+                    : t("reportedSource")}
               </span>
               <a
                 className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-bold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
@@ -112,6 +123,9 @@ export const OffFieldStoriesPanel = () => {
 const categoryKeys: Record<OffFieldStoryCategory, TranslationKey> = {
   accessibility: "storyCategoryAccessibility",
   climate: "storyCategoryClimate",
+  injury: "storyCategoryInjury",
+  matchday: "storyCategoryMatchday",
+  venue: "storyCategoryVenue",
   culture: "storyCategoryCulture",
   governance: "storyCategoryGovernance",
   logistics: "storyCategoryLogistics",

@@ -3,6 +3,7 @@ import { useLanguage } from "../i18n";
 import type { Player, Team } from "../types/worldCup";
 import { displayClubName, displayPlayerName } from "../utils/localizedNames";
 import { PlayerAvatar } from "./PlayerAvatar";
+import { PlayerStatusBadges } from "./PlayerStatusBadges";
 import { TeamFlag } from "./TeamFlag";
 
 interface TopPlayersProps {
@@ -14,8 +15,9 @@ interface TopPlayersProps {
 export const TopPlayers = ({ players, teams, onSelectPlayer }: TopPlayersProps) => {
   const { language, t } = useLanguage();
   const teamById = new Map(teams.map((team) => [team.id, team]));
-  const topValue = [...players].sort((a, b) => b.marketValueEurM - a.marketValueEurM).slice(0, 10);
-  const topCore = [...players]
+  const activePlayers = players.filter((player) => player.availabilityStatus !== "not-selected");
+  const topValue = [...activePlayers].sort((a, b) => b.marketValueEurM - a.marketValueEurM).slice(0, 10);
+  const topCore = [...activePlayers]
     .filter((player) => player.isKeyPlayer)
     .sort((a, b) => b.marketValueEurM - a.marketValueEurM)
     .slice(0, 10);
@@ -47,6 +49,13 @@ export const TopPlayers = ({ players, teams, onSelectPlayer }: TopPlayersProps) 
                 <p className="truncate text-xs text-slate-400 light:text-slate-600">
                   {displayClubName(player.club, language)}
                 </p>
+                <div className="mt-1">
+                  <PlayerStatusBadges
+                    availabilityStatus={player.availabilityStatus}
+                    compact
+                    marketValueStatus={player.marketValueStatus}
+                  />
+                </div>
               </div>
               {player.isKeyPlayer && <Star className="fill-trophy-500 text-trophy-500" size={14} />}
               <span className="text-sm font-black text-trophy-300 light:text-trophy-700">

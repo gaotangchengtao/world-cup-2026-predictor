@@ -76,14 +76,14 @@ const defaultRuntimeData: RuntimeData = {
   players: defaultPlayers,
 };
 
-const CURRENT_PREDICTION_VERSION = "2026-06-23-current-state-v1";
+const CURRENT_PREDICTION_VERSION = "2026-06-23-current-state-v2";
 
 const contenderStages = new Set(["Champion", "Final", "Semi-final", "Quarter-final"]);
 const overviewSectionIds: OverviewSection[] = ["home", "groups", "knockout", "players", "beginner", "stories", "data"];
 
 const mergeDefaultRuntimeData = (data: RuntimeData, refreshPredictions = false): RuntimeData => {
   const defaultTeamById = new Map(defaultTeams.map((team) => [team.id, team]));
-  const playerIds = new Set(data.players.map((player) => player.playerId));
+  const defaultPlayerById = new Map(defaultPlayers.map((player) => [player.playerId, player]));
   const mergedTeams = data.teams.map((team) => {
     const current = defaultTeamById.get(team.id);
     if (!current || !refreshPredictions) return team;
@@ -93,17 +93,46 @@ const mergeDefaultRuntimeData = (data: RuntimeData, refreshPredictions = false):
       group: current.group,
       strengthRank: current.strengthRank,
       strengthScore: current.strengthScore,
+      squadValue: current.squadValue,
+      squadValueEurM: current.squadValueEurM,
       predictedGroupPosition: current.predictedGroupPosition,
       predictedStage: current.predictedStage,
       lastUpdated: current.lastUpdated,
+      sourceUrls: current.sourceUrls,
+    };
+  });
+  const mergedPlayers = data.players.map((player) => {
+    const current = defaultPlayerById.get(player.playerId);
+    if (!current || !refreshPredictions) return player;
+    const preserveManualPhoto = player.photoSource && player.photoSource !== "placeholder";
+
+    return {
+      ...player,
+      marketValue: current.marketValue,
+      marketValueEurM: current.marketValueEurM,
+      marketValueLastUpdated: current.marketValueLastUpdated,
+      marketValueSourceUrl: current.marketValueSourceUrl,
+      marketValueStatus: current.marketValueStatus,
+      availabilityStatus: current.availabilityStatus,
+      availabilityNote: current.availabilityNote,
+      availabilityNoteZh: current.availabilityNoteZh,
+      squadStatus: current.squadStatus,
+      lastUpdated: current.lastUpdated,
+      sourceUrls: current.sourceUrls,
+      dataQuality: current.dataQuality,
+      photoUrl: preserveManualPhoto ? player.photoUrl : current.photoUrl,
+      photoSource: preserveManualPhoto ? player.photoSource : current.photoSource,
+      photoCredit: preserveManualPhoto ? player.photoCredit : current.photoCredit,
+      photoLastUpdated: preserveManualPhoto ? player.photoLastUpdated : current.photoLastUpdated,
     };
   });
   const teamIds = new Set(mergedTeams.map((team) => team.id));
+  const playerIds = new Set(mergedPlayers.map((player) => player.playerId));
 
   return {
     ...data,
     teams: [...mergedTeams, ...defaultTeams.filter((team) => !teamIds.has(team.id))],
-    players: [...data.players, ...defaultPlayers.filter((player) => !playerIds.has(player.playerId))],
+    players: [...mergedPlayers, ...defaultPlayers.filter((player) => !playerIds.has(player.playerId))],
   };
 };
 
@@ -225,9 +254,9 @@ export default function App() {
         toggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")}
       />
 
-      <main className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:py-6">
+      <main className="mx-auto max-w-[1440px] space-y-5 px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
         {mode === "overview" && (
-        <section className="glass-panel hero-panel rounded-lg p-4 sm:p-5" style={heroPanelStyle}>
+        <section className="glass-panel hero-panel host-accent rounded-lg p-4 sm:p-5 lg:p-6" style={heroPanelStyle}>
           <div className="grid gap-4 lg:grid-cols-[1fr_320px] lg:items-end">
           <div className="max-w-4xl">
             <p className="text-sm font-bold uppercase tracking-[0.24em] text-trophy-300 light:text-trophy-700">
@@ -262,7 +291,7 @@ export default function App() {
               activeSection={activeOverviewSection}
               setActiveSection={setActiveOverviewSection}
             />
-            <section className="rounded-lg border border-white/10 bg-slate-950/35 p-4 light:border-slate-900/10 light:bg-white/70">
+            <section className="section-commandbar host-accent rounded-lg px-4 py-3 sm:px-5">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-trophy-300 light:text-trophy-700">
                 {t("overviewCurrentSection")}
               </p>
@@ -367,7 +396,7 @@ export default function App() {
         </Suspense>
       </main>
 
-      <footer className="mx-auto max-w-7xl px-4 pb-8 sm:px-6">
+      <footer className="mx-auto max-w-[1440px] px-4 pb-8 sm:px-6 lg:px-8">
         <div className="rounded-lg border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-400 light:border-slate-900/10 light:bg-white/70 light:text-slate-600">
           {t("dataNotice")}
         </div>

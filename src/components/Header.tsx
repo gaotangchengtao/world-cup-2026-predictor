@@ -17,11 +17,11 @@ export const Header = ({ experienceMode, mode, setExperienceMode, setMode, theme
   const { t } = useLanguage();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/78 shadow-[0_18px_60px_rgba(2,6,23,0.25)] backdrop-blur-xl light:border-slate-900/10 light:bg-white/82">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+    <header className="host-accent sticky top-0 z-30 border-b border-white/10 bg-[#04142f]/90 shadow-[0_18px_60px_rgba(0,12,34,0.28)] backdrop-blur-xl light:border-slate-900/10 light:bg-white/92">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-4 pb-3 pt-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-trophy-500 text-slate-950 shadow-glow">
-            <Trophy size={24} />
+          <div className="host-brand-mark flex h-11 w-12 items-center justify-center rounded-lg text-white">
+            <Trophy size={22} />
           </div>
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-trophy-300 light:text-trophy-700">

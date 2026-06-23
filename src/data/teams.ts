@@ -1,7 +1,9 @@
 import type { Team } from "../types/worldCup";
 import { commonSourceUrls } from "./sources";
+import marketValueSnapshot from "./marketValues.json";
+import { modelPredictionProfiles } from "./modelPredictions";
 
-export const teams: Team[] = [
+const teamSeeds: Team[] = [
   {
     id: "mexico",
     name: "Mexico",
@@ -928,3 +930,28 @@ export const teams: Team[] = [
     dataQuality: "estimated",
   },
 ];
+
+const formatSquadValue = (value: number) =>
+  value >= 1000 ? `€${(value / 1000).toFixed(2)}bn` : `€${value.toFixed(2)}m`;
+
+const currentProfileByTeam = new Map(modelPredictionProfiles.map((profile) => [profile.teamId, profile]));
+const currentRankByTeam = new Map(
+  [...modelPredictionProfiles]
+    .sort((a, b) => b.mlStrengthScore - a.mlStrengthScore || b.confidenceScore - a.confidenceScore)
+    .map((profile, index) => [profile.teamId, index + 1]),
+);
+
+export const teams: Team[] = teamSeeds.map((team) => {
+  const value = marketValueSnapshot.teams[team.id as keyof typeof marketValueSnapshot.teams];
+  const profile = currentProfileByTeam.get(team.id);
+
+  return {
+    ...team,
+    strengthRank: currentRankByTeam.get(team.id) ?? team.strengthRank,
+    strengthScore: profile?.mlStrengthScore ?? team.strengthScore,
+    squadValue: typeof value === "number" ? formatSquadValue(value) : team.squadValue,
+    squadValueEurM: typeof value === "number" ? value : team.squadValueEurM,
+    lastUpdated: marketValueSnapshot.updatedAt,
+    sourceUrls: Array.from(new Set([...team.sourceUrls, marketValueSnapshot.sourceUrl])),
+  };
+});

@@ -7,7 +7,12 @@
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
-  background: #05110d;
+  background: #06152d;
+  --host-navy: #002868;
+  --host-blue: #0b4ea2;
+  --host-red: #d80621;
+  --host-green: #006847;
+  --host-ice: #f4f8ff;
 }
 
 body {
@@ -22,38 +27,127 @@ select {
   font: inherit;
 }
 
+.stadium-bg *,
+.stadium-bg *::before,
+.stadium-bg *::after {
+  letter-spacing: 0 !important;
+}
+
+.stadium-bg h1,
+.stadium-bg h2,
+.stadium-bg h3 {
+  text-wrap: balance;
+}
+
 .stadium-bg {
   background:
-    radial-gradient(circle at top left, rgba(228, 173, 40, 0.24), transparent 32rem),
-    radial-gradient(circle at top right, rgba(22, 163, 108, 0.25), transparent 34rem),
-    linear-gradient(135deg, #06150f 0%, #0b1720 48%, #140d12 100%);
+    linear-gradient(90deg, rgba(0, 104, 71, 0.14), transparent 28%, transparent 72%, rgba(216, 6, 33, 0.12)),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 92px),
+    linear-gradient(180deg, #061a38 0%, #07152c 42%, #030b19 100%);
 }
 
 .light .stadium-bg {
   background:
-    radial-gradient(circle at top left, rgba(228, 173, 40, 0.18), transparent 32rem),
-    radial-gradient(circle at top right, rgba(22, 163, 108, 0.16), transparent 34rem),
-    linear-gradient(135deg, #f8fafc 0%, #eef7f1 48%, #fff7ed 100%);
+    linear-gradient(90deg, rgba(0, 104, 71, 0.07), transparent 30%, transparent 70%, rgba(216, 6, 33, 0.06)),
+    repeating-linear-gradient(90deg, rgba(0, 40, 104, 0.03) 0 1px, transparent 1px 92px),
+    linear-gradient(180deg, #f8fbff 0%, #f2f7fb 50%, #ffffff 100%);
 }
 
 .glass-panel {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(15, 23, 42, 0.62);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(18px);
+  border: 1px solid rgba(189, 211, 239, 0.14);
+  background: rgba(8, 25, 53, 0.78);
+  box-shadow: 0 20px 56px rgba(1, 8, 20, 0.24);
+  backdrop-filter: blur(16px);
 }
 
 .light .glass-panel {
   border-color: rgba(15, 23, 42, 0.12);
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 48px rgba(0, 40, 104, 0.1);
+}
+
+.host-accent {
+  position: relative;
+  overflow: hidden;
+}
+
+.host-accent::before {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  height: 3px;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    var(--host-green) 0 28%,
+    var(--host-ice) 28% 39%,
+    var(--host-navy) 39% 61%,
+    var(--host-ice) 61% 72%,
+    var(--host-red) 72% 100%
+  );
+}
+
+.host-brand-mark {
+  position: relative;
+  isolation: isolate;
+  background: var(--host-navy);
+  box-shadow: 0 10px 30px rgba(0, 40, 104, 0.34);
+}
+
+.host-brand-mark::before,
+.host-brand-mark::after {
+  position: absolute;
+  inset-block: 0;
+  z-index: -1;
+  width: 10px;
+  content: "";
+}
+
+.host-brand-mark::before {
+  left: 0;
+  background: var(--host-green);
+}
+
+.host-brand-mark::after {
+  right: 0;
+  background: var(--host-red);
+}
+
+.section-commandbar {
+  border: 1px solid rgba(125, 168, 220, 0.18);
+  background:
+    linear-gradient(90deg, rgba(0, 104, 71, 0.1), transparent 34%, rgba(216, 6, 33, 0.08)),
+    rgba(5, 19, 42, 0.76);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.light .section-commandbar {
+  border-color: rgba(0, 40, 104, 0.12);
+  background:
+    linear-gradient(90deg, rgba(0, 104, 71, 0.06), transparent 34%, rgba(216, 6, 33, 0.05)),
+    rgba(255, 255, 255, 0.9);
+}
+
+.dashboard-card {
+  min-height: 100%;
+  border-top-color: rgba(244, 248, 255, 0.18);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.dashboard-card:hover {
+  border-color: rgba(216, 6, 33, 0.42);
+  box-shadow: 0 18px 46px rgba(0, 40, 104, 0.2);
+  transform: translateY(-2px);
 }
 
 .hero-panel {
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(120deg, rgba(2, 18, 15, 0.92), rgba(15, 23, 42, 0.84) 46%, rgba(92, 64, 18, 0.66)),
+    linear-gradient(110deg, rgba(0, 31, 78, 0.96), rgba(5, 23, 49, 0.86) 52%, rgba(105, 6, 28, 0.72)),
     linear-gradient(180deg, rgba(2, 6, 23, 0.18), rgba(2, 6, 23, 0.72)),
     var(--hero-bg-image),
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 72px);
@@ -94,8 +188,8 @@ select {
   pointer-events: none;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 38%),
-    linear-gradient(90deg, transparent 0 48%, rgba(255, 255, 255, 0.08) 48% 52%, transparent 52% 100%);
-  opacity: 0.72;
+    repeating-linear-gradient(90deg, transparent 0 84px, rgba(255, 255, 255, 0.035) 84px 85px);
+  opacity: 0.68;
 }
 
 .hero-panel > * {

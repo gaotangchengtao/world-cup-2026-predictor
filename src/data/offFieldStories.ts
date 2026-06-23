@@ -2,6 +2,111 @@ import type { OffFieldStory } from "../types/worldCup";
 
 export const offFieldStories: OffFieldStory[] = [
   {
+    id: "france-iraq-weather-delay",
+    title: {
+      zh: "雷暴让法国对伊拉克的中场休息延长至两小时以上",
+      en: "Thunderstorms extend halftime in France v Iraq beyond two hours",
+    },
+    summary: {
+      zh: "美联社报道，费城的雷暴与闪电安全程序让比赛在半场暂停两个多小时。这是本届赛事首次出现如此显著的比赛中天气延误，法国最终以 3-0 获胜。",
+      en: "AP reported that lightning protocols in Philadelphia produced a halftime stoppage of more than two hours before France completed a 3-0 win.",
+    },
+    whyItMatters: {
+      zh: "极端天气会直接影响热身节奏、球员补给、转播安排和现场疏散，是美加墨世界杯必须持续管理的赛中风险。",
+      en: "Severe weather can disrupt warmups, recovery, broadcasting, and spectator safety, making it a live tournament-management risk.",
+    },
+    source: "AP News",
+    publishedAt: "2026-06-23",
+    url: "https://apnews.com/article/32b4d9c0bcf12ff06a78638273fe570d",
+    category: "climate",
+    attentionScore: 99,
+    reliability: "reported",
+  },
+  {
+    id: "messi-world-cup-scoring-record",
+    title: {
+      zh: "梅西成为世界杯历史射手王",
+      en: "Messi becomes the World Cup's all-time leading scorer",
+    },
+    summary: {
+      zh: "梅西在阿根廷 2-0 击败奥地利的比赛中独中两元，将世界杯总进球提升至 18 个，并帮助卫冕冠军提前晋级淘汰赛。",
+      en: "Messi scored twice in Argentina's 2-0 win over Austria, reaching 18 World Cup goals and sending the defending champion into the knockouts.",
+    },
+    whyItMatters: {
+      zh: "这是本届赛事关注度最高的个人里程碑之一，也会显著影响阿根廷的冠军热度、球迷情绪和后续对手的防守部署。",
+      en: "It is one of the tournament's defining individual milestones and changes the attention, pressure, and defensive planning around Argentina.",
+    },
+    source: "FIFA / AP News",
+    publishedAt: "2026-06-23",
+    url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/lionel-messi-world-cup-goals-record-miroslav-klose-argentina",
+    category: "matchday",
+    attentionScore: 98,
+    reliability: "official",
+  },
+  {
+    id: "raphinha-hamstring-update",
+    title: {
+      zh: "拉菲尼亚腿后肌受伤，巴西等待恢复进度",
+      en: "Raphinha hamstring injury leaves Brazil waiting",
+    },
+    summary: {
+      zh: "巴西足协确认拉菲尼亚右腿后侧肌肉受伤，他将缺席小组赛末轮并接受治疗，目前尚未被排除出整届赛事。",
+      en: "Brazil confirmed a right-hamstring injury. Raphinha will miss the final group match but has not yet been ruled out of the tournament.",
+    },
+    whyItMatters: {
+      zh: "拉菲尼亚影响巴西右路宽度、无球跑动和前场压迫；他的缺阵会改变安切洛蒂的边路组合与轮换顺序。",
+      en: "Raphinha shapes Brazil's right-side width, pressing, and off-ball movement, so his absence changes Ancelotti's attacking combinations.",
+    },
+    source: "CBF update via media reports",
+    publishedAt: "2026-06-21",
+    url: "https://www.barcablaugranes.com/world-cup-2026/124120/brazil-confirm-raphinha-injury-in-fresh-update-on-barcelona-star",
+    category: "injury",
+    attentionScore: 94,
+    reliability: "reported",
+  },
+  {
+    id: "metlife-pitch-scrutiny",
+    title: {
+      zh: "纽约新泽西赛区草坪受到球员与教练关注",
+      en: "New York New Jersey pitch draws player and coach scrutiny",
+    },
+    summary: {
+      zh: "部分球员和教练认为场地偏硬、偏干，可能影响球速与触球感；国际足联则表示所有比赛草坪在可比赛性和安全性方面保持良好状态。",
+      en: "Some players and coaches described the surface as hard or dry, while FIFA said tournament pitches remain in strong playing and safety condition.",
+    },
+    whyItMatters: {
+      zh: "该球场将承办决赛。草坪质量不仅影响传球速度和受伤风险，也会持续成为赛事组织评价的一部分。",
+      en: "The venue will host the final, so surface consistency matters for ball speed, injury risk, and confidence in tournament operations.",
+    },
+    source: "New York Post / FIFA response",
+    publishedAt: "2026-06-23",
+    url: "https://nypost.com/2026/06/23/sports/metlife-stadiums-new-world-cup-grass-already-getting-poor-reviews/",
+    category: "venue",
+    attentionScore: 91,
+    reliability: "developing",
+  },
+  {
+    id: "pulisic-training-return",
+    title: {
+      zh: "普利希奇恢复与美国队合练",
+      en: "Pulisic returns to training with the United States",
+    },
+    summary: {
+      zh: "美联社报道，普利希奇在小腿伤势后重新参加球队热身和有球训练，但美国队尚未正式确认他的下一场比赛状态。",
+      en: "AP reported that Pulisic rejoined warmups and ball work after a calf issue, although the team has not formally confirmed his next-match availability.",
+    },
+    whyItMatters: {
+      zh: "美国已经晋级，但普利希奇能否恢复到淘汰赛强度，将直接影响球队的推进、定位球和关键区域创造力。",
+      en: "The U.S. has advanced, but Pulisic's knockout-stage readiness directly affects progression, set pieces, and final-third creativity.",
+    },
+    source: "Associated Press",
+    publishedAt: "2026-06-22",
+    url: "https://www.actionnewsjax.com/sports/christian-pulisic/3ONIPHPLHE6FNFESJL537M6E2U/",
+    category: "injury",
+    attentionScore: 88,
+    reliability: "reported",
+  },
+  {
     id: "transit-costs-host-cities",
     title: {
       zh: "美国部分赛区交通成本引发球迷关注",
@@ -25,22 +130,22 @@ export const offFieldStories: OffFieldStory[] = [
   {
     id: "iran-base-camp-mexico",
     title: {
-      zh: "Iran 训练基地从美国改到 Mexico",
+      zh: "伊朗训练基地从美国改到墨西哥",
       en: "Iran base camp moved from the U.S. to Mexico",
     },
     summary: {
-      zh: "AP 报道称，Iran 的世界杯训练基地已从 Tucson 改到 Tijuana；Mexico 总统也表示愿意接待球队。",
+      zh: "美联社报道称，伊朗的世界杯训练基地已从图森改到蒂华纳；墨西哥总统也表示愿意接待球队。",
       en: "AP reported that Iran's World Cup base camp has shifted from Tucson to Tijuana, with Mexico's president saying the country is willing to host the team.",
     },
     whyItMatters: {
-      zh: "基地位置会影响训练、出行和安保安排，也让 Group G 的场外变量更受关注。",
+      zh: "基地位置会影响训练、出行和安保安排，也让 G 组的场外变量更受关注。",
       en: "Base-camp location affects training, travel, and security planning, adding an off-field storyline around Group G.",
     },
     source: "AP News",
     publishedAt: "2026-05-25",
     url: "https://apnews.com/article/iran-world-cup-mexico-5bdfa21feccf35f0ed955b9dd1ab7244",
     category: "team-camp",
-    attentionScore: 92,
+    attentionScore: 82,
     reliability: "reported",
   },
   {
@@ -50,7 +155,7 @@ export const offFieldStories: OffFieldStory[] = [
       en: "Players push FIFA for stronger heat protocols",
     },
     summary: {
-      zh: "AP 报道称，包括 Norway 球员 Morten Thorsby 在内的球员支持要求 FIFA 更新高温应对框架的公开信。",
+      zh: "美联社报道称，包括挪威球员莫滕·托斯比在内的球员支持要求国际足联更新高温应对框架的公开信。",
       en: "AP reported that Norway international Morten Thorsby and other players backed calls for FIFA to strengthen heat-stress planning.",
     },
     whyItMatters: {
@@ -88,11 +193,11 @@ export const offFieldStories: OffFieldStory[] = [
   {
     id: "final-halftime-show",
     title: {
-      zh: "Madonna、Shakira、BTS 将领衔世界杯决赛中场秀",
+      zh: "麦当娜、夏奇拉和防弹少年团将领衔世界杯决赛中场秀",
       en: "Madonna, Shakira and BTS to headline the World Cup final halftime show",
     },
     summary: {
-      zh: "AP 报道称，2026 世界杯决赛将在 MetLife Stadium 加入 Super Bowl 风格中场秀，由 Madonna、Shakira 和 BTS 共同领衔，并支持 Global Citizen 教育基金。",
+      zh: "美联社报道称，2026 世界杯决赛将在纽约新泽西赛区加入超级碗风格中场秀，由麦当娜、夏奇拉和防弹少年团共同领衔，并支持全球公民教育基金。",
       en: "AP reported that the 2026 final at MetLife Stadium will add a Super Bowl-style halftime show headlined by Madonna, Shakira and BTS in support of the Global Citizen Education Fund.",
     },
     whyItMatters: {
@@ -113,7 +218,7 @@ export const offFieldStories: OffFieldStory[] = [
       en: "FIFA increases financial distribution to all 48 teams",
     },
     summary: {
-      zh: "FIFA Council 宣布将 2026 世界杯参赛协会分配资金提高到 8.71 亿美元，并调整部分竞赛纪律规则。",
+      zh: "国际足联理事会宣布将 2026 世界杯参赛协会分配资金提高到 8.71 亿美元，并调整部分竞赛纪律规则。",
       en: "The FIFA Council announced increased financial distribution for the 48 participating associations and confirmed competition-rule adjustments.",
     },
     whyItMatters: {

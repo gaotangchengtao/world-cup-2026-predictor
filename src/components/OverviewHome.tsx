@@ -41,8 +41,9 @@ export const OverviewHome = ({
     .filter((team) => team.isDarkHorse)
     .sort((a, b) => a.strengthRank - b.strengthRank)
     .slice(0, 5);
-  const topValuePlayers = [...players].sort((a, b) => b.marketValueEurM - a.marketValueEurM).slice(0, 5);
-  const mustWatchPlayers = [...players]
+  const activePlayers = players.filter((player) => player.availabilityStatus !== "not-selected");
+  const topValuePlayers = [...activePlayers].sort((a, b) => b.marketValueEurM - a.marketValueEurM).slice(0, 5);
+  const mustWatchPlayers = [...activePlayers]
     .sort((a, b) => {
       if (Number(b.isKeyPlayer) !== Number(a.isKeyPlayer)) return Number(b.isKeyPlayer) - Number(a.isKeyPlayer);
       return b.marketValueEurM - a.marketValueEurM;

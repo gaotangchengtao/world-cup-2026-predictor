@@ -1,0 +1,126 @@
+{
+  "updatedAt": "2026-06-23",
+  "source": "Transfermarkt public World Cup participant and player-value pages",
+  "sourceUrl": "https://www.transfermarkt.com/world-cup/teilnehmer/pokalwettbewerb/FIWC",
+  "methodology": "Team totals are a verified public snapshot. Only explicitly verified player values are overridden; all other player values remain analyst estimates.",
+  "teams": {
+    "usa": 385.65,
+    "france": 1520,
+    "england": 1360,
+    "spain": 1220,
+    "portugal": 1010,
+    "germany": 947,
+    "brazil": 928.2,
+    "argentina": 807.5,
+    "netherlands": 754.2,
+    "norway": 589.9,
+    "belgium": 547.5,
+    "cote-divoire": 522.1,
+    "senegal": 478.1,
+    "turkiye": 473.7,
+    "morocco": 447.7,
+    "sweden": 406.08,
+    "croatia": 387.3,
+    "ecuador": 368.7,
+    "uruguay": 359.3,
+    "switzerland": 332.5,
+    "colombia": 302.35,
+    "japan": 270.85,
+    "algeria": 256.9,
+    "austria": 245.2,
+    "ghana": 234.35,
+    "canada": 198.65,
+    "mexico": 191.85,
+    "czechia": 188.18,
+    "scotland": 170.25,
+    "paraguay": 153.65,
+    "bosnia-herzegovina": 146.4,
+    "dr-congo": 143.9,
+    "south-korea": 139.05,
+    "egypt": 116.48,
+    "uzbekistan": 85.13,
+    "australia": 77.45,
+    "tunisia": 69.95,
+    "haiti": 55.9,
+    "cape-verde": 54.5,
+    "south-africa": 49.25,
+    "saudi-arabia": 40.68,
+    "panama": 34.55,
+    "new-zealand": 34.3,
+    "iran": 32.05,
+    "curacao": 25.78,
+    "iraq": 21.2,
+    "jordan": 20.3,
+    "qatar": 19.93
+  },
+  "players": {
+    "Lamine Yamal": 200,
+    "Erling Haaland": 200,
+    "Kylian Mbappé": 180,
+    "Pedri": 150,
+    "Vinícius Júnior": 140,
+    "Vitinha": 140,
+    "Jude Bellingham": 130,
+    "Declan Rice": 120,
+    "Bukayo Saka": 110,
+    "Florian Wirtz": 100,
+    "Jamal Musiala": 100,
+    "Moisés Caicedo": 100,
+    "William Saliba": 100,
+    "Julián Alvarez": 100,
+    "Ousmane Dembélé": 100,
+    "Arda Güler": 90
+  },
+  "availability": {
+    "Cristian Romero": {
+      "status": "doubtful",
+      "note": "Right-knee problem reported after Argentina v Austria; awaiting a definitive team update.",
+      "noteZh": "对奥地利一战后出现右膝问题，等待球队进一步确认。"
+    },
+    "Raphinha": {
+      "status": "injured",
+      "note": "Right hamstring injury; unavailable for Brazil's final group match and under treatment.",
+      "noteZh": "右腿后肌受伤，将缺席巴西小组赛末轮，目前正在接受治疗。"
+    },
+    "Christian Pulisic": {
+      "status": "doubtful",
+      "note": "Returned to partial team training after a calf issue; match availability remains unconfirmed.",
+      "noteZh": "小腿不适后已恢复部分合练，下一场能否出战尚未确认。"
+    },
+    "Eduardo Camavinga": {
+      "status": "not-selected",
+      "note": "Not included in the final World Cup squad.",
+      "noteZh": "未进入世界杯最终名单。"
+    },
+    "Rodrygo": {
+      "status": "not-selected",
+      "note": "Ruled out before the tournament through injury.",
+      "noteZh": "因伤在世界杯开赛前确定无缘赛事。"
+    },
+    "Cole Palmer": {
+      "status": "not-selected",
+      "note": "Not included in the final World Cup squad.",
+      "noteZh": "未进入世界杯最终名单。"
+    },
+    "Xavi Simons": {
+      "status": "not-selected",
+      "note": "Ruled out before the tournament through injury.",
+      "noteZh": "因伤在世界杯开赛前确定无缘赛事。"
+    },
+    "Kaoru Mitoma": {
+      "status": "not-selected",
+      "note": "Missed the final squad because of a hamstring injury.",
+      "noteZh": "因腿后肌伤势未进入最终名单。"
+    },
+    "Billy Gilmour": {
+      "status": "not-selected",
+      "note": "Ruled out before the tournament through injury.",
+      "noteZh": "因伤在世界杯开赛前确定无缘赛事。"
+    },
+    "Christoph Baumgartner": {
+      "status": "not-selected",
+      "note": "Ruled out before the tournament through injury.",
+      "noteZh": "因伤在世界杯开赛前确定无缘赛事。"
+    }
+  }
+}

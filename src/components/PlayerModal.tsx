@@ -6,6 +6,7 @@ import { displayClubName, displayPlayerName, displayTeamName } from "../utils/lo
 import { photoSourceLabel } from "../utils/photos";
 import { DataQualityBadge } from "./DataQualityBadge";
 import { PlayerAvatar } from "./PlayerAvatar";
+import { PlayerStatusBadges } from "./PlayerStatusBadges";
 import { TeamFlag } from "./TeamFlag";
 
 interface PlayerModalProps {
@@ -64,7 +65,26 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
             <p className="mt-1 text-xl font-black text-trophy-200 light:text-trophy-800">
               {player.marketValue ?? "N/A"}
             </p>
+            <div className="mt-2">
+              <PlayerStatusBadges
+                availabilityStatus={player.availabilityStatus}
+                marketValueStatus={player.marketValueStatus}
+              />
+            </div>
+            <p className="mt-2 text-xs text-slate-400 light:text-slate-600">
+              {t("marketValueUpdated")}: {player.marketValueLastUpdated ?? t("notAvailable")}
+            </p>
           </div>
+          {player.availabilityStatus && player.availabilityStatus !== "available" && (
+            <div className="rounded-lg border border-red-400/20 bg-red-500/10 p-4 sm:col-span-2">
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-red-200 light:text-red-700">
+                {t("availabilityStatus")}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-200 light:text-slate-700">
+                {(language === "zh" ? player.availabilityNoteZh : player.availabilityNote) ?? t("availabilityPending")}
+              </p>
+            </div>
+          )}
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
             <p className="text-xs uppercase text-slate-500">{t("role")}</p>
             <p className="mt-1 font-bold text-white light:text-slate-950">

@@ -1,5 +1,11 @@
-import type { Player, PlayerPosition, SquadStatus } from "../types/worldCup";
+import type {
+  Player,
+  PlayerAvailabilityStatus,
+  PlayerPosition,
+  SquadStatus,
+} from "../types/worldCup";
 import { commonSourceUrls } from "./sources";
+import marketValueSnapshot from "./marketValues.json";
 
 interface PlayerSeed {
   teamId: string;
@@ -431,21 +437,39 @@ const seeds: PlayerSeed[] = [
   { teamId: "panama", name: "Orlando Mosquera", position: "GK", age: 31, club: "Al Fayha", marketValue: "€0.80m", marketValueEurM: 0.8, isKeyPlayer: false, predictedStarter: true, shirtNumber: 1 },
 ];
 
-export const players: Player[] = seeds.map((seed, index) => ({
-  playerId: `${seed.teamId}-${index + 1}-${seed.name
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")}`,
-  ...seed,
-  photoUrl: avatarUrl(seed.name),
-  photoSource: "placeholder",
-  photoCredit: "Generated placeholder avatar from player initials",
-  photoLastUpdated: "2026-05-26",
-  squadStatus: seed.squadStatus ?? "projected",
-  transfermarktUrl: transfermarktSearchUrl(seed.name),
-  lastUpdated: "2026-05-26",
-  sourceUrls: [commonSourceUrls.transfermarkt],
-  dataQuality: "projected",
-}));
+export const players: Player[] = seeds.map((seed, index) => {
+  const verifiedValue =
+    marketValueSnapshot.players[seed.name as keyof typeof marketValueSnapshot.players];
+  const availability =
+    marketValueSnapshot.availability[seed.name as keyof typeof marketValueSnapshot.availability] as
+      | { status: PlayerAvailabilityStatus; note: string; noteZh: string }
+      | undefined;
+  const marketValueEurM = typeof verifiedValue === "number" ? verifiedValue : seed.marketValueEurM;
+
+  return {
+    playerId: `${seed.teamId}-${index + 1}-${seed.name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")}`,
+    ...seed,
+    marketValue: `€${marketValueEurM.toFixed(2)}m`,
+    marketValueEurM,
+    marketValueLastUpdated: marketValueSnapshot.updatedAt,
+    marketValueSourceUrl: marketValueSnapshot.sourceUrl,
+    marketValueStatus: typeof verifiedValue === "number" ? "verified" : "estimated",
+    availabilityStatus: availability?.status ?? "available",
+    availabilityNote: availability?.note,
+    availabilityNoteZh: availability?.noteZh,
+    photoUrl: avatarUrl(seed.name),
+    photoSource: "placeholder",
+    photoCredit: "Generated placeholder avatar from player initials",
+    photoLastUpdated: "2026-05-26",
+    squadStatus: seed.squadStatus ?? "projected",
+    transfermarktUrl: transfermarktSearchUrl(seed.name),
+    lastUpdated: marketValueSnapshot.updatedAt,
+    sourceUrls: [commonSourceUrls.transfermarkt],
+    dataQuality: typeof verifiedValue === "number" ? "manual" : "estimated",
+  };
+});

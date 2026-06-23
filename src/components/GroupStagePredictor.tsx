@@ -21,7 +21,7 @@ const scoreValue = (value: string) => {
   return Math.max(0, Math.min(99, Math.floor(parsed)));
 };
 
-const CURRENT_GROUP_PREDICTION_VERSION = "2026-06-23-current-state-v1";
+const CURRENT_GROUP_PREDICTION_VERSION = "2026-06-23-current-state-v2";
 
 const readInitialPredictions = () => {
   const version = readJson<string>(storageKeys.groupStagePredictionVersion, "");

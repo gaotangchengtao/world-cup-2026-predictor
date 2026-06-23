@@ -23,6 +23,8 @@ export type PredictionStage =
 
 export type PlayerPosition = "GK" | "DF" | "MF" | "FW";
 export type SquadStatus = "projected" | "preliminary" | "final";
+export type MarketValueStatus = "verified" | "estimated" | "stale";
+export type PlayerAvailabilityStatus = "available" | "doubtful" | "injured" | "not-selected";
 export type ExperienceMode = "beginner" | "expert";
 export type PredictionRisk = "low" | "medium" | "high";
 export type PlayerPhotoSource =
@@ -90,7 +92,13 @@ export interface Player {
   club: string;
   marketValue?: string;
   marketValueEurM: number;
+  marketValueLastUpdated?: string;
+  marketValueSourceUrl?: string;
+  marketValueStatus?: MarketValueStatus;
   transfermarktUrl?: string;
+  availabilityStatus?: PlayerAvailabilityStatus;
+  availabilityNote?: string;
+  availabilityNoteZh?: string;
   isKeyPlayer?: boolean;
   predictedStarter?: boolean;
   shirtNumber?: number;
@@ -229,6 +237,9 @@ export type OffFieldStoryCategory =
   | "logistics"
   | "team-camp"
   | "climate"
+  | "injury"
+  | "matchday"
+  | "venue"
   | "accessibility"
   | "culture"
   | "governance"

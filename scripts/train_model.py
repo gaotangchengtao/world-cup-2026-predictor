@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT = ROOT / "data" / "raw" / "results.csv"
 DEFAULT_CURRENT_STATE = ROOT / "data" / "current" / "world_cup_2026_state.json"
 DEFAULT_BASELINE_SIGNALS = ROOT / "data" / "current" / "team_baseline_signals.json"
+DEFAULT_MARKET_VALUES = ROOT / "src" / "data" / "marketValues.json"
 DEFAULT_OUTPUT = ROOT / "src" / "data" / "modelPredictions.ts"
 DEFAULT_PROFILE_JSON = ROOT / "outputs" / "current_model_profiles.json"
 DEFAULT_MODEL_DIR = ROOT / "models"
@@ -93,13 +94,16 @@ def parse_project_teams(path: Path) -> list[dict[str, object]]:
     return rows
 
 
-def parse_current_squad_signals(path: Path) -> dict[str, float]:
+def parse_current_squad_signals(path: Path, unavailable_players: set[str]) -> dict[str, float]:
     text = path.read_text(encoding="utf-8")
     rows = defaultdict(lambda: {"count": 0, "key": 0, "starters": 0, "positions": set()})
     for block in re.findall(r"\{ teamId: \"[^\"]+\".*? \},", text):
         team_match = re.search(r'teamId: "([^"]+)"', block)
+        player_match = re.search(r'name: "([^"]+)"', block)
         position_match = re.search(r'position: "(GK|DF|MF|FW)"', block)
-        if not team_match or not position_match:
+        if not team_match or not player_match or not position_match:
+            continue
+        if player_match.group(1) in unavailable_players:
             continue
         row = rows[team_match.group(1)]
         row["count"] += 1
@@ -183,6 +187,7 @@ def main() -> int:
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT, help="Historical results CSV path.")
     parser.add_argument("--current-state", type=Path, default=DEFAULT_CURRENT_STATE, help="Current tournament state JSON.")
     parser.add_argument("--baseline-signals", type=Path, default=DEFAULT_BASELINE_SIGNALS, help="Frozen pre-tournament team signals JSON.")
+    parser.add_argument("--market-values", type=Path, default=DEFAULT_MARKET_VALUES, help="Current squad and player market-value snapshot.")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="TypeScript output path.")
     parser.add_argument("--profile-json", type=Path, default=DEFAULT_PROFILE_JSON, help="Machine-readable profile output.")
     parser.add_argument("--model-dir", type=Path, default=DEFAULT_MODEL_DIR, help="Optional local model artifact directory.")
@@ -205,6 +210,9 @@ def main() -> int:
     if not args.baseline_signals.exists():
         print(f"Missing frozen baseline signals: {args.baseline_signals}")
         return 1
+    if not args.market_values.exists():
+        print(f"Missing market-value snapshot: {args.market_values}")
+        return 1
 
     try:
         import joblib
@@ -225,14 +233,25 @@ def main() -> int:
         print("Could not parse src/data/teams.ts")
         return 1
     baseline_signals = json.loads(args.baseline_signals.read_text(encoding="utf-8")).get("teams", {})
+    market_snapshot = json.loads(args.market_values.read_text(encoding="utf-8"))
+    current_team_values = market_snapshot.get("teams", {})
     for team in teams:
         baseline = baseline_signals.get(str(team["id"]))
         if baseline:
             team["strengthRank"] = float(baseline["strengthRank"])
             team["strengthScore"] = float(baseline["strengthScore"])
             team["squadValueEurM"] = float(baseline.get("squadValueEurM", team["squadValueEurM"]))
+        if str(team["id"]) in current_team_values:
+            team["squadValueEurM"] = float(current_team_values[str(team["id"])])
     teams_by_id = {str(team["id"]): team for team in teams}
-    squad_signals = parse_current_squad_signals(ROOT / "src" / "data" / "players.ts")
+    unavailable_players = {
+        name for name, row in market_snapshot.get("availability", {}).items()
+        if row.get("status") == "not-selected"
+    }
+    squad_signals = parse_current_squad_signals(
+        ROOT / "src" / "data" / "players.ts",
+        unavailable_players,
+    )
     current_state = json.loads(args.current_state.read_text(encoding="utf-8"))
 
     results = pd.read_csv(args.input)
@@ -463,7 +482,7 @@ def main() -> int:
             "Current World Cup results through the stated cutoff",
             "Manually maintained squad availability and tactical context",
             "Projected current-squad structure and role fields",
-            "Project squad-value and frozen strength fields",
+            "Current public squad-value snapshot and frozen strength fields",
         ],
         "validationAccuracy": round(validation_accuracy, 4),
         "notes": (

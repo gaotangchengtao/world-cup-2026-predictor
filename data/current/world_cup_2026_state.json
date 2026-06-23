@@ -1,8 +1,8 @@
 {
-  "snapshotAt": "2026-06-23T00:50:00+08:00",
-  "competitionDateCutoff": "2026-06-21",
+  "snapshotAt": "2026-06-23T13:51:00+08:00",
+  "competitionDateCutoff": "2026-06-22",
   "status": "in-tournament",
-  "notes": "Analyst snapshot after the matches completed on June 21, 2026. Current World Cup results are treated as the freshest evidence; availability and tactical scores are manually maintained estimates, not official ratings.",
+  "notes": "Analyst snapshot after the matches completed on June 22, 2026. Official World Cup results are the freshest evidence; availability, player-fit and tactical scores are transparent analyst estimates rather than official ratings.",
   "sourceUrls": [
     "https://www.sbnation.com/soccer/1117513/world-cup-schedule-2026-how-to-watch-every-match-scores-and-more",
     "https://www.theguardian.com/football/live/2026/jun/21/new-zealand-v-egypt-world-cup-2026-live",
@@ -12,7 +12,10 @@
     "https://www.goal.com/en-us/lists/world-cup-injury-blow-for-nico-schlotterbeck-germany-defender-ruled-out-of-2026-tournament-ankle-damage/bltd2cf4435f7afb3f0",
     "https://www.espn.com/soccer/story/_/id/47047134/lamine-yamal-fully-fit-spain-2026-world-cup-coach",
     "https://www.foxsports.com/stories/soccer/cristiano-ronaldo-start-portugals-opening-world-cup-match",
-    "https://www.skysports.com/football/news/12040/13475924/world-cup-2026-injuries-marcus-rashford-a-doubt-for-england-after-missing-training-with-tight-hamstring"
+    "https://www.skysports.com/football/news/12040/13475924/world-cup-2026-injuries-marcus-rashford-a-doubt-for-england-after-missing-training-with-tight-hamstring",
+    "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/argentina-austria-match-report-highlights",
+    "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/france-iraq-match-report-highlights",
+    "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/norway-senegal-match-report-highlights"
   ],
   "defaultFactors": {
     "availabilityScore": 90,
@@ -91,10 +94,10 @@
         "Ancelotti has several attacking alternatives, but the right-side combinations may change if Raphinha is unavailable."
       ],
       "keyAbsencesZh": [
-        "Raphinha - 腘绳肌伤势，出场状态待定"
+        "拉菲尼亚 - 腿后肌伤势，出场状态待定"
       ],
       "tacticalNotesZh": [
-        "Ancelotti 拥有多种进攻替代方案，但如果 Raphinha 缺阵，右路配合方式需要调整。"
+        "安切洛蒂拥有多种进攻替代方案，但如果拉菲尼亚缺阵，右路配合方式需要调整。"
       ]
     },
     "morocco": {
@@ -116,15 +119,15 @@
       "coachAdaptabilityScore": 79
     },
     "usa": {
-      "availabilityScore": 93,
+      "availabilityScore": 90,
       "tacticalFitScore": 91,
       "cohesionScore": 90,
       "coachAdaptabilityScore": 88,
       "tacticalNotes": [
-        "The host has combined front-foot pressing with direct attacks into space."
+        "The host has combined front-foot pressing with direct attacks into space. Christian Pulisic has returned to partial training, but his match readiness is not yet confirmed."
       ],
       "tacticalNotesZh": [
-        "东道主目前把主动压迫和快速攻击身后空间结合得很好。"
+        "东道主目前把主动压迫和快速攻击身后空间结合得很好。普利希奇已恢复部分合练，但比赛状态尚未得到正式确认。"
       ]
     },
     "paraguay": {
@@ -157,7 +160,7 @@
         "The attacking structure is producing chances, while centre-back depth is the principal availability concern."
       ],
       "keyAbsencesZh": [
-        "Nico Schlotterbeck - 脚踝韧带受伤"
+        "尼科·施洛特贝克 - 脚踝韧带受伤"
       ],
       "tacticalNotesZh": [
         "进攻体系正在稳定制造机会，中后卫位置的阵容深度是主要人员风险。"
@@ -190,7 +193,7 @@
         "Five goals against Sweden increased the model's attacking-form estimate, though transition defense remains a watch point."
       ],
       "tacticalNotesZh": [
-        "对 Sweden 打进五球显著提高了进攻状态评分，但由攻转守仍需持续观察。"
+        "对瑞典打进五球显著提高了进攻状态评分，但由攻转守仍需持续观察。"
       ]
     },
     "japan": {
@@ -229,7 +232,7 @@
         "Two draws and limited chance creation indicate that individual talent has not yet become a coherent attacking structure."
       ],
       "keyAbsencesZh": [
-        "Nathan Ngoy - 红牌停赛"
+        "内森·恩戈伊 - 红牌停赛"
       ],
       "tacticalNotesZh": [
         "连续两场平局且创造机会有限，说明个人天赋尚未形成连贯的整体进攻。"
@@ -262,7 +265,7 @@
         "Lamine Yamal is reported fully fit; Spain's positional play remains the strongest tactical fit in the field."
       ],
       "tacticalNotesZh": [
-        "Lamine Yamal 据报道已完全恢复；Spain 的位置打法仍是参赛队中战术适配度最高的一档。"
+        "拉明·亚马尔据报道已完全恢复；西班牙的位置打法仍是参赛队中战术适配度最高的一档。"
       ]
     },
     "cape-verde": {
@@ -274,7 +277,7 @@
         "The draw with Spain and comeback against Uruguay materially improve both form and cohesion estimates."
       ],
       "tacticalNotesZh": [
-        "战平 Spain、逆境中战平 Uruguay，明显提升了球队状态与阵容默契评分。"
+        "战平西班牙、逆境中战平乌拉圭，明显提升了球队状态与阵容默契评分。"
       ]
     },
     "saudi-arabia": {
@@ -297,44 +300,62 @@
     },
     "france": {
       "availabilityScore": 94,
-      "tacticalFitScore": 94,
-      "cohesionScore": 92,
-      "coachAdaptabilityScore": 92
+      "tacticalFitScore": 96,
+      "cohesionScore": 94,
+      "coachAdaptabilityScore": 95,
+      "tacticalNotes": [
+        "A second straight multi-goal win reinforced France's transition threat and depth. The long weather delay against Iraq also provided a live test of concentration and in-game adaptation."
+      ],
+      "tacticalNotesZh": [
+        "连续第二场多球取胜，进一步验证了法国的转换威胁和阵容深度；对伊拉克的长时间天气中断也检验了球队专注度与临场调整。"
+      ]
     },
     "senegal": {
       "availabilityScore": 91,
-      "tacticalFitScore": 86,
-      "cohesionScore": 88,
-      "coachAdaptabilityScore": 84
+      "tacticalFitScore": 82,
+      "cohesionScore": 86,
+      "coachAdaptabilityScore": 82,
+      "tacticalNotes": [
+        "Senegal created enough to trouble Norway but conceded three times, increasing concern about defensive control during open transitions."
+      ],
+      "tacticalNotesZh": [
+        "塞内加尔的进攻足以威胁挪威，但单场丢三球提高了模型对开放转换阶段防守控制力的担忧。"
+      ]
     },
     "iraq": {
       "availabilityScore": 88,
-      "tacticalFitScore": 70,
-      "cohesionScore": 76,
-      "coachAdaptabilityScore": 72
+      "tacticalFitScore": 66,
+      "cohesionScore": 73,
+      "coachAdaptabilityScore": 70
     },
     "norway": {
       "availabilityScore": 93,
-      "tacticalFitScore": 90,
-      "cohesionScore": 91,
-      "coachAdaptabilityScore": 88,
+      "tacticalFitScore": 94,
+      "cohesionScore": 93,
+      "coachAdaptabilityScore": 91,
       "tacticalNotes": [
-        "The opening four-goal performance supports the direct-running and penalty-box threat already present in the squad."
+        "Seven goals across two wins confirm Norway's direct-running and penalty-box threat, while conceding twice to Senegal keeps defensive transition risk in view."
       ],
       "tacticalNotesZh": [
-        "首战四球表现验证了球队的纵向冲击和禁区威胁。"
+        "两连胜攻入七球，验证了挪威的纵向冲击和禁区威胁；对塞内加尔丢两球也说明防守转换仍需观察。"
       ]
     },
     "argentina": {
-      "availabilityScore": 95,
-      "tacticalFitScore": 94,
-      "cohesionScore": 96,
+      "availabilityScore": 89,
+      "tacticalFitScore": 96,
+      "cohesionScore": 97,
       "coachAdaptabilityScore": 95,
+      "keyAbsences": [
+        "Cristian Romero - right-knee status uncertain after the Austria match"
+      ],
+      "keyAbsencesZh": [
+        "克里斯蒂安·罗梅罗 - 对奥地利一战后右膝状态待确认"
+      ],
       "tacticalNotes": [
-        "The defending champion combines role continuity, elite game management, and a strong opening performance."
+        "Two clean-sheet wins and Lionel Messi's record-setting finishing raise the current-form signal, while Romero's knee issue reduces defensive availability."
       ],
       "tacticalNotesZh": [
-        "卫冕冠军同时具备角色延续性、顶级比赛管理能力和强势的开局表现。"
+        "两场零封和利昂内尔·梅西刷新纪录的终结表现提高了赛中状态评分，但罗梅罗的膝伤降低了后防可用性。"
       ]
     },
     "algeria": {
@@ -364,7 +385,7 @@
         "The model discounts Portugal until the forward roles and Cristiano Ronaldo's starting usage produce a clearer collective balance."
       ],
       "tacticalNotesZh": [
-        "在锋线角色和 Cristiano Ronaldo 的使用方式形成更清晰的整体平衡前，模型会下调 Portugal 的战术适配评分。"
+        "在锋线角色和克里斯蒂亚诺·罗纳尔多的使用方式形成更清晰的整体平衡前，模型会下调葡萄牙的战术适配评分。"
       ]
     },
     "dr-congo": {
@@ -403,7 +424,7 @@
         "The attack started strongly, but the model keeps a modest availability deduction and monitors defensive transitions."
       ],
       "keyAbsencesZh": [
-        "Marcus Rashford - 腘绳肌紧张，出场状态待定"
+        "马库斯·拉什福德 - 腿后肌紧张，出场状态待定"
       ],
       "tacticalNotesZh": [
         "进攻开局强势，但模型仍保留轻微人员可用性扣分，并继续观察防守转换。"
@@ -708,6 +729,27 @@
       "awayTeamId": "cape-verde",
       "homeScore": 2,
       "awayScore": 2
+    },
+    {
+      "date": "2026-06-22",
+      "homeTeamId": "norway",
+      "awayTeamId": "senegal",
+      "homeScore": 3,
+      "awayScore": 2
+    },
+    {
+      "date": "2026-06-22",
+      "homeTeamId": "france",
+      "awayTeamId": "iraq",
+      "homeScore": 3,
+      "awayScore": 0
+    },
+    {
+      "date": "2026-06-22",
+      "homeTeamId": "argentina",
+      "awayTeamId": "austria",
+      "homeScore": 2,
+      "awayScore": 0
     }
   ]
 }

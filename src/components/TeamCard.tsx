@@ -26,7 +26,7 @@ export const TeamCard = ({ team, onSelect, compact = false, experienceMode = "ex
     <button
       className={`group team-card relative w-full rounded-lg border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-glow ${
         team.strengthRank <= 8
-          ? "border-trophy-500/50 bg-trophy-500/10"
+          ? "border-yellow-400/45 bg-yellow-400/[0.07]"
           : "border-white/10 bg-white/[0.055] light:border-slate-900/10 light:bg-white/70"
       }`}
       onClick={() => onSelect(team)}

@@ -43,6 +43,31 @@ ALLOWED_DOMAINS = {
 
 SEED_URLS = [
     {
+        "id": "france-iraq-weather-delay",
+        "source": "AP News",
+        "url": "https://apnews.com/article/32b4d9c0bcf12ff06a78638273fe570d",
+    },
+    {
+        "id": "messi-world-cup-scoring-record",
+        "source": "FIFA",
+        "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/lionel-messi-world-cup-goals-record-miroslav-klose-argentina",
+    },
+    {
+        "id": "argentina-austria-report",
+        "source": "FIFA",
+        "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/argentina-austria-match-report-highlights",
+    },
+    {
+        "id": "france-iraq-report",
+        "source": "FIFA",
+        "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/france-iraq-match-report-highlights",
+    },
+    {
+        "id": "norway-senegal-report",
+        "source": "FIFA",
+        "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/norway-senegal-match-report-highlights",
+    },
+    {
         "id": "transit-costs-host-cities",
         "source": "AP News",
         "url": "https://apnews.com/article/world-cup-transit-new-jersey-boston-prices-f66d51bf1ed1de1bf568ac4fd319b8f8",
