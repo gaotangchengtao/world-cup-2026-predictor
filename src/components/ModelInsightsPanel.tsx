@@ -20,8 +20,8 @@ export const ModelInsightsPanel = ({ bracketState, onSelectTeam, players, teams 
   const upsetRows = getUpsetWatchMatchups(teams, players, bracketState, 5);
 
   return (
-    <section className="grid gap-4 xl:grid-cols-3">
-      <article className="glass-panel rounded-lg p-4">
+    <section className="mobile-snap-grid grid gap-3 sm:gap-4 xl:grid-cols-3">
+      <article className="mobile-snap-card glass-panel rounded-lg p-3.5 sm:p-4">
         <PanelTitle icon={<Trophy size={20} />} title={t("mlChampionHotlist")} />
         <div className="mt-4 grid gap-2">
           {contenders.map(({ team, profile }, index) => (
@@ -42,7 +42,7 @@ export const ModelInsightsPanel = ({ bracketState, onSelectTeam, players, teams 
         </div>
       </article>
 
-      <article className="glass-panel rounded-lg p-4">
+      <article className="mobile-snap-card glass-panel rounded-lg p-3.5 sm:p-4">
         <PanelTitle icon={<LineChart size={20} />} title={t("modelConfidenceLeaders")} />
         <div className="mt-4 grid gap-2">
           {confidenceLeaders.map(({ team, profile }) => (
@@ -67,7 +67,7 @@ export const ModelInsightsPanel = ({ bracketState, onSelectTeam, players, teams 
         </div>
       </article>
 
-      <article className="glass-panel rounded-lg p-4">
+      <article className="mobile-snap-card glass-panel rounded-lg p-3.5 sm:p-4">
         <PanelTitle icon={<AlertTriangle size={20} />} title={t("modelUpsetWatchlist")} />
         <div className="mt-4 grid gap-2">
           {upsetRows.map((row) => (

@@ -16,7 +16,7 @@ export const GroupGrid = ({ groups, teams, filters, experienceMode, onSelectTeam
   const visibleGroups = groups.filter((group) => filters.group === "all" || group.code === filters.group);
 
   return (
-    <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <section className="mobile-snap-grid grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
       {visibleGroups.map((group) => {
         const groupTeams = group.teamIds
           .map((teamId) => teamById.get(teamId))

@@ -23,21 +23,21 @@ export const OffFieldStoriesPanel = () => {
 
   return (
     <section className="space-y-4">
-      <div className="glass-panel hero-panel host-accent rounded-lg p-4">
+      <div className="glass-panel hero-panel host-accent rounded-lg p-3.5 sm:p-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-trophy-300 light:text-trophy-700">
               {t("offFieldKicker")}
             </p>
-            <h2 className="mt-1 text-2xl font-black text-white light:text-slate-950">{t("offFieldTitle")}</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300 light:text-slate-700">
+            <h2 className="mt-1 text-xl font-black text-white light:text-slate-950 sm:text-2xl">{t("offFieldTitle")}</h2>
+            <p className="mt-1.5 line-clamp-2 max-w-3xl text-xs leading-5 text-slate-300 light:text-slate-700 sm:mt-2 sm:text-sm sm:leading-6">
               {t("offFieldDescription")}
             </p>
             <p className="mt-3 text-xs font-bold text-slate-400 light:text-slate-600">
               {t("newsUpdatedAt")}: 2026-06-23
             </p>
           </div>
-          <div className="rounded-lg border border-white/10 bg-slate-950/35 p-3 light:border-slate-900/10 light:bg-white/70">
+          <div className="hidden rounded-lg border border-white/10 bg-slate-950/35 p-3 light:border-slate-900/10 light:bg-white/70 sm:block">
             <p className="text-xs uppercase text-slate-500">{t("crawlerSafety")}</p>
             <p className="mt-1 text-sm font-black text-white light:text-slate-950">{t("crawlerSafetySummary")}</p>
           </div>
@@ -46,7 +46,7 @@ export const OffFieldStoriesPanel = () => {
 
       {topStory && (
         <a
-          className="block rounded-lg border border-trophy-500/30 bg-trophy-500/10 p-4 transition hover:-translate-y-0.5 hover:border-trophy-400"
+          className="block rounded-lg border border-trophy-500/30 bg-trophy-500/10 p-3.5 transition hover:-translate-y-0.5 hover:border-trophy-400 sm:p-4"
           href={topStory.url}
           rel="noreferrer"
           target="_blank"
@@ -56,13 +56,13 @@ export const OffFieldStoriesPanel = () => {
               <span className={`rounded-md px-2 py-1 text-xs font-black ${categoryTone[topStory.category]}`}>
                 {categoryLabel(topStory.category, t)}
               </span>
-              <h3 className="mt-3 text-2xl font-black text-white light:text-slate-950">{topStory.title[language]}</h3>
-              <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-300 light:text-slate-700">{topStory.summary[language]}</p>
+              <h3 className="mt-2.5 text-xl font-black leading-tight text-white light:text-slate-950 sm:mt-3 sm:text-2xl">{topStory.title[language]}</h3>
+              <p className="mt-2 line-clamp-4 max-w-4xl text-sm leading-6 text-slate-300 light:text-slate-700 sm:line-clamp-none">{topStory.summary[language]}</p>
             </div>
-            <div className="min-w-[130px] rounded-lg border border-white/10 bg-slate-950/35 p-3 text-center light:border-slate-900/10 light:bg-white/70">
-              <TrendingUp className="mx-auto text-trophy-300" size={22} />
-              <p className="mt-1 text-xs uppercase text-slate-500">{t("attentionScore")}</p>
-              <p className="text-2xl font-black text-white light:text-slate-950">{topStory.attentionScore}</p>
+            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-950/35 px-3 py-2 light:border-slate-900/10 light:bg-white/70 md:block md:min-w-[130px] md:p-3 md:text-center">
+              <TrendingUp className="text-trophy-300 md:mx-auto" size={20} />
+              <p className="text-xs font-bold text-slate-500 md:mt-1 md:uppercase">{t("attentionScore")}</p>
+              <p className="text-xl font-black text-white light:text-slate-950 md:text-2xl">{topStory.attentionScore}</p>
             </div>
           </div>
         </a>
@@ -71,7 +71,7 @@ export const OffFieldStoriesPanel = () => {
       <div className="grid gap-4 lg:grid-cols-2">
         {sortedStories.slice(1).map((story) => (
           <article
-            className="glass-panel rounded-lg p-4 transition hover:-translate-y-0.5 hover:border-trophy-500/60"
+            className="glass-panel rounded-lg p-3.5 transition hover:-translate-y-0.5 hover:border-trophy-500/60 sm:p-4"
             key={story.id}
           >
             <div className="flex items-start justify-between gap-3">
@@ -84,8 +84,8 @@ export const OffFieldStoriesPanel = () => {
               <span className="text-xs font-bold text-slate-500">{story.publishedAt}</span>
             </div>
             <h3 className="mt-3 text-lg font-black text-white light:text-slate-950">{story.title[language]}</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-300 light:text-slate-700">{story.summary[language]}</p>
-            <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-3 light:border-slate-900/10 light:bg-white/70">
+            <p className="mt-2 line-clamp-4 text-sm leading-6 text-slate-300 light:text-slate-700 sm:line-clamp-none">{story.summary[language]}</p>
+            <div className="mt-4 hidden rounded-lg border border-white/10 bg-white/5 p-3 light:border-slate-900/10 light:bg-white/70 sm:block">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{t("whyTheyMatter")}</p>
               <p className="mt-1 text-sm leading-6 text-slate-300 light:text-slate-700">{story.whyItMatters[language]}</p>
             </div>

@@ -28,9 +28,9 @@ export const FilterBar = ({ filters, setFilters }: FilterBarProps) => {
   };
 
   return (
-    <section className="glass-panel rounded-lg p-4">
-      <div className="grid gap-3 lg:grid-cols-[1.2fr_0.7fr_0.9fr_0.9fr]">
-        <label className="relative block">
+    <section className="glass-panel rounded-lg p-3.5 sm:p-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-[1.2fr_0.7fr_0.9fr_0.9fr]">
+        <label className="relative col-span-2 block lg:col-span-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             className="h-11 w-full rounded-lg border border-white/10 bg-slate-950/70 pl-10 pr-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950"
@@ -41,7 +41,7 @@ export const FilterBar = ({ filters, setFilters }: FilterBarProps) => {
         </label>
 
         <select
-          className="h-11 rounded-lg border border-white/10 bg-slate-950/70 px-3 text-sm text-white outline-none focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950"
+          className="h-11 min-w-0 rounded-lg border border-white/10 bg-slate-950/70 px-2.5 text-xs text-white outline-none focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950 sm:px-3 sm:text-sm"
           onChange={(event) => update("group", event.target.value as FilterState["group"])}
           value={filters.group}
         >
@@ -53,7 +53,7 @@ export const FilterBar = ({ filters, setFilters }: FilterBarProps) => {
         </select>
 
         <select
-          className="h-11 rounded-lg border border-white/10 bg-slate-950/70 px-3 text-sm text-white outline-none focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950"
+          className="h-11 min-w-0 rounded-lg border border-white/10 bg-slate-950/70 px-2.5 text-xs text-white outline-none focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950 sm:px-3 sm:text-sm"
           onChange={(event) => update("stage", event.target.value as FilterState["stage"])}
           value={filters.stage}
         >
@@ -65,7 +65,7 @@ export const FilterBar = ({ filters, setFilters }: FilterBarProps) => {
         </select>
 
         <select
-          className="h-11 rounded-lg border border-white/10 bg-slate-950/70 px-3 text-sm text-white outline-none focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950"
+          className="col-span-2 h-11 min-w-0 rounded-lg border border-white/10 bg-slate-950/70 px-2.5 text-xs text-white outline-none focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950 sm:px-3 sm:text-sm lg:col-span-1"
           onChange={(event) => update("sortBy", event.target.value as FilterState["sortBy"])}
           value={filters.sortBy}
         >
@@ -76,9 +76,9 @@ export const FilterBar = ({ filters, setFilters }: FilterBarProps) => {
         </select>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="mobile-inline-list mt-3 flex items-center gap-2 overflow-x-auto pb-1">
         <button
-          className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+          className={`inline-flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition sm:text-sm ${
             filters.onlyContenders
               ? "border-trophy-500 bg-trophy-500 text-slate-950"
               : "border-white/10 bg-white/5 text-slate-100 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
@@ -90,7 +90,7 @@ export const FilterBar = ({ filters, setFilters }: FilterBarProps) => {
           {t("onlyContenders")}
         </button>
         <button
-          className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+          className={`inline-flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition sm:text-sm ${
             filters.onlyDarkHorses
               ? "border-emerald-400 bg-emerald-400 text-slate-950"
               : "border-white/10 bg-white/5 text-slate-100 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
@@ -101,7 +101,7 @@ export const FilterBar = ({ filters, setFilters }: FilterBarProps) => {
           <Sparkles size={16} />
           {t("onlyDarkHorses")}
         </button>
-        <label className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-slate-100 light:border-slate-900/10 light:text-slate-700">
+        <label className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-100 light:border-slate-900/10 light:text-slate-700 sm:text-sm">
           <SlidersHorizontal size={16} />
           {t("groupSort")}
           <select

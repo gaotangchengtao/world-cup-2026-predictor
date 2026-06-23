@@ -17,24 +17,37 @@ export const Header = ({ experienceMode, mode, setExperienceMode, setMode, theme
   const { t } = useLanguage();
 
   return (
-    <header className="host-accent sticky top-0 z-30 border-b border-white/10 bg-[#04142f]/90 shadow-[0_18px_60px_rgba(0,12,34,0.28)] backdrop-blur-xl light:border-slate-900/10 light:bg-white/92">
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-4 pb-3 pt-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-        <div className="flex items-center gap-3">
-          <div className="host-brand-mark flex h-11 w-12 items-center justify-center rounded-lg text-white">
-            <Trophy size={22} />
+    <header className="host-accent sticky top-0 z-30 min-h-[125px] border-b border-white/10 bg-[#04142f]/90 shadow-[0_18px_60px_rgba(0,12,34,0.28)] backdrop-blur-xl light:border-slate-900/10 light:bg-white/92 sm:min-h-0">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-3 pb-2.5 pt-3 sm:gap-4 sm:px-6 sm:pb-3 sm:pt-4 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            <div className="host-brand-mark flex h-9 w-10 shrink-0 items-center justify-center rounded-lg text-white sm:h-11 sm:w-12">
+              <Trophy size={20} />
+            </div>
+            <div className="min-w-0">
+              <p className="hidden text-xs uppercase text-trophy-300 light:text-trophy-700 sm:block">
+                {t("predictorMvp")}
+              </p>
+              <h1 className="truncate text-base font-black text-white light:text-slate-950 sm:text-2xl">{t("appTitle")}</h1>
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-trophy-300 light:text-trophy-700">
-              {t("predictorMvp")}
-            </p>
-            <h1 className="text-xl font-black text-white light:text-slate-950 sm:text-2xl">{t("appTitle")}</h1>
+          <div className="flex shrink-0 items-center gap-1.5 sm:hidden">
+            <LanguageSwitcher compact />
+            <button
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-100 light:border-slate-900/10 light:bg-white light:text-slate-800"
+              onClick={toggleTheme}
+              title={theme === "dark" ? t("switchToLight") : t("switchToDark")}
+              type="button"
+            >
+              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex rounded-lg border border-white/10 bg-white/5 p-1 light:border-slate-900/10 light:bg-slate-100">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <div className="flex w-full rounded-lg border border-white/10 bg-white/5 p-1 light:border-slate-900/10 light:bg-slate-100 sm:w-auto">
             <button
-              className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
+              className={`min-w-0 flex-1 rounded-md px-2 py-2 text-xs font-semibold transition sm:flex-none sm:px-4 sm:text-sm ${
                 mode === "overview"
                   ? "bg-trophy-500 text-slate-950"
                   : "text-slate-200 hover:bg-white/10 light:text-slate-700"
@@ -45,7 +58,7 @@ export const Header = ({ experienceMode, mode, setExperienceMode, setMode, theme
               {t("browseMode")}
             </button>
             <button
-              className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
+              className={`min-w-0 flex-1 rounded-md px-2 py-2 text-xs font-semibold transition sm:flex-none sm:px-4 sm:text-sm ${
                 mode === "predictor"
                   ? "bg-trophy-500 text-slate-950"
                   : "text-slate-200 hover:bg-white/10 light:text-slate-700"
@@ -57,12 +70,14 @@ export const Header = ({ experienceMode, mode, setExperienceMode, setMode, theme
             </button>
           </div>
 
-          <ExperienceModeToggle experienceMode={experienceMode} setExperienceMode={setExperienceMode} />
+          <ExperienceModeToggle compact experienceMode={experienceMode} setExperienceMode={setExperienceMode} />
 
-          <LanguageSwitcher />
+          <div className="hidden sm:block">
+            <LanguageSwitcher />
+          </div>
 
           <button
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-100 transition hover:bg-white/10 light:border-slate-900/10 light:bg-white light:text-slate-800"
+            className="hidden h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-100 transition hover:bg-white/10 light:border-slate-900/10 light:bg-white light:text-slate-800 sm:inline-flex"
             onClick={toggleTheme}
             title={theme === "dark" ? t("switchToLight") : t("switchToDark")}
             type="button"

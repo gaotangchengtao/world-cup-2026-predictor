@@ -342,3 +342,53 @@ select {
   border-color: rgba(253, 224, 71, 0.6);
   color: #fde047;
 }
+
+.mobile-scrollbar-none,
+.mobile-inline-list {
+  scrollbar-width: none;
+}
+
+.mobile-scrollbar-none::-webkit-scrollbar,
+.mobile-inline-list::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .mobile-snap-grid {
+    align-items: flex-start;
+    display: flex;
+    gap: 12px;
+    margin-inline: -12px;
+    overflow-x: auto;
+    padding: 0 12px 6px;
+    scroll-padding-inline: 12px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .mobile-snap-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-snap-grid > .mobile-snap-card {
+    flex: 0 0 min(86vw, 348px);
+    scroll-snap-align: center;
+  }
+
+  .mobile-section-card-tag:nth-child(n + 3) {
+    display: none;
+  }
+
+  .mobile-rank-item:nth-child(n + 4) {
+    display: none;
+  }
+
+  .glass-panel {
+    box-shadow: 0 12px 32px rgba(1, 8, 20, 0.2);
+  }
+
+  .team-card:hover,
+  .dashboard-card:hover {
+    transform: none;
+  }
+}

@@ -32,7 +32,9 @@ const readInitialPredictions = () => {
 
 export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps) => {
   const { language, t } = useLanguage();
-  const [selectedGroup, setSelectedGroup] = useState<"all" | GroupCode>("all");
+  const [selectedGroup, setSelectedGroup] = useState<"all" | GroupCode>(() =>
+    window.matchMedia("(max-width: 639px)").matches ? "A" : "all",
+  );
   const [predictions, setPredictions] = useState<GroupStagePredictionState>(readInitialPredictions);
 
   const matches = useMemo(() => createGroupMatches(groups), [groups]);
@@ -60,20 +62,20 @@ export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps)
   };
 
   return (
-    <section className="glass-panel rounded-lg p-4">
+    <section className="glass-panel rounded-lg p-3.5 sm:p-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex items-center gap-2">
             <Table2 className="text-trophy-300" size={22} />
             <h2 className="text-xl font-black text-white light:text-slate-950">{t("groupStagePredictorTitle")}</h2>
           </div>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400 light:text-slate-600">
+          <p className="mt-1.5 line-clamp-2 max-w-3xl text-xs leading-5 text-slate-400 light:text-slate-600 sm:mt-2 sm:text-sm sm:leading-6">
             {t("groupStagePredictorDescription")}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="mobile-inline-list flex gap-2 overflow-x-auto pb-1">
           <button
-            className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-bold text-slate-200 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700"
+            className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/10 light:border-slate-900/10 light:text-slate-700 sm:text-sm"
             onClick={() => setPredictions(defaultGroupStagePredictions)}
             type="button"
           >
@@ -81,7 +83,7 @@ export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps)
             {t("resetGroupStage")}
           </button>
           <button
-            className="inline-flex items-center gap-2 rounded-lg bg-trophy-500 px-3 py-2 text-sm font-black text-slate-950 hover:bg-trophy-300"
+            className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-trophy-500 px-3 py-2 text-xs font-black text-white hover:bg-trophy-300 sm:text-sm"
             onClick={() =>
               downloadJson("wc2026-group-stage-prediction.json", {
                 groupStagePredictions: predictions,
@@ -97,7 +99,7 @@ export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps)
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+      <div className="mobile-inline-list mt-3 flex gap-2 overflow-x-auto pb-1 sm:mt-4">
         <button
           className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-bold transition ${
             selectedGroup === "all"
@@ -125,14 +127,14 @@ export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps)
         ))}
       </div>
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-2">
+      <div className="mobile-snap-grid mt-3 grid gap-3 sm:mt-4 sm:gap-4 xl:grid-cols-2">
         {visibleGroups.map((group) => {
           const groupMatches = matches.filter((match) => match.group === group.code);
           const standings = calculateGroupStandings(group, teams, matches, predictions);
 
           return (
             <article
-              className="rounded-lg border border-white/10 bg-slate-950/45 p-4 light:border-slate-900/10 light:bg-white/80"
+              className="mobile-snap-card rounded-lg border border-white/10 bg-slate-950/45 p-3.5 light:border-slate-900/10 light:bg-white/80 sm:p-4"
               key={group.code}
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -154,7 +156,7 @@ export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps)
 
                     return (
                       <div
-                        className="grid gap-2 rounded-lg border border-white/10 bg-white/5 p-2 light:border-slate-900/10 light:bg-slate-50 sm:grid-cols-[1fr_auto_1fr]"
+                        className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 p-2 light:border-slate-900/10 light:bg-slate-50 sm:gap-2"
                         key={match.id}
                       >
                         <div className="flex min-w-0 items-center gap-2">
@@ -166,7 +168,7 @@ export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps)
                         <div className="flex items-center justify-center gap-2">
                           <input
                             aria-label={`${displayTeamName(homeTeam, language)} ${t("score")}`}
-                            className="h-9 w-14 rounded-md border border-white/10 bg-slate-950/70 text-center text-sm font-black text-white outline-none focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950"
+                            className="h-9 w-10 rounded-md border border-white/10 bg-slate-950/70 text-center text-sm font-black text-white outline-none focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950 sm:w-14"
                             min={0}
                             onChange={(event) => updateScore(match.id, "homeScore", event.target.value)}
                             type="number"
@@ -175,7 +177,7 @@ export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps)
                           <span className="text-xs font-black text-slate-500">-</span>
                           <input
                             aria-label={`${displayTeamName(awayTeam, language)} ${t("score")}`}
-                            className="h-9 w-14 rounded-md border border-white/10 bg-slate-950/70 text-center text-sm font-black text-white outline-none focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950"
+                            className="h-9 w-10 rounded-md border border-white/10 bg-slate-950/70 text-center text-sm font-black text-white outline-none focus:border-trophy-500 light:border-slate-900/10 light:bg-white light:text-slate-950 sm:w-14"
                             min={0}
                             onChange={(event) => updateScore(match.id, "awayScore", event.target.value)}
                             type="number"
@@ -196,7 +198,7 @@ export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps)
 
               <div className="mt-4">
                 <h4 className="text-sm font-black text-trophy-200 light:text-trophy-800">{t("groupStandings")}</h4>
-                <div className="mt-2 overflow-x-auto">
+                <div className="mt-2 hidden overflow-x-auto sm:block">
                   <table className="w-full min-w-[620px] text-left text-xs">
                     <thead className="text-slate-500">
                       <tr>
@@ -250,6 +252,32 @@ export const GroupStagePredictor = ({ groups, teams }: GroupStagePredictorProps)
                       })}
                     </tbody>
                   </table>
+                </div>
+                <div className="mt-2 grid gap-2 sm:hidden">
+                  {standings.map((row) => {
+                    const team = teamById.get(row.teamId);
+
+                    return (
+                      <div
+                        className="grid grid-cols-[28px_1fr_auto] items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-2.5 py-2"
+                        key={row.teamId}
+                      >
+                        <span className="text-sm font-black text-trophy-300">{row.position}</span>
+                        <div className="flex min-w-0 items-center gap-2">
+                          <TeamFlag team={team} size="sm" />
+                          <span className="truncate text-sm font-bold text-white light:text-slate-950">
+                            {displayTeamName(team, language)}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-black text-white light:text-slate-950">{row.points} {t("pointsShort")}</p>
+                          <p className="text-[10px] font-bold text-emerald-300 light:text-emerald-700">
+                            {t(qualificationKey(row.position))}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </article>

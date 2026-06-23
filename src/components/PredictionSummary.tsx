@@ -58,16 +58,16 @@ export const PredictionSummary = ({ teams, players, bracketState }: PredictionSu
   ];
 
   return (
-    <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <section className="grid grid-cols-2 gap-2.5 sm:gap-4 xl:grid-cols-4">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
-          <article key={card.label} className="glass-panel rounded-lg p-4">
+          <article key={card.label} className="glass-panel min-w-0 rounded-lg p-3 sm:p-4">
             <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-400 light:text-slate-500">{card.label}</p>
-              <Icon className={card.tone} size={20} />
+              <p className="min-w-0 truncate text-[11px] font-bold text-slate-400 light:text-slate-500 sm:text-xs">{card.label}</p>
+              <Icon className={`${card.tone} shrink-0`} size={17} />
             </div>
-            <p className="mt-3 text-2xl font-black text-white light:text-slate-950">{card.value}</p>
+            <p className="mt-2 min-w-0 text-lg font-black text-white light:text-slate-950 sm:mt-3 sm:text-2xl">{card.value}</p>
           </article>
         );
       })}

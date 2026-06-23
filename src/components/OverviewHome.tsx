@@ -69,7 +69,7 @@ export const OverviewHome = ({
   };
 
   return (
-    <section className="space-y-5">
+    <section className="space-y-3 sm:space-y-5">
       <PredictionSummary teams={teams} players={players} bracketState={bracketState} />
       {experienceMode === "expert" ? (
         <ModelInsightsPanel
@@ -88,8 +88,8 @@ export const OverviewHome = ({
         />
       )}
 
-      <div className="grid gap-4 xl:grid-cols-[1.05fr_1fr_1fr]">
-        <article className="glass-panel rounded-lg p-4">
+      <div className="grid gap-3 sm:gap-4 xl:grid-cols-[1.05fr_1fr_1fr]">
+        <article className="min-w-0 glass-panel rounded-lg p-3.5 sm:p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-trophy-300 light:text-trophy-700">
@@ -122,12 +122,12 @@ export const OverviewHome = ({
           )}
         </article>
 
-        <article className="glass-panel rounded-lg p-4">
+        <article className="min-w-0 glass-panel rounded-lg p-3.5 sm:p-4">
           <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewStrongTeams")}</h2>
           <div className="mt-4 grid gap-2">
             {strongestTeams.map((team) => (
               <button
-                className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3 text-left transition hover:border-trophy-500 light:border-slate-900/10 light:bg-white"
+                className="mobile-rank-item flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3 text-left transition hover:border-trophy-500 light:border-slate-900/10 light:bg-white"
                 key={team.id}
                 onClick={() => onSelectTeam(team)}
                 type="button"
@@ -145,7 +145,7 @@ export const OverviewHome = ({
           </div>
         </article>
 
-        <article className="glass-panel rounded-lg p-4">
+        <article className="min-w-0 glass-panel rounded-lg p-3.5 sm:p-4">
           <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewMustWatchPlayers")}</h2>
           <div className="mt-4 grid gap-2">
             {dashboardPlayers.map((player, index) => {
@@ -153,7 +153,7 @@ export const OverviewHome = ({
 
               return (
                 <button
-                  className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3 text-left transition hover:border-trophy-500 light:border-slate-900/10 light:bg-white"
+                  className="mobile-rank-item flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3 text-left transition hover:border-trophy-500 light:border-slate-900/10 light:bg-white"
                   key={player.playerId}
                   onClick={() => onSelectPlayer(player)}
                   type="button"
@@ -185,16 +185,16 @@ export const OverviewHome = ({
         </article>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <article className="glass-panel rounded-lg p-4">
+      <div className="grid gap-3 sm:gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <article className="min-w-0 glass-panel rounded-lg p-3.5 sm:p-4">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewDarkHorsesTop")}</h2>
             <Sparkles className="text-orange-300" size={20} />
           </div>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mobile-inline-list mt-3 flex gap-2 overflow-x-auto pb-1 sm:mt-4 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-5">
             {darkHorses.map((team) => (
               <button
-                className="rounded-lg border border-white/10 bg-white/5 p-3 text-left transition hover:border-orange-300 light:border-slate-900/10 light:bg-white"
+                className="min-w-[150px] rounded-lg border border-white/10 bg-white/5 p-3 text-left transition hover:border-orange-300 light:border-slate-900/10 light:bg-white sm:min-w-0"
                 key={team.id}
                 onClick={() => onSelectTeam(team)}
                 type="button"
@@ -214,7 +214,7 @@ export const OverviewHome = ({
           </div>
         </article>
 
-        <article className="glass-panel rounded-lg p-4">
+        <article className="min-w-0 glass-panel rounded-lg p-3.5 sm:p-4">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewHardestGroup")}</h2>
             <Gauge className="text-sky-300" size={20} />
@@ -243,8 +243,8 @@ export const OverviewHome = ({
       </div>
 
       {experienceMode === "expert" ? (
-      <div className="grid gap-4 lg:grid-cols-2">
-        <article className="glass-panel rounded-lg p-4">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
+        <article className="min-w-0 glass-panel rounded-lg p-3.5 sm:p-4">
           <div className="flex items-center gap-2">
             <CalendarClock className="text-trophy-300" size={20} />
             <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewDataUpdated")}</h2>
@@ -252,7 +252,7 @@ export const OverviewHome = ({
           <p className="mt-3 text-3xl font-black text-white light:text-slate-950">{dataUpdated ?? "N/A"}</p>
           <p className="mt-2 text-sm leading-6 text-slate-300 light:text-slate-700">{t("finalSquadUpdateNote")}</p>
         </article>
-        <article className="glass-panel rounded-lg p-4">
+        <article className="min-w-0 glass-panel rounded-lg p-3.5 sm:p-4">
           <div className="flex items-center gap-2">
             <BarChart3 className="text-emerald-300" size={20} />
             <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewTrustSummary")}</h2>
@@ -270,15 +270,15 @@ export const OverviewHome = ({
         </article>
       </div>
       ) : (
-      <div className="grid gap-4 lg:grid-cols-2">
-        <article className="glass-panel rounded-lg p-4">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
+        <article className="min-w-0 glass-panel rounded-lg p-3.5 sm:p-4">
           <div className="flex items-center gap-2">
             <BookOpen className="text-emerald-300" size={20} />
             <h2 className="text-lg font-black text-white light:text-slate-950">{t("beginnerDashboardHowToRead")}</h2>
           </div>
           <p className="mt-3 text-sm leading-6 text-slate-300 light:text-slate-700">{t("beginnerDashboardHowToReadText")}</p>
         </article>
-        <article className="glass-panel rounded-lg p-4">
+        <article className="min-w-0 glass-panel rounded-lg p-3.5 sm:p-4">
           <div className="flex items-center gap-2">
             <Route className="text-trophy-300" size={20} />
             <h2 className="text-lg font-black text-white light:text-slate-950">{t("beginnerDashboardNextStep")}</h2>
@@ -298,7 +298,7 @@ export const OverviewHome = ({
         <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewSectionCards")}</h2>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mobile-snap-grid grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
           {overviewSectionMeta.map((section) => {
             const Icon = section.icon;
 
@@ -356,29 +356,29 @@ const BeginnerDashboardPanel = ({
   ];
 
   return (
-    <section className="mode-panel rounded-lg border border-emerald-400/20 bg-emerald-500/10 p-4">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <section className="mode-panel rounded-lg border border-emerald-400/20 bg-emerald-500/10 p-3.5 sm:p-4">
+      <div className="flex items-end justify-between gap-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-200 light:text-emerald-700">
             {t("beginnerMode")}
           </p>
-          <h2 className="mt-1 text-2xl font-black text-white light:text-slate-950">{t("beginnerDashboardTitle")}</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300 light:text-slate-700">
+          <h2 className="mt-1 text-xl font-black text-white light:text-slate-950 sm:text-2xl">{t("beginnerDashboardTitle")}</h2>
+          <p className="mt-1 line-clamp-2 max-w-3xl text-xs leading-5 text-slate-300 light:text-slate-700 sm:mt-2 sm:text-sm sm:leading-6">
             {t("beginnerDashboardDescription")}
           </p>
         </div>
         <button
-          className="rounded-lg bg-emerald-400 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+          className="shrink-0 rounded-lg bg-emerald-400 px-3 py-2 text-xs font-black text-slate-950 transition hover:bg-emerald-300 sm:px-4 sm:text-sm"
           onClick={() => setActiveSection("beginner")}
           type="button"
         >
           {t("beginnerDashboardStart")}
         </button>
       </div>
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <div className="mobile-snap-grid mt-3 grid gap-3 sm:mt-4 md:grid-cols-3">
         {cards.map((card) => (
           <button
-            className="rounded-lg border border-white/10 bg-slate-950/35 p-4 text-left transition hover:-translate-y-0.5 hover:border-emerald-300 light:border-slate-900/10 light:bg-white/75"
+            className="mobile-snap-card rounded-lg border border-white/10 bg-slate-950/35 p-3.5 text-left transition hover:-translate-y-0.5 hover:border-emerald-300 light:border-slate-900/10 light:bg-white/75 sm:p-4"
             key={card.title}
             onClick={card.action}
             type="button"

@@ -254,22 +254,27 @@ export default function App() {
         toggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")}
       />
 
-      <main className="mx-auto max-w-[1440px] space-y-5 px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
+      <main className="mx-auto max-w-[1440px] space-y-3 px-3 py-3 sm:space-y-5 sm:px-6 sm:py-5 lg:px-8 lg:py-6">
         {mode === "overview" && (
-        <section className="glass-panel hero-panel host-accent rounded-lg p-4 sm:p-5 lg:p-6" style={heroPanelStyle}>
-          <div className="grid gap-4 lg:grid-cols-[1fr_320px] lg:items-end">
+        <section
+          className={`glass-panel hero-panel host-accent rounded-lg p-3.5 sm:p-5 lg:p-6 ${
+            activeOverviewSection === "home" ? "" : "hidden sm:block"
+          }`}
+          style={heroPanelStyle}
+        >
+          <div className="grid gap-3 lg:grid-cols-[1fr_320px] lg:items-end">
           <div className="max-w-4xl">
-            <p className="text-sm font-bold uppercase tracking-[0.24em] text-trophy-300 light:text-trophy-700">
+            <p className="text-[11px] font-bold uppercase text-trophy-300 light:text-trophy-700 sm:text-sm">
               {t("heroKicker")}
             </p>
-            <h2 className="mt-2 text-2xl font-black text-white light:text-slate-950 sm:text-4xl">
+            <h2 className="mt-1.5 text-xl font-black leading-tight text-white light:text-slate-950 sm:mt-2 sm:text-4xl">
               {t("heroTitle")}
             </h2>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300 light:text-slate-700 sm:text-base">
+            <p className="mt-2 line-clamp-2 max-w-3xl text-xs leading-5 text-slate-300 light:text-slate-700 sm:mt-3 sm:text-base sm:leading-6">
               {experienceMode === "beginner" ? t("beginnerHeroDescription") : t("expertHeroDescription")}
             </p>
           </div>
-          <div className="rounded-lg border border-white/10 bg-slate-950/40 p-4 light:border-slate-900/10 light:bg-white/70">
+          <div className="hidden rounded-lg border border-white/10 bg-slate-950/40 p-4 light:border-slate-900/10 light:bg-white/70 sm:block">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400 light:text-slate-500">
               {t("currentExperience")}
             </p>
@@ -291,14 +296,14 @@ export default function App() {
               activeSection={activeOverviewSection}
               setActiveSection={setActiveOverviewSection}
             />
-            <section className="section-commandbar host-accent rounded-lg px-4 py-3 sm:px-5">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-trophy-300 light:text-trophy-700">
+            <section className="section-commandbar host-accent rounded-lg px-3.5 py-2.5 sm:px-5 sm:py-3">
+              <p className="text-[10px] font-bold uppercase text-trophy-300 light:text-trophy-700 sm:text-xs">
                 {t("overviewCurrentSection")}
               </p>
-              <h2 className="mt-1 text-2xl font-black text-white light:text-slate-950">
+              <h2 className="mt-0.5 text-xl font-black text-white light:text-slate-950 sm:mt-1 sm:text-2xl">
                 {t(activeOverviewMeta.titleKey)}
               </h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300 light:text-slate-700">
+              <p className="mt-1 line-clamp-1 max-w-3xl text-xs leading-5 text-slate-300 light:text-slate-700 sm:mt-2 sm:text-sm sm:leading-6">
                 {t(activeOverviewMeta.descriptionKey)}
               </p>
             </section>

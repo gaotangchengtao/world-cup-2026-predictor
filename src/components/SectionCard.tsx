@@ -56,7 +56,7 @@ export const SectionCard = ({ active = false, description, icon, onSelect, secti
 
   return (
     <button
-      className={`dashboard-card group flex h-full flex-col rounded-lg border p-4 text-left ${
+      className={`mobile-snap-card dashboard-card group flex h-full flex-col rounded-lg border p-3.5 text-left sm:p-4 ${
         active
           ? "border-trophy-500 bg-trophy-500/15 shadow-glow"
           : `border-white/10 bg-white/5 hover:bg-white/10 light:border-slate-900/10 light:bg-white ${tone.border}`
@@ -77,12 +77,12 @@ export const SectionCard = ({ active = false, description, icon, onSelect, secti
           <ArrowRight size={14} />
         </span>
       </div>
-      <h3 className="mt-4 text-lg font-black text-white light:text-slate-950">{title}</h3>
-      <p className="mt-2 min-h-[48px] text-sm leading-6 text-slate-300 light:text-slate-700">{description}</p>
-      <div className="mt-4 flex flex-wrap gap-2">
+      <h3 className="mt-3 text-lg font-black text-white light:text-slate-950 sm:mt-4">{title}</h3>
+      <p className="mt-1.5 line-clamp-2 min-h-[40px] text-sm leading-5 text-slate-300 light:text-slate-700 sm:mt-2 sm:min-h-[48px] sm:leading-6">{description}</p>
+      <div className="mt-3 flex flex-wrap gap-1.5 sm:mt-4 sm:gap-2">
         {tags.map((tag) => (
           <span
-            className={`rounded-full border px-2.5 py-1 text-xs font-semibold text-slate-300 light:text-slate-700 ${tone.tag}`}
+            className={`mobile-section-card-tag rounded-full border px-2.5 py-1 text-xs font-semibold text-slate-300 light:text-slate-700 ${tone.tag}`}
             key={tag}
           >
             {tag}
