@@ -22,7 +22,7 @@ export const TeamCompare = ({ teams, players }: TeamCompareProps) => {
   const metrics = (team?: Team) => {
     const teamPlayers = players.filter((player) => player.teamId === team?.id);
     return {
-      value: team?.squadValue ?? "N/A",
+      value: team?.squadValue ?? t("notAvailable"),
       core: teamPlayers.filter((player) => player.isKeyPlayer).length,
       starters: teamPlayers.filter((player) => player.predictedStarter).length,
     };
@@ -73,7 +73,7 @@ export const TeamCompare = ({ teams, players }: TeamCompareProps) => {
             <div className="flex items-center justify-between gap-3">
               <h3 className="flex min-w-0 items-center gap-2 text-xl font-black text-white light:text-slate-950">
                 <TeamFlag team={team} size="md" />
-                <span className="truncate">{displayTeamName(team, language) || "N/A"}</span>
+                <span className="truncate">{displayTeamName(team, language) || t("notAvailable")}</span>
               </h3>
               <span className="rounded-md bg-slate-950 px-2 py-1 text-xs font-black text-trophy-300 light:bg-slate-900">
                 #{team?.strengthRank ?? "-"}
@@ -82,7 +82,9 @@ export const TeamCompare = ({ teams, players }: TeamCompareProps) => {
             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div>
                 <dt className="text-slate-500">{t("strengthScore")}</dt>
-                <dd className="font-black text-white light:text-slate-950">{team?.strengthScore ?? "N/A"}</dd>
+                <dd className="font-black text-white light:text-slate-950">
+                  {team?.strengthScore ?? t("notAvailable")}
+                </dd>
               </div>
               <div>
                 <dt className="text-slate-500">{t("squadValue")}</dt>
@@ -99,7 +101,7 @@ export const TeamCompare = ({ teams, players }: TeamCompareProps) => {
               <div className="col-span-2">
                 <dt className="text-slate-500">{t("predictedStage")}</dt>
                 <dd className="font-black text-white light:text-slate-950">
-                  {team ? stageLabel(team.predictedStage, t) : "N/A"}
+                  {team ? stageLabel(team.predictedStage, t) : t("notAvailable")}
                 </dd>
               </div>
             </dl>

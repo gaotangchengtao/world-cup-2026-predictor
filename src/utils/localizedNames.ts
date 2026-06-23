@@ -10,13 +10,17 @@ export const displayTeamName = (team: Team | undefined, language: Language) => {
 
 export const displayPlayerName = (player: Player | undefined, language: Language) => {
   if (!player) return "";
-  if (language === "zh") return player.localizedNameZh || playerNamesZh[player.name] || player.name;
+  if (language === "zh") return playerNamesZh[player.name] || player.localizedNameZh || player.name;
   return player.name;
 };
 
-export const displayClubName = (club: string | undefined, language: Language) => {
+export const displayClubName = (
+  club: string | undefined,
+  language: Language,
+  localizedClubZh?: string,
+) => {
   if (!club) return "";
-  if (language === "zh") return clubNamesZh[club] ?? club;
+  if (language === "zh") return clubNamesZh[club] || localizedClubZh || club;
   return club;
 };
 
@@ -33,7 +37,14 @@ export const teamSearchText = (team: Team) =>
     .toLowerCase();
 
 export const playerSearchText = (player: Player) =>
-  [player.name, playerNamesZh[player.name], player.club, clubNamesZh[player.club]]
+  [
+    player.name,
+    playerNamesZh[player.name],
+    player.localizedNameZh,
+    player.club,
+    clubNamesZh[player.club],
+    player.localizedClubZh,
+  ]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();

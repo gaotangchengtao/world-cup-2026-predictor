@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { getTeamGuide } from "../data/teamGuides";
 import { useLanguage } from "../i18n";
 import type { ExperienceMode, Player, PlayerPosition, Team } from "../types/worldCup";
-import { groupPositionLabel, squadStatusLabel, stageLabel } from "../utils/format";
+import { groupPositionLabel, playerPositionLabel, squadStatusLabel, stageLabel } from "../utils/format";
 import { getBeginnerFriendlyRating, getTeamStyleTags, getTopTeamPlayers, type TeamStyleTag } from "../utils/insights";
 import {
   displayClubName,
@@ -72,6 +72,10 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
   ];
 
   const clubs = useMemo(() => ["all", ...Array.from(new Set(players.map((player) => player.club))).sort()], [players]);
+  const localizedClubByName = useMemo(
+    () => new Map(players.map((player) => [player.club, player.localizedClubZh])),
+    [players],
+  );
 
   const filteredPlayers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -249,8 +253,8 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
                 {language === "zh" ? guide.beginnerIntro : team.description ?? guide.beginnerIntro}
               </p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <Info label={t("coach")} value={displayCoachName(team.coach, language) || "TBD"} />
-                <Info label={t("formation")} value={team.formation ?? "TBD"} />
+                <Info label={t("coach")} value={displayCoachName(team.coach, language) || t("notAvailable")} />
+                <Info label={t("formation")} value={team.formation ?? t("notAvailable")} />
                 <Info label={t("predictedStage")} value={`${groupPositionLabel(team.predictedGroupPosition, t)} · ${stageLabel(team.predictedStage, t)}`} />
                 <Info label={t("squadValue")} value={team.squadValue ?? `€${totalValue.toFixed(0)}m`} />
               </div>
@@ -288,9 +292,13 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
                 onClick={() => onSelectPlayer(player)}
                 type="button"
               >
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{player.position}</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                  {playerPositionLabel(player.position, t)}
+                </p>
                 <p className="mt-2 text-lg font-black text-white light:text-slate-950">{displayPlayerName(player, language)}</p>
-                <p className="mt-1 text-sm text-slate-400 light:text-slate-600">{displayClubName(player.club, language)}</p>
+                <p className="mt-1 text-sm text-slate-400 light:text-slate-600">
+                  {displayClubName(player.club, language, player.localizedClubZh)}
+                </p>
                 <p className="mt-3 text-sm leading-6 text-slate-300 light:text-slate-700">
                   <span className="font-bold text-trophy-300 light:text-trophy-700">{t("whyWatchPlayer")}: </span>
                   {whyWatchPlayer(player)}
@@ -476,7 +484,7 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
               >
                 {positionLabels.map((item) => (
                   <option key={item} value={item}>
-                    {item === "all" ? t("allPositions") : item}
+                    {item === "all" ? t("allPositions") : playerPositionLabel(item, t)}
                   </option>
                 ))}
               </select>
@@ -487,7 +495,9 @@ export const TeamModal = ({ experienceMode, team, players, onClose, onSelectPlay
               >
                 {clubs.map((item) => (
                   <option key={item} value={item}>
-                    {item === "all" ? t("allClubs") : displayClubName(item, language)}
+                    {item === "all"
+                      ? t("allClubs")
+                      : displayClubName(item, language, localizedClubByName.get(item))}
                   </option>
                 ))}
               </select>

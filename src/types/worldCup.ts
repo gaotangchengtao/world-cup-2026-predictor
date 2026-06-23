@@ -93,6 +93,7 @@ export interface Player {
   dateOfBirth?: string;
   age?: number;
   club: string;
+  localizedClubZh?: string;
   heightCm?: number;
   internationalCaps?: number;
   internationalGoals?: number;
@@ -118,7 +119,7 @@ export interface PlayerTournamentStats {
   playerId: string;
   fifaId?: number;
   teamId: string;
-  values: Array<number | null>;
+  values: Array<number | string | null>;
 }
 
 export interface PlayerTournamentStatsSnapshot {

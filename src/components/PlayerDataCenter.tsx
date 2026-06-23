@@ -26,6 +26,7 @@ import {
   displayTeamName,
   playerSearchText,
 } from "../utils/localizedNames";
+import { playerPositionLabel } from "../utils/format";
 import { PlayerAvatar } from "./PlayerAvatar";
 import { TeamFlag } from "./TeamFlag";
 
@@ -43,6 +44,7 @@ interface Metric {
   decimals?: number;
   key: string;
   labelKey: TranslationKey;
+  scale?: number;
   source?: "market";
   suffix?: string;
 }
@@ -129,7 +131,7 @@ const categories: Category[] = [
     metrics: [
       { key: "sprints", labelKey: "statSprints" },
       { key: "speed_runs", labelKey: "statHighSpeedRuns" },
-      { key: "total_distance", labelKey: "statTotalDistance", suffix: " km", decimals: 1 },
+      { key: "total_distance", labelKey: "statTotalDistance", scale: 1000, suffix: " km", decimals: 1 },
       { key: "avg_speed", labelKey: "statAverageSpeed", suffix: " km/h", decimals: 1 },
     ],
   },
@@ -176,7 +178,7 @@ export const PlayerDataCenter = ({
           row.playerId,
           Object.fromEntries(
             statsSnapshot.metricKeys.map((key, index) => [key, row.values[index] ?? null]),
-          ) as Record<string, number | null>,
+          ) as Record<string, number | string | null>,
         ]),
       ),
     [],
@@ -195,7 +197,8 @@ export const PlayerDataCenter = ({
     if (metric.source === "market") return player.marketValueEurM;
     if (metric.key === "internationalCaps") return player.internationalCaps ?? 0;
     if (metric.key === "internationalGoals") return player.internationalGoals ?? 0;
-    return Number(statsByPlayerId.get(player.playerId)?.[metric.key] ?? 0);
+    const rawValue = Number(statsByPlayerId.get(player.playerId)?.[metric.key] ?? 0);
+    return rawValue / (metric.scale ?? 1);
   };
 
   const rows = useMemo(() => {
@@ -353,7 +356,7 @@ export const PlayerDataCenter = ({
                 onClick={() => setPosition(item)}
                 type="button"
               >
-                {item === "all" ? t("allPositions") : item}
+                {item === "all" ? t("allPositions") : playerPositionLabel(item, t)}
               </button>
             ))}
           </div>
@@ -432,7 +435,8 @@ export const PlayerDataCenter = ({
                           {displayPlayerName(player, language)}
                         </span>
                         <span className="block truncate text-[11px] text-slate-500">
-                          {displayClubName(player.club, language)} · {player.position}
+                          {displayClubName(player.club, language, player.localizedClubZh)} ·{" "}
+                          {playerPositionLabel(player.position, t)}
                         </span>
                       </span>
                       <span className="hidden min-w-0 items-center gap-2 truncate text-xs text-slate-400 sm:flex">

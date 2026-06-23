@@ -78,7 +78,7 @@ const defaultRuntimeData: RuntimeData = {
   players: defaultPlayers,
 };
 
-const CURRENT_PREDICTION_VERSION = "2026-06-23-official-squads-v3";
+const CURRENT_PREDICTION_VERSION = "2026-06-23-player-data-audit-v4";
 
 const contenderStages = new Set(["Champion", "Final", "Semi-final", "Quarter-final"]);
 const overviewSectionIds: OverviewSection[] = ["home", "groups", "knockout", "players", "beginner", "stories", "data"];

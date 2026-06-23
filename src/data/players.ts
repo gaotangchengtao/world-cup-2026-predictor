@@ -16,6 +16,7 @@ interface OfficialSquadPlayer {
   dateOfBirth: string;
   age: number;
   club: string;
+  clubZh?: string;
   heightCm?: number;
   internationalCaps?: number;
   internationalGoals?: number;
@@ -65,6 +66,7 @@ export const players: Player[] = (officialSquadSnapshot.players as OfficialSquad
     dateOfBirth: row.dateOfBirth,
     age: row.age,
     club: row.club,
+    localizedClubZh: row.clubZh,
     heightCm: row.heightCm,
     internationalCaps: row.internationalCaps,
     internationalGoals: row.internationalGoals,

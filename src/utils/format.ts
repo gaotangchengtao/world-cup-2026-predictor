@@ -1,4 +1,4 @@
-import type { PredictionStage, SquadStatus, Team } from "../types/worldCup";
+import type { PlayerPosition, PredictionStage, SquadStatus, Team } from "../types/worldCup";
 import type { TranslationKey } from "../i18n";
 
 export const stageOrder: Record<PredictionStage, number> = {
@@ -32,6 +32,13 @@ export const groupPositionLabel = (position: Team["predictedGroupPosition"], t: 
   if (position === 2) return t("groupSecond");
   if (position === 3) return t("groupThird");
   return t("groupEliminated");
+};
+
+export const playerPositionLabel = (position: PlayerPosition, t: Translator) => {
+  if (position === "GK") return t("positionGoalkeeper");
+  if (position === "DF") return t("positionDefender");
+  if (position === "MF") return t("positionMidfielder");
+  return t("positionForward");
 };
 
 export const qualityLabel = (quality: string, t: Translator) => {

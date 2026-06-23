@@ -48,7 +48,8 @@ export const PhotoAuditPanel = ({ players }: PhotoAuditPanelProps) => {
             >
               <p className="font-bold text-white light:text-slate-950">{displayPlayerName(player, language)}</p>
               <p className="text-xs text-slate-400 light:text-slate-600">
-                {displayClubName(player.club, language)} · {player.marketValue ?? "N/A"}
+                {displayClubName(player.club, language, player.localizedClubZh)} ·{" "}
+                {player.marketValue ?? t("notAvailable")}
               </p>
             </div>
           ))}
@@ -67,7 +68,8 @@ export const PhotoAuditPanel = ({ players }: PhotoAuditPanelProps) => {
             >
               <p className="font-bold text-white light:text-slate-950">{displayPlayerName(player, language)}</p>
               <p className="text-xs text-slate-400 light:text-slate-600">
-                {displayClubName(player.club, language)} · {player.marketValue ?? "N/A"}
+                {displayClubName(player.club, language, player.localizedClubZh)} ·{" "}
+                {player.marketValue ?? t("notAvailable")}
               </p>
             </div>
           ))}

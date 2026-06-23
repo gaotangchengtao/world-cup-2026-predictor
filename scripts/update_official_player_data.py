@@ -28,6 +28,11 @@ from typing import Any
 import pdfplumber
 from PIL import Image
 
+try:
+    from opencc import OpenCC
+except ImportError:
+    OpenCC = None
+
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw"
@@ -36,6 +41,8 @@ SQUAD_OUTPUT = ROOT / "src" / "data" / "officialSquads.json"
 STATS_OUTPUT = ROOT / "src" / "data" / "playerTournamentStats.json"
 RAW_STATS_OUTPUT = RAW_DIR / "fifa-player-stats-snapshot.json"
 DREAM_PLAYERS_INPUT = RAW_DIR / "fifa-dream-players.json"
+PLAYER_LOCALIZATION_CACHE = RAW_DIR / "player-name-localizations-zh.json"
+CLUB_LOCALIZATION_CACHE = RAW_DIR / "club-name-localizations-zh.json"
 PHOTO_DIR = ROOT / "public" / "assets" / "players"
 
 TOKEN_URL = "https://cxm-api.fifa.com/fifaplusweb/api/external/gameDay/token"
@@ -47,6 +54,11 @@ STATS_SOURCE_URL = (
 )
 COMPETITION_ID = "285023"
 USER_AGENT = "WorldCupPredictor/1.0 (+https://github.com/gaotangchengtao/world-cup-2026-predictor)"
+SIMPLIFY_CHINESE = OpenCC("t2s") if OpenCC else None
+
+
+def simplify_chinese(value: str) -> str:
+    return SIMPLIFY_CHINESE.convert(value) if SIMPLIFY_CHINESE else value
 
 STAT_GROUPS = (
     "gcp_top_scorer",
@@ -191,7 +203,9 @@ def fetch_stats_snapshot() -> dict[str, dict[str, Any]]:
                 for tag_name, value in tags_by_name.items():
                     marker = "urn:gd:tag:football:stats:"
                     if marker in tag_name:
-                        record["stats"][tag_name.split(marker, 1)[1]] = value
+                        stat_key = tag_name.split(marker, 1)[1]
+                        if value is not None or stat_key not in record["stats"]:
+                            record["stats"][stat_key] = value
 
             print(f"{story_type}: page {page}/{page_count}, {len(actors)} players")
             if page >= page_count:
@@ -240,7 +254,12 @@ def age_on(date_of_birth: date, on_date: date = date(2026, 6, 11)) -> int:
 
 
 def strip_club_country(club: str) -> str:
-    return re.sub(r"\s+\([A-Z]{3}\)$", "", club or "").strip()
+    repaired = (club or "").replace("AE Ki\x00sia FC", "AE Kifisia FC")
+    repaired = repaired.replace("CA Vélez Sars\x00eld", "CA Vélez Sarsfield")
+    repaired = repaired.replace("SL Ben\x00ca", "SL Benfica")
+    repaired = repaired.replace("She\x00eld United FC", "Sheffield United FC")
+    repaired = repaired.replace("FC Cincinnatti", "FC Cincinnati")
+    return re.sub(r"\s+\([A-Z]{3}\)$", "", repaired).strip()
 
 
 def display_name_from_pdf(player_name: str) -> str:
@@ -436,6 +455,125 @@ def parse_squads(stats_actors: dict[str, dict[str, Any]]) -> tuple[list[dict[str
     return squads, coaches
 
 
+def fetch_chinese_player_names(squads: list[dict[str, Any]]) -> None:
+    cached_names: dict[str, str] = {}
+    if PLAYER_LOCALIZATION_CACHE.exists():
+        cached_names = json.loads(PLAYER_LOCALIZATION_CACHE.read_text(encoding="utf-8"))
+
+    missing_names = sorted(
+        {
+            player["name"]
+            for player in squads
+            if not cached_names.get(player["name"])
+        }
+    )
+    for offset in range(0, len(missing_names), 40):
+        requested_names = missing_names[offset : offset + 40]
+        params = urllib.parse.urlencode(
+            {
+                "action": "query",
+                "format": "json",
+                "prop": "langlinks",
+                "lllang": "zh",
+                "redirects": "1",
+                "titles": "|".join(requested_names),
+            }
+        )
+        response = request_json(f"https://en.wikipedia.org/w/api.php?{params}")
+        query = response.get("query", {})
+        aliases = {
+            entry["from"]: entry["to"]
+            for group in ("normalized", "redirects")
+            for entry in query.get(group, [])
+        }
+        chinese_by_title = {
+            page.get("title", ""): simplify_chinese(page["langlinks"][0]["*"])
+            for page in query.get("pages", {}).values()
+            if page.get("langlinks")
+        }
+
+        for requested_name in requested_names:
+            resolved_name = requested_name
+            seen: set[str] = set()
+            while resolved_name in aliases and resolved_name not in seen:
+                seen.add(resolved_name)
+                resolved_name = aliases[resolved_name]
+            cached_names[requested_name] = chinese_by_title.get(resolved_name, "")
+
+        print(
+            f"Chinese names: {min(offset + 40, len(missing_names))}/{len(missing_names)} checked"
+        )
+        time.sleep(0.18)
+
+    PLAYER_LOCALIZATION_CACHE.write_text(
+        json.dumps(cached_names, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    localized_count = 0
+    for player in squads:
+        localized_name = cached_names.get(player["name"], "")
+        if localized_name:
+            player["nameZh"] = localized_name
+            localized_count += 1
+    print(f"Chinese player names available: {localized_count}/{len(squads)}")
+
+
+def fetch_chinese_club_names(squads: list[dict[str, Any]]) -> None:
+    cached_names: dict[str, str] = {}
+    if CLUB_LOCALIZATION_CACHE.exists():
+        cached_names = json.loads(CLUB_LOCALIZATION_CACHE.read_text(encoding="utf-8"))
+
+    club_names = sorted({player["club"] for player in squads})
+    missing_names = [name for name in club_names if not cached_names.get(name)]
+    for offset in range(0, len(missing_names), 40):
+        requested_names = missing_names[offset : offset + 40]
+        params = urllib.parse.urlencode(
+            {
+                "action": "query",
+                "format": "json",
+                "prop": "langlinks",
+                "lllang": "zh",
+                "redirects": "1",
+                "titles": "|".join(requested_names),
+            }
+        )
+        response = request_json(f"https://en.wikipedia.org/w/api.php?{params}")
+        query = response.get("query", {})
+        aliases = {
+            entry["from"]: entry["to"]
+            for group in ("normalized", "redirects")
+            for entry in query.get(group, [])
+        }
+        chinese_by_title = {
+            page.get("title", ""): simplify_chinese(page["langlinks"][0]["*"])
+            for page in query.get("pages", {}).values()
+            if page.get("langlinks")
+        }
+        for requested_name in requested_names:
+            resolved_name = requested_name
+            seen: set[str] = set()
+            while resolved_name in aliases and resolved_name not in seen:
+                seen.add(resolved_name)
+                resolved_name = aliases[resolved_name]
+            cached_names[requested_name] = chinese_by_title.get(resolved_name, "")
+        print(
+            f"Chinese clubs: {min(offset + 40, len(missing_names))}/{len(missing_names)} checked"
+        )
+        time.sleep(0.18)
+
+    CLUB_LOCALIZATION_CACHE.write_text(
+        json.dumps(cached_names, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    localized_count = 0
+    for player in squads:
+        localized_name = cached_names.get(player["club"], "")
+        if localized_name:
+            player["clubZh"] = localized_name
+            localized_count += 1
+    print(f"Chinese club names available: {localized_count}/{len(squads)} players")
+
+
 def download_photo(player: dict[str, Any], overwrite: bool) -> tuple[str, bool, str]:
     fifa_id = player.get("fifaId")
     original_url = player.get("photoOriginalUrl")
@@ -558,6 +696,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-stats-fetch", action="store_true", help="Use the cached raw stats snapshot.")
     parser.add_argument("--skip-photos", action="store_true", help="Do not download player photos.")
+    parser.add_argument("--skip-localizations", action="store_true", help="Do not refresh Chinese player names.")
     parser.add_argument("--overwrite-photos", action="store_true", help="Redownload existing photo files.")
     args = parser.parse_args()
 
@@ -588,11 +727,16 @@ def main() -> None:
                     for tag_name, value in tags.items():
                         marker = "urn:gd:tag:football:stats:"
                         if marker in tag_name:
-                            record["stats"][tag_name.split(marker, 1)[1]] = value
+                            stat_key = tag_name.split(marker, 1)[1]
+                            if value is not None or stat_key not in record["stats"]:
+                                record["stats"][stat_key] = value
     else:
         actors = fetch_stats_snapshot()
 
     squads, coaches = parse_squads(actors)
+    if not args.skip_localizations:
+        fetch_chinese_player_names(squads)
+        fetch_chinese_club_names(squads)
     if args.skip_photos:
         available_photos = {
             player["playerId"]

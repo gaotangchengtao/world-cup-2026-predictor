@@ -2,7 +2,7 @@ import { ExternalLink, Star, X } from "lucide-react";
 import { useLanguage } from "../i18n";
 import playerStatsJson from "../data/playerTournamentStats.json";
 import type { Player, PlayerTournamentStatsSnapshot, Team } from "../types/worldCup";
-import { qualityLabel, squadStatusLabel } from "../utils/format";
+import { playerPositionLabel, qualityLabel, squadStatusLabel } from "../utils/format";
 import { displayClubName, displayPlayerName, displayTeamName } from "../utils/localizedNames";
 import { photoSourceLabel } from "../utils/photos";
 import { DataQualityBadge } from "./DataQualityBadge";
@@ -20,15 +20,26 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
   const { language, t } = useLanguage();
   const playerName = displayPlayerName(player, language);
   const teamName = displayTeamName(team, language);
-  const clubName = displayClubName(player.club, language);
+  const clubName = displayClubName(player.club, language, player.localizedClubZh);
   const photoSource = player.photoSource;
   const statsSnapshot = playerStatsJson as PlayerTournamentStatsSnapshot;
   const tournamentStatRow = statsSnapshot.players.find((row) => row.playerId === player.playerId);
   const tournamentStats = tournamentStatRow
     ? (Object.fromEntries(
         statsSnapshot.metricKeys.map((key, index) => [key, tournamentStatRow.values[index] ?? null]),
-      ) as Record<string, number | null>)
+      ) as Record<string, number | string | null>)
     : undefined;
+  const fixedStats = [
+    { key: "goals", label: t("statGoals") },
+    { key: "assists", label: t("statAssists") },
+    { key: "total_competition_minutes_played", label: t("statMinutes") },
+  ].map((stat) => {
+    const value = tournamentStats?.[stat.key];
+    return {
+      ...stat,
+      value: value === null || value === undefined || value === "" ? "--" : String(value),
+    };
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
@@ -48,7 +59,8 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
               <p className="mt-1 flex items-center gap-2 text-sm text-slate-400 light:text-slate-600">
                 <TeamFlag team={team} size="sm" />
                 <span>
-                  {teamName || "N/A"} · {player.position} · #{player.shirtNumber ?? "TBD"}
+                  {teamName || t("notAvailable")} · {playerPositionLabel(player.position, t)} · #
+                  {player.shirtNumber ?? t("notAvailable")}
                 </span>
               </p>
             </div>
@@ -69,17 +81,16 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
               {t("currentTournamentStats")}
             </p>
             <div className="mt-3 grid grid-cols-3 gap-2">
-              {[
-                [t("statGoals"), tournamentStats?.goals ?? 0],
-                [t("statAssists"), tournamentStats?.assists ?? 0],
-                [t("statMinutes"), tournamentStats?.total_competition_minutes_played ?? 0],
-              ].map(([label, value]) => (
-                <div className="rounded-md bg-slate-950/25 p-2.5 text-center light:bg-white/70" key={label}>
-                  <p className="text-xl font-black text-white light:text-slate-950">{value}</p>
-                  <p className="mt-1 text-[10px] text-slate-400 light:text-slate-600">{label}</p>
+              {fixedStats.map((stat) => (
+                <div className="rounded-md bg-slate-950/25 p-2.5 text-center light:bg-white/70" key={stat.key}>
+                  <p className="text-xl font-black text-white light:text-slate-950">{stat.value}</p>
+                  <p className="mt-1 text-[10px] text-slate-400 light:text-slate-600">{stat.label}</p>
                 </div>
               ))}
             </div>
+            <p className="mt-3 text-[11px] leading-5 text-slate-400 light:text-slate-600">
+              {t("statsZeroNote")}
+            </p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
             <p className="text-xs uppercase text-slate-500">{t("club")}</p>
@@ -88,7 +99,7 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
           <div className="rounded-lg border border-trophy-500/30 bg-trophy-500/10 p-4">
             <p className="text-xs uppercase text-trophy-300 light:text-trophy-700">{t("marketValue")}</p>
             <p className="mt-1 text-xl font-black text-trophy-200 light:text-trophy-800">
-              {player.marketValue ?? "N/A"}
+              {player.marketValue ?? t("notAvailable")}
             </p>
             <div className="mt-2">
               <PlayerStatusBadges
@@ -122,8 +133,8 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
             <p className="text-xs uppercase text-slate-500">{t("internationalRecord")}</p>
             <p className="mt-1 font-bold text-white light:text-slate-950">
-              {player.internationalCaps ?? 0} {t("internationalCaps")} · {player.internationalGoals ?? 0}{" "}
-              {t("internationalGoals")}
+              {player.internationalCaps ?? t("notAvailable")} {t("internationalCaps")} ·{" "}
+              {player.internationalGoals ?? t("notAvailable")} {t("internationalGoals")}
             </p>
             <p className="mt-1 text-xs text-slate-400 light:text-slate-600">
               {t("playerHeight")}: {player.heightCm ? `${player.heightCm} cm` : t("notAvailable")}
@@ -132,7 +143,7 @@ export const PlayerModal = ({ player, team, onClose }: PlayerModalProps) => {
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 light:border-slate-900/10 light:bg-slate-50">
             <p className="text-xs uppercase text-slate-500">{t("data")}</p>
             <p className="mt-1 font-bold text-white light:text-slate-950">
-              {qualityLabel(player.dataQuality, t)} · {player.lastUpdated ?? "N/A"}
+              {qualityLabel(player.dataQuality, t)} · {player.lastUpdated ?? t("notAvailable")}
             </p>
             <div className="mt-2">
               <DataQualityBadge quality={player.dataQuality} />

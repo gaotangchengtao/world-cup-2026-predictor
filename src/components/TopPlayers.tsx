@@ -47,7 +47,7 @@ export const TopPlayers = ({ players, teams, onSelectPlayer }: TopPlayersProps) 
                   <span className="truncate">{displayPlayerName(player, language)}</span>
                 </p>
                 <p className="truncate text-xs text-slate-400 light:text-slate-600">
-                  {displayClubName(player.club, language)}
+                  {displayClubName(player.club, language, player.localizedClubZh)}
                 </p>
                 <div className="mt-1">
                   <PlayerStatusBadges
@@ -59,7 +59,7 @@ export const TopPlayers = ({ players, teams, onSelectPlayer }: TopPlayersProps) 
               </div>
               {player.isKeyPlayer && <Star className="fill-trophy-500 text-trophy-500" size={14} />}
               <span className="shrink-0 text-xs font-black text-trophy-300 light:text-trophy-700 sm:text-sm">
-                {player.marketValue ?? "N/A"}
+                {player.marketValue ?? t("notAvailable")}
               </span>
             </button>
           );

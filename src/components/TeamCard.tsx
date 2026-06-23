@@ -85,10 +85,14 @@ export const TeamCard = ({ team, onSelect, compact = false, experienceMode = "ex
             <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-300 light:text-slate-600">
               <span className="inline-flex items-center gap-1">
                 <Shield size={14} />
-                {team.formation ?? "TBD"}
+                {team.formation ?? t("notAvailable")}
               </span>
-              <span className="font-semibold text-trophy-300 light:text-trophy-700">{team.squadValue ?? "N/A"}</span>
-              <span className="truncate">{displayCoachName(team.coach, language) || `${t("coach")} TBD`}</span>
+              <span className="font-semibold text-trophy-300 light:text-trophy-700">
+                {team.squadValue ?? t("notAvailable")}
+              </span>
+              <span className="truncate">
+                {displayCoachName(team.coach, language) || `${t("coach")} ${t("notAvailable")}`}
+              </span>
               <span>{t("mlStrengthScore")}: {modelProfile.mlStrengthScore}</span>
             </div>
           )}

@@ -170,12 +170,12 @@ export const OverviewHome = ({
                       <span className="truncate">{displayPlayerName(player, language)}</span>
                     </p>
                     <p className="truncate text-xs text-slate-400 light:text-slate-600">
-                      {displayClubName(player.club, language)}
+                      {displayClubName(player.club, language, player.localizedClubZh)}
                     </p>
                   </div>
                   {experienceMode === "expert" && (
                     <span className="text-sm font-black text-trophy-300 light:text-trophy-700">
-                      {player.marketValue ?? "N/A"}
+                      {player.marketValue ?? t("notAvailable")}
                     </span>
                   )}
                 </button>
@@ -249,7 +249,9 @@ export const OverviewHome = ({
             <CalendarClock className="text-trophy-300" size={20} />
             <h2 className="text-lg font-black text-white light:text-slate-950">{t("overviewDataUpdated")}</h2>
           </div>
-          <p className="mt-3 text-3xl font-black text-white light:text-slate-950">{dataUpdated ?? "N/A"}</p>
+          <p className="mt-3 text-3xl font-black text-white light:text-slate-950">
+            {dataUpdated ?? t("notAvailable")}
+          </p>
           <p className="mt-2 text-sm leading-6 text-slate-300 light:text-slate-700">{t("finalSquadUpdateNote")}</p>
         </article>
         <article className="min-w-0 glass-panel rounded-lg p-3.5 sm:p-4">

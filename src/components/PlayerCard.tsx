@@ -1,7 +1,7 @@
 import { Star } from "lucide-react";
 import { useLanguage } from "../i18n";
 import type { Player } from "../types/worldCup";
-import { squadStatusLabel } from "../utils/format";
+import { playerPositionLabel, squadStatusLabel } from "../utils/format";
 import { displayClubName, displayPlayerName } from "../utils/localizedNames";
 import { photoSourceLabel } from "../utils/photos";
 import { PlayerAvatar } from "./PlayerAvatar";
@@ -15,8 +15,8 @@ interface PlayerCardProps {
 export const PlayerCard = ({ player, onSelect }: PlayerCardProps) => {
   const { language, t } = useLanguage();
   const playerName = displayPlayerName(player, language);
-  const clubName = displayClubName(player.club, language);
-  const photoSource = player.photoSource === "placeholder" ? "wikimedia" : player.photoSource;
+  const clubName = displayClubName(player.club, language, player.localizedClubZh);
+  const photoSource = player.photoSource;
   const photoTitle = `${t("photoSource")}: ${photoSourceLabel(photoSource, t)}. ${t("photoAutoLookupNote")}`;
 
   return (
@@ -37,11 +37,14 @@ export const PlayerCard = ({ player, onSelect }: PlayerCardProps) => {
           {player.isKeyPlayer && <Star className="shrink-0 fill-trophy-500 text-trophy-500" size={14} />}
         </div>
         <p className="truncate text-xs text-slate-400 light:text-slate-600">
-          {player.position} · {clubName} · {player.age ?? "TBD"}
+          {playerPositionLabel(player.position, t)} · {clubName || t("notAvailable")} ·{" "}
+          {player.age ?? t("notAvailable")}
         </p>
       </div>
       <div className="text-right">
-        <p className="text-sm font-black text-trophy-300 light:text-trophy-700">{player.marketValue ?? "N/A"}</p>
+        <p className="text-sm font-black text-trophy-300 light:text-trophy-700">
+          {player.marketValue ?? t("notAvailable")}
+        </p>
         <p className="text-[11px] font-bold text-sky-300 light:text-sky-700">
           {squadStatusLabel(player.squadStatus, t)}
         </p>
