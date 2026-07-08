@@ -2,7 +2,7 @@ import { AlertTriangle, LineChart, Trophy } from "lucide-react";
 import type { ReactNode } from "react";
 import { useLanguage } from "../i18n";
 import type { BracketPredictionState, Player, Team } from "../types/worldCup";
-import { getModelChampionContenders, getModelConfidenceLeaders, getUpsetWatchMatchups } from "../utils/modelPredictions";
+import { getBracketChampionProbabilities, getModelConfidenceLeaders, getUpsetWatchMatchups } from "../utils/modelPredictions";
 import { displayTeamName } from "../utils/localizedNames";
 import { TeamFlag } from "./TeamFlag";
 
@@ -15,7 +15,7 @@ interface ModelInsightsPanelProps {
 
 export const ModelInsightsPanel = ({ bracketState, onSelectTeam, players, teams }: ModelInsightsPanelProps) => {
   const { language, t } = useLanguage();
-  const contenders = getModelChampionContenders(teams, players, 5);
+  const contenders = getBracketChampionProbabilities(teams, players, bracketState, 5);
   const confidenceLeaders = getModelConfidenceLeaders(teams, players, 5);
   const upsetRows = getUpsetWatchMatchups(teams, players, bracketState, 5);
 
@@ -24,7 +24,7 @@ export const ModelInsightsPanel = ({ bracketState, onSelectTeam, players, teams 
       <article className="mobile-snap-card glass-panel rounded-lg p-3.5 sm:p-4">
         <PanelTitle icon={<Trophy size={20} />} title={t("mlChampionHotlist")} />
         <div className="mt-4 grid gap-2">
-          {contenders.map(({ team, profile }, index) => (
+          {contenders.map(({ team, profile, championshipProbability }, index) => (
             <button
               className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3 text-left transition hover:border-trophy-500 light:border-slate-900/10 light:bg-white"
               key={team.id}
@@ -36,7 +36,12 @@ export const ModelInsightsPanel = ({ bracketState, onSelectTeam, players, teams 
               <span className="min-w-0 flex-1 truncate text-sm font-bold text-white light:text-slate-950">
                 {displayTeamName(team, language)}
               </span>
-              <span className="text-sm font-black text-trophy-300 light:text-trophy-700">{profile.mlStrengthScore}</span>
+              <span className="text-sm font-black text-trophy-300 light:text-trophy-700">
+                {Math.round(championshipProbability * 100)}%
+              </span>
+              <span className="hidden text-xs font-black text-slate-400 light:text-slate-600 sm:inline">
+                {profile.mlStrengthScore}
+              </span>
             </button>
           ))}
         </div>

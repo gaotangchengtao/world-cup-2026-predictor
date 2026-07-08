@@ -2,6 +2,111 @@ import type { OffFieldStory } from "../types/worldCup";
 
 export const offFieldStories: OffFieldStory[] = [
   {
+    id: "quarterfinal-bracket-complete-july8",
+    title: {
+      zh: "世界杯 1/4 决赛完整对阵出炉",
+      en: "World Cup quarterfinal bracket is now complete",
+    },
+    summary: {
+      zh: "截至 2026-07-08 的公开赛程快照，1/4 决赛为法国 vs 摩洛哥、西班牙 vs 比利时、挪威 vs 英格兰、阿根廷 vs 瑞士。",
+      en: "As of the July 8 public schedule snapshot, the quarterfinals are France vs Morocco, Spain vs Belgium, Norway vs England, and Argentina vs Switzerland.",
+    },
+    whyItMatters: {
+      zh: "淘汰赛路径会直接改变夺冠概率：强队纸面实力再高，只要已经出局，就不应继续占据冠军热门位置。",
+      en: "The bracket path directly changes title odds: eliminated teams should no longer remain in the champion shortlist just because their paper strength is high.",
+    },
+    source: "FOX Sports / FIFA",
+    publishedAt: "2026-07-08",
+    url: "https://www.foxsports.com/stories/soccer/world-cup-bracket-live-quarterfinals-update-standings",
+    category: "matchday",
+    attentionScore: 100,
+    reliability: "reported",
+  },
+  {
+    id: "balogun-red-card-governance-story",
+    title: {
+      zh: "Balogun 红牌改判争议成为美国出局前后的焦点",
+      en: "Balogun red-card reversal becomes a major governance talking point",
+    },
+    summary: {
+      zh: "Guardian 直播报道将 Balogun 停赛改判、美国对 Belgium 的 1-4 出局和赛场外治理争议放在同一条叙事线上。即使球员可以出战，美国仍未能守住淘汰赛强度。",
+      en: "The Guardian live coverage tied the Balogun suspension reversal, the USA's 4-1 defeat to Belgium, and wider governance debate into one of the tournament's loudest off-field stories.",
+    },
+    whyItMatters: {
+      zh: "这类争议会影响球队舆论压力、对手情绪和赛事公信力，也提醒模型不能只看阵容身价。",
+      en: "This kind of controversy can affect pressure, opponent emotion, and trust in tournament governance, reminding the model not to rely only on squad value.",
+    },
+    source: "The Guardian",
+    publishedAt: "2026-07-06",
+    url: "https://www.theguardian.com/football/live/2026/jul/06/world-cup-2026-england-set-up-norway-quarter-final-after-mexico-thriller-trump-lobbied-for-balogun-red-card-reversal-live",
+    category: "governance",
+    attentionScore: 96,
+    reliability: "developing",
+  },
+  {
+    id: "neymar-brazil-exit-international-retirement",
+    title: {
+      zh: "Brazil 出局后，Neymar 结束国家队生涯成为焦点",
+      en: "Neymar's Brazil farewell becomes a major post-exit storyline",
+    },
+    summary: {
+      zh: "Norway 淘汰 Brazil 后，外媒直播持续跟进 Neymar 的国家队告别话题。对 Brazil 来说，这不仅是一次出局，也可能是一个时代的正式转折。",
+      en: "After Norway eliminated Brazil, live coverage continued to track Neymar's national-team farewell, turning the result into a wider generational turning point for Brazil.",
+    },
+    whyItMatters: {
+      zh: "Brazil 的未来阵容、核心更替和战术重建会影响后续数据维护，也会改变球迷理解这支球队的入口。",
+      en: "Brazil's future squad planning, leadership transition, and tactical rebuild now matter for later data updates and fan-facing team context.",
+    },
+    source: "The Guardian",
+    publishedAt: "2026-07-06",
+    url: "https://www.theguardian.com/football/live/2026/jul/06/world-cup-2026-england-set-up-norway-quarter-final-after-mexico-thriller-trump-lobbied-for-balogun-red-card-reversal-live",
+    category: "matchday",
+    attentionScore: 95,
+    reliability: "reported",
+  },
+  {
+    id: "argentina-egypt-comeback-july8",
+    title: {
+      zh: "阿根廷 3-2 逆转埃及，晋级对阵瑞士",
+      en: "Argentina rally past Egypt 3-2 to set up Switzerland quarterfinal",
+    },
+    summary: {
+      zh: "美联社与 FOX 报道，埃及一度 2-1 领先，但阿根廷完成逆转，以 3-2 晋级 1/4 决赛，将面对点球淘汰哥伦比亚的瑞士。",
+      en: "AP and FOX reported that Egypt led 2-1 before Argentina completed a 3-2 comeback to reach the quarterfinals against Switzerland.",
+    },
+    whyItMatters: {
+      zh: "这场球提升了阿根廷的淘汰赛韧性信号，但也提醒模型继续关注防守控制和领先/落后时的比赛管理。",
+      en: "The comeback strengthens Argentina's resilience signal, but it also keeps defensive control and game-state management in the model spotlight.",
+    },
+    source: "AP News / FOX Sports",
+    publishedAt: "2026-07-08",
+    url: "https://apnews.com/article/argentina-egypt-world-cup-messi-salah-44bd3074cde43fdb3b775757e0625976",
+    category: "matchday",
+    attentionScore: 98,
+    reliability: "reported",
+  },
+  {
+    id: "switzerland-colombia-penalties-july8",
+    title: {
+      zh: "瑞士点球淘汰哥伦比亚，补齐最后一个八强席位",
+      en: "Switzerland beat Colombia on penalties to take final quarterfinal place",
+    },
+    summary: {
+      zh: "FOX 报道，瑞士与哥伦比亚 0-0 战平后进入点球大战，瑞士以 4-3 胜出，将在 1/4 决赛面对阿根廷。",
+      en: "FOX reported that Switzerland and Colombia drew 0-0 before Switzerland advanced 4-3 in the penalty shootout to face Argentina.",
+    },
+    whyItMatters: {
+      zh: "瑞士的防守结构和点球抗压能力会提高其淘汰赛下限，也让阿根廷的晋级路径不再只是纸面强弱对比。",
+      en: "Switzerland's defensive structure and penalty composure raise its knockout floor and make Argentina's route less straightforward.",
+    },
+    source: "FOX Sports",
+    publishedAt: "2026-07-08",
+    url: "https://www.foxsports.com/stories/soccer/world-cup-2026-switzerland-beats-colombia-penalty-shootout-advance-quarterfinals",
+    category: "matchday",
+    attentionScore: 94,
+    reliability: "reported",
+  },
+  {
     id: "france-iraq-weather-delay",
     title: {
       zh: "雷暴让法国对伊拉克的中场休息延长至两小时以上",

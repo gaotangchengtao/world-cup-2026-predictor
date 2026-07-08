@@ -162,6 +162,91 @@ export const getModelConfidenceLeaders = (teams: Team[], players: Player[], limi
     .sort((a, b) => b.profile.confidenceScore - a.profile.confidenceScore)
     .slice(0, limit);
 
+type ProbabilityMap = Record<string, number>;
+
+const addProbability = (target: ProbabilityMap, teamId: string, value: number) => {
+  target[teamId] = (target[teamId] ?? 0) + value;
+};
+
+const roundProbability = (value: number) => Math.round(value * 1000) / 1000;
+
+export const getBracketChampionProbabilities = (
+  teams: Team[],
+  players: Player[],
+  bracketState: BracketPredictionState,
+  limit = 5,
+) => {
+  const matches = flattenMatches();
+  const distributions = new Map<string, ProbabilityMap>();
+
+  for (const match of matches) {
+    const feederA = matches.find((candidate) => candidate.nextMatchId === match.id && candidate.nextSlot === "slotA");
+    const feederB = matches.find((candidate) => candidate.nextMatchId === match.id && candidate.nextSlot === "slotB");
+    const state = bracketState[match.id] ?? {};
+    const distributionA = feederA
+      ? distributions.get(feederA.id) ?? {}
+      : state.slotA
+        ? { [state.slotA]: 1 }
+        : match.slotA.teamId
+          ? { [match.slotA.teamId]: 1 }
+          : {};
+    const distributionB = feederB
+      ? distributions.get(feederB.id) ?? {}
+      : state.slotB
+        ? { [state.slotB]: 1 }
+        : match.slotB.teamId
+          ? { [match.slotB.teamId]: 1 }
+          : {};
+    const resolvedWinner = match.actualWinnerTeamId ?? undefined;
+
+    if (
+      resolvedWinner &&
+      ((distributionA[resolvedWinner] ?? 0) > 0 || (distributionB[resolvedWinner] ?? 0) > 0)
+    ) {
+      distributions.set(match.id, { [resolvedWinner]: 1 });
+      continue;
+    }
+
+    const output: ProbabilityMap = {};
+    for (const [teamAId, teamAPathProbability] of Object.entries(distributionA)) {
+      for (const [teamBId, teamBPathProbability] of Object.entries(distributionB)) {
+        const matchupPathProbability = teamAPathProbability * teamBPathProbability;
+        if (!matchupPathProbability) continue;
+        if (teamAId === teamBId) {
+          addProbability(output, teamAId, matchupPathProbability);
+          continue;
+        }
+
+        const teamA = teams.find((team) => team.id === teamAId);
+        const teamB = teams.find((team) => team.id === teamBId);
+        const prediction = getMatchupPrediction(teamA, teamB, players);
+        if (!prediction) continue;
+
+        addProbability(output, teamAId, matchupPathProbability * prediction.teamAAdvanceProbability);
+        addProbability(output, teamBId, matchupPathProbability * prediction.teamBAdvanceProbability);
+      }
+    }
+
+    distributions.set(match.id, output);
+  }
+
+  const finalDistribution = distributions.get("final-1") ?? {};
+
+  return Object.entries(finalDistribution)
+    .map(([teamId, probability]) => {
+      const team = teams.find((item) => item.id === teamId);
+      if (!team) return null;
+      return {
+        team,
+        profile: getModelProfile(team, players),
+        championshipProbability: roundProbability(probability),
+      };
+    })
+    .filter((row): row is NonNullable<typeof row> => Boolean(row))
+    .sort((a, b) => b.championshipProbability - a.championshipProbability || b.profile.mlStrengthScore - a.profile.mlStrengthScore)
+    .slice(0, limit);
+};
+
 export const getUpsetWatchMatchups = (
   teams: Team[],
   players: Player[],

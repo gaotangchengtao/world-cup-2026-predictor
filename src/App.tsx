@@ -57,6 +57,9 @@ const PosterExportPanel = lazy(() =>
 const RegionOverview = lazy(() =>
   import("./components/RegionOverview").then((module) => ({ default: module.RegionOverview })),
 );
+const ScheduleSnapshotPanel = lazy(() =>
+  import("./components/ScheduleSnapshotPanel").then((module) => ({ default: module.ScheduleSnapshotPanel })),
+);
 const TeamCompare = lazy(() => import("./components/TeamCompare").then((module) => ({ default: module.TeamCompare })));
 const TeamModal = lazy(() => import("./components/TeamModal").then((module) => ({ default: module.TeamModal })));
 const WatchGuidePanel = lazy(() =>
@@ -78,7 +81,7 @@ const defaultRuntimeData: RuntimeData = {
   players: defaultPlayers,
 };
 
-const CURRENT_PREDICTION_VERSION = "2026-06-23-player-data-audit-v4";
+const CURRENT_PREDICTION_VERSION = "2026-07-08-full-quarterfinal-model-v1";
 
 const contenderStages = new Set(["Champion", "Final", "Semi-final", "Quarter-final"]);
 const overviewSectionIds: OverviewSection[] = ["home", "groups", "knockout", "players", "beginner", "stories", "data"];
@@ -354,6 +357,7 @@ export default function App() {
             {activeOverviewSection === "knockout" && (
               <>
                 <PredictionSummary teams={runtimeData.teams} players={runtimeData.players} bracketState={bracketState} />
+                <ScheduleSnapshotPanel teams={runtimeData.teams} />
                 <BracketView
                   bracketState={bracketState}
                   players={runtimeData.players}

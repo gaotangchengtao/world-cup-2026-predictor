@@ -185,6 +185,7 @@ export interface BracketMatch {
   slotB: BracketSlot;
   nextMatchId?: string;
   nextSlot?: "slotA" | "slotB";
+  actualWinnerTeamId?: string;
 }
 
 export interface BracketRound {
@@ -252,6 +253,27 @@ export interface PredictionModelMeta {
   dataSources: string[];
   validationAccuracy: number | null;
   notes: string;
+}
+
+export type FixtureStatus = "completed" | "scheduled" | "projected";
+
+export interface TournamentFixture {
+  id: string;
+  matchNumber: number;
+  round: string;
+  date: string;
+  venue: string;
+  city: string;
+  status: FixtureStatus;
+  teamAId?: string;
+  teamBId?: string;
+  teamALabel?: Record<"zh" | "en", string>;
+  teamBLabel?: Record<"zh" | "en", string>;
+  teamAScore?: number;
+  teamBScore?: number;
+  penaltyScore?: string;
+  winnerTeamId?: string;
+  sourceUrls: string[];
 }
 
 export type OverviewSection = "home" | "groups" | "knockout" | "players" | "beginner" | "stories" | "data";

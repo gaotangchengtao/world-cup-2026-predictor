@@ -49,6 +49,8 @@ export const completeBracketState = (
     const current = completed[match.id] ?? {};
     const winnerTeamId = isWinnerInMatch(current.winnerTeamId, current.slotA, current.slotB)
       ? current.winnerTeamId
+      : isWinnerInMatch(match.actualWinnerTeamId, current.slotA, current.slotB)
+        ? match.actualWinnerTeamId
       : pickWinner(current.slotA, current.slotB, teams);
 
     completed[match.id] = {

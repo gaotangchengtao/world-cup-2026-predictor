@@ -20,6 +20,8 @@ export const OffFieldStoriesPanel = () => {
   const { language, t } = useLanguage();
   const sortedStories = [...offFieldStories].sort((a, b) => b.attentionScore - a.attentionScore);
   const topStory = sortedStories[0];
+  const publishedDates = [...offFieldStories].map((story) => story.publishedAt).sort();
+  const latestPublishedAt = publishedDates[publishedDates.length - 1];
 
   return (
     <section className="space-y-4">
@@ -34,7 +36,7 @@ export const OffFieldStoriesPanel = () => {
               {t("offFieldDescription")}
             </p>
             <p className="mt-3 text-xs font-bold text-slate-400 light:text-slate-600">
-              {t("newsUpdatedAt")}: 2026-06-23
+              {t("newsUpdatedAt")}: {latestPublishedAt ?? t("notAvailable")}
             </p>
           </div>
           <div className="hidden rounded-lg border border-white/10 bg-slate-950/35 p-3 light:border-slate-900/10 light:bg-white/70 sm:block">
