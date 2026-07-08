@@ -1,7 +1,7 @@
 import type { ModelPredictionProfile, PredictionModelMeta } from "../types/worldCup";
 
 export const predictionModelMeta: PredictionModelMeta = {
-  "modelName": "Current-State Hybrid (HistGradientBoostingClassifier)",
+  "modelName": "Current-State Hybrid (Soft Voting Ensemble (RF + HGB))",
   "trainedAt": "2026-07-08T10:00:00+08:00",
   "trainingDataCutoff": "2026-07-08",
   "dataSources": [
@@ -10,12 +10,13 @@ export const predictionModelMeta: PredictionModelMeta = {
     "Frozen pre-tournament team signals (committed)",
     "Recency-weighted international match history",
     "Current World Cup results through the stated cutoff",
+    "Expanded Elo, form-window, opponent-strength, experience, and match-type features",
     "Manually maintained squad availability and tactical context",
     "Projected current-squad structure and role fields",
     "Current public squad-value snapshot and frozen strength fields"
   ],
-  "validationAccuracy": 0.5778,
-  "notes": "Classifier trained on 49215 historical matches with exponential time decay and final-tournament matches weighted highest. Profiles blend current tournament evidence, availability, tactical fit, cohesion, and coach adaptability. Baseline accuracy: 0.421; selected accuracy: 0.578. Context scores are analyst estimates and should be refreshed as news changes."
+  "validationAccuracy": 0.5925,
+  "notes": "Classifier trained on 49215 historical matches with exponential time decay and final-tournament matches weighted highest. The match model now uses 25 features, including multiple recent-form windows, Elo level and expected score, opponent strength, team experience, match type, and recency weight. Candidate validation scores: Logistic Regression Baseline: 0.434, HistGradientBoostingClassifier: 0.588, RandomForestClassifier: 0.589, Soft Voting Ensemble (RF + HGB): 0.593. Profiles blend current tournament evidence, availability, tactical fit, cohesion, and coach adaptability. Baseline accuracy: 0.434; selected accuracy: 0.593. Context scores are analyst estimates and should be refreshed as news changes."
 };
 
 export const modelPredictionProfiles: ModelPredictionProfile[] = [

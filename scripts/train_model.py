@@ -142,8 +142,24 @@ def update_elo(elo_a: float, elo_b: float, result_a: float, weight: float) -> tu
     return elo_a + delta, elo_b - delta
 
 
-def append_result(home, away, home_score, away_score, weight, elo, recent_points,
-                  recent_goal_diff, recent_goals_for, recent_goals_against) -> None:
+def append_result(
+    home,
+    away,
+    home_score,
+    away_score,
+    weight,
+    elo,
+    recent_points,
+    recent_goal_diff,
+    recent_goals_for,
+    recent_goals_against,
+    recent_points_5=None,
+    recent_points_20=None,
+    recent_goal_diff_5=None,
+    recent_goal_diff_20=None,
+    recent_opponent_elo=None,
+    team_match_counts=None,
+) -> None:
     home_points = 3 if home_score > away_score else 1 if home_score == away_score else 0
     away_points = 3 if away_score > home_score else 1 if home_score == away_score else 0
     result_home = 1.0 if home_score > away_score else 0.5 if home_score == away_score else 0.0
@@ -156,6 +172,24 @@ def append_result(home, away, home_score, away_score, weight, elo, recent_points
     recent_goals_for[away].append(away_score)
     recent_goals_against[home].append(away_score)
     recent_goals_against[away].append(home_score)
+    if recent_points_5 is not None:
+        recent_points_5[home].append(home_points)
+        recent_points_5[away].append(away_points)
+    if recent_points_20 is not None:
+        recent_points_20[home].append(home_points)
+        recent_points_20[away].append(away_points)
+    if recent_goal_diff_5 is not None:
+        recent_goal_diff_5[home].append(home_score - away_score)
+        recent_goal_diff_5[away].append(away_score - home_score)
+    if recent_goal_diff_20 is not None:
+        recent_goal_diff_20[home].append(home_score - away_score)
+        recent_goal_diff_20[away].append(away_score - home_score)
+    if recent_opponent_elo is not None:
+        recent_opponent_elo[home].append(elo[away])
+        recent_opponent_elo[away].append(elo[home])
+    if team_match_counts is not None:
+        team_match_counts[home] += 1
+        team_match_counts[away] += 1
 
 
 def merged_team_context(current_state: dict, team_id: str) -> dict:
@@ -217,7 +251,7 @@ def main() -> int:
     try:
         import joblib
         import pandas as pd
-        from sklearn.ensemble import HistGradientBoostingClassifier
+        from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier, VotingClassifier
         from sklearn.linear_model import LogisticRegression
         from sklearn.metrics import accuracy_score
         from sklearn.model_selection import train_test_split
@@ -272,10 +306,16 @@ def main() -> int:
 
     reference_date = pd.Timestamp(current_state.get("competitionDateCutoff", results["date"].max()))
     elo = defaultdict(lambda: 1500.0)
+    team_match_counts: dict[str, int] = defaultdict(int)
+    recent_points_5: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=5))
     recent_points: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
+    recent_points_20: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=20))
+    recent_goal_diff_5: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=5))
     recent_goal_diff: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
+    recent_goal_diff_20: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=20))
     recent_goals_for: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
     recent_goals_against: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
+    recent_opponent_elo: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
     features: list[list[float]] = []
     labels: list[int] = []
     sample_weights: list[float] = []
@@ -287,10 +327,15 @@ def main() -> int:
         away_score = int(row.away_score)
         neutral = 1 if bool(row.neutral) else 0
         competition_weight = tournament_weight(str(row.tournament))
+        tournament_name = str(row.tournament)
+        tournament_lower = tournament_name.lower()
+        elo_home = elo[home]
+        elo_away = elo[away]
+        elo_gap = elo_home - elo_away
         weight = competition_weight * recency_weight(row.date, reference_date)
         features.append(
             [
-                elo[home] - elo[away],
+                elo_gap,
                 rolling_average(recent_points[home], 1.2) - rolling_average(recent_points[away], 1.2),
                 rolling_average(recent_goal_diff[home], 0) - rolling_average(recent_goal_diff[away], 0),
                 rolling_average(recent_goals_for[home], 1.2) - rolling_average(recent_goals_for[away], 1.2),
@@ -299,13 +344,45 @@ def main() -> int:
                 0 if neutral else 1,
                 competition_weight,
                 weight,
+                elo_home,
+                elo_away,
+                abs(elo_gap),
+                expected_score(elo_home, elo_away),
+                rolling_average(recent_points_5[home], 1.2) - rolling_average(recent_points_5[away], 1.2),
+                rolling_average(recent_points_20[home], 1.2) - rolling_average(recent_points_20[away], 1.2),
+                rolling_average(recent_goal_diff_5[home], 0) - rolling_average(recent_goal_diff_5[away], 0),
+                rolling_average(recent_goal_diff_20[home], 0) - rolling_average(recent_goal_diff_20[away], 0),
+                rolling_average(recent_goals_for[home], 1.2) + rolling_average(recent_goals_for[away], 1.2),
+                rolling_average(recent_goals_against[home], 1.2) + rolling_average(recent_goals_against[away], 1.2),
+                rolling_average(recent_opponent_elo[home], 1500) - rolling_average(recent_opponent_elo[away], 1500),
+                math.log1p(team_match_counts[home]) - math.log1p(team_match_counts[away]),
+                1 if "world cup" in tournament_lower and "qualification" not in tournament_lower else 0,
+                1 if "friendly" in tournament_lower else 0,
+                1 if "qualification" in tournament_lower or "qualifier" in tournament_lower else 0,
+                int(row.date.year),
             ]
         )
         labels.append(0 if home_score > away_score else 1 if home_score == away_score else 2)
         sample_weights.append(weight)
 
-        append_result(home, away, home_score, away_score, weight, elo, recent_points,
-                      recent_goal_diff, recent_goals_for, recent_goals_against)
+        append_result(
+            home,
+            away,
+            home_score,
+            away_score,
+            weight,
+            elo,
+            recent_points,
+            recent_goal_diff,
+            recent_goals_for,
+            recent_goals_against,
+            recent_points_5,
+            recent_points_20,
+            recent_goal_diff_5,
+            recent_goal_diff_20,
+            recent_opponent_elo,
+            team_match_counts,
+        )
 
     if len(features) < 100:
         print("Not enough historical rows to train a useful model. Provide a larger results.csv.")
@@ -321,20 +398,44 @@ def main() -> int:
     model = HistGradientBoostingClassifier(
         max_iter=240, learning_rate=0.04, l2_regularization=0.15, random_state=42,
     )
+    forest = RandomForestClassifier(
+        n_estimators=280,
+        min_samples_leaf=12,
+        max_features="sqrt",
+        n_jobs=-1,
+        random_state=42,
+    )
+    ensemble = VotingClassifier(
+        estimators=[
+            ("rf", RandomForestClassifier(
+                n_estimators=280,
+                min_samples_leaf=12,
+                max_features="sqrt",
+                n_jobs=-1,
+                random_state=42,
+            )),
+            ("hgb", HistGradientBoostingClassifier(
+                max_iter=240,
+                learning_rate=0.04,
+                l2_regularization=0.15,
+                random_state=42,
+            )),
+        ],
+        voting="soft",
+    )
     baseline = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
     model.fit(x_train, y_train, sample_weight=w_train)
+    forest.fit(x_train, y_train, sample_weight=w_train)
+    ensemble.fit(x_train, y_train, sample_weight=w_train)
     baseline.fit(x_train, y_train, logisticregression__sample_weight=w_train)
-    model_accuracy = float(accuracy_score(y_test, model.predict(x_test)))
-    baseline_accuracy = float(accuracy_score(y_test, baseline.predict(x_test)))
-
-    if baseline_accuracy > model_accuracy:
-        selected_model = baseline
-        model_name = "Logistic Regression Baseline"
-        validation_accuracy = baseline_accuracy
-    else:
-        selected_model = model
-        model_name = "HistGradientBoostingClassifier"
-        validation_accuracy = model_accuracy
+    candidate_scores = [
+        ("Logistic Regression Baseline", baseline, float(accuracy_score(y_test, baseline.predict(x_test)))),
+        ("HistGradientBoostingClassifier", model, float(accuracy_score(y_test, model.predict(x_test)))),
+        ("RandomForestClassifier", forest, float(accuracy_score(y_test, forest.predict(x_test)))),
+        ("Soft Voting Ensemble (RF + HGB)", ensemble, float(accuracy_score(y_test, ensemble.predict(x_test)))),
+    ]
+    model_name, selected_model, validation_accuracy = max(candidate_scores, key=lambda item: item[2])
+    baseline_accuracy = candidate_scores[0][2]
 
     args.model_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump(selected_model, args.model_dir / "world_cup_prediction_model.joblib")
@@ -470,8 +571,9 @@ def main() -> int:
         )
 
     profiles.sort(key=lambda item: (-item["mlStrengthScore"], -item["confidenceScore"], item["teamId"]))
+    candidate_score_text = ", ".join(f"{name}: {score:.3f}" for name, _, score in candidate_scores)
     meta = {
-        "modelName": f"Current-State Hybrid ({selected_model.__class__.__name__})",
+        "modelName": f"Current-State Hybrid ({model_name})",
         "trainedAt": current_state["snapshotAt"],
         "trainingDataCutoff": current_state.get("competitionDateCutoff", str(results["date"].max().date())),
         "dataSources": [
@@ -480,6 +582,7 @@ def main() -> int:
             "Frozen pre-tournament team signals (committed)",
             "Recency-weighted international match history",
             "Current World Cup results through the stated cutoff",
+            "Expanded Elo, form-window, opponent-strength, experience, and match-type features",
             "Manually maintained squad availability and tactical context",
             "Projected current-squad structure and role fields",
             "Current public squad-value snapshot and frozen strength fields",
@@ -487,9 +590,12 @@ def main() -> int:
         "validationAccuracy": round(validation_accuracy, 4),
         "notes": (
             f"Classifier trained on {len(results)} historical matches with exponential time decay and final-tournament "
-            f"matches weighted highest. Profiles blend current tournament evidence, availability, tactical fit, "
-            f"cohesion, and coach adaptability. Baseline accuracy: {baseline_accuracy:.3f}; selected accuracy: "
-            f"{validation_accuracy:.3f}. Context scores are analyst estimates and should be refreshed as news changes."
+            f"matches weighted highest. The match model now uses {len(features[0])} features, including multiple "
+            f"recent-form windows, Elo level and expected score, opponent strength, team experience, match type, "
+            f"and recency weight. Candidate validation scores: {candidate_score_text}. Profiles blend current "
+            f"tournament evidence, availability, tactical fit, cohesion, and coach adaptability. Baseline accuracy: "
+            f"{baseline_accuracy:.3f}; selected accuracy: {validation_accuracy:.3f}. Context scores are analyst "
+            "estimates and should be refreshed as news changes."
         ),
     }
 
