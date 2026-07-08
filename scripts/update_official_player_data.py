@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import http.client
 import re
 import time
 import unicodedata
@@ -131,7 +132,7 @@ def request_json(url: str, headers: dict[str, str] | None = None, retries: int =
             request = urllib.request.Request(url, headers=request_headers)
             with urllib.request.urlopen(request, timeout=60) as response:
                 return json.load(response)
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, http.client.RemoteDisconnected):
             if attempt == retries - 1:
                 raise
             time.sleep(1.5 * (attempt + 1))

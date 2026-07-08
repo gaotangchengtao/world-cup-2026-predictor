@@ -17,7 +17,7 @@ const scheduleSources = {
   sbNationRound16: "https://www.sbnation.com/soccer/1121525/2026-world-cup-round-of-16-scores-schedule",
 };
 
-export const tournamentScheduleUpdatedAt = "2026-07-08T10:00:00+08:00";
+export const tournamentScheduleUpdatedAt = "2026-07-08T14:18:00+08:00";
 
 export const tournamentSchedule: TournamentFixture[] = [
   {

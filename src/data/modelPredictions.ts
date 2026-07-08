@@ -2,7 +2,7 @@ import type { ModelPredictionProfile, PredictionModelMeta } from "../types/world
 
 export const predictionModelMeta: PredictionModelMeta = {
   "modelName": "Current-State Hybrid (Soft Voting Ensemble (RF + HGB))",
-  "trainedAt": "2026-07-08T10:00:00+08:00",
+  "trainedAt": "2026-07-08T14:18:00+08:00",
   "trainingDataCutoff": "2026-07-08",
   "dataSources": [
     "Historical international results CSV (local)",
@@ -44,7 +44,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "法国已经通过对巴拉圭的低比分淘汰赛考验，并将在 1/4 决赛对阵摩洛哥。球队的转换进攻威胁和大赛稳定性仍然是核心优势。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -75,7 +75,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "阿根廷 3-2 逆转埃及后将对阵瑞士。梅西的组织和收官阶段控制力让他们继续保持冠军热门身份，但连续丢球信号也让防守控制力需要继续观察。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -102,7 +102,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "西班牙 1-0 淘汰葡萄牙后将对阵比利时；连续零封趋势让防守稳定性评分继续保持高位。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -133,7 +133,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "英格兰 3-2 险胜墨西哥后将对阵挪威；模型奖励逆境韧性，但保留少量人员可用性与纪律风险。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -160,7 +160,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "挪威 2-1 淘汰巴西是当前模型里最强的赛事信号之一，进攻趋势和高压局信心都被上调。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -191,7 +191,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "进攻体系正在稳定制造机会，中后卫位置的阵容深度是主要人员风险。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -218,7 +218,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "摩洛哥 3-0 淘汰加拿大后，淘汰赛状态明显上调；防守站稳后快速转换的模式依然可靠。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -245,7 +245,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "对瑞典打进五球显著提高了进攻状态评分，但由攻转守仍需持续观察。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -272,7 +272,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "哥伦比亚点球不敌瑞士后已经出局。整体攻守平衡仍有复盘价值，但不再进入实时夺冠模型。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -299,7 +299,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "比利时 4-1 淘汰美国后，显著修正了小组赛阶段的不稳定信号，终结效率和比赛掌控力都被上调。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -326,7 +326,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "美国 1-4 不敌比利时后已经出局；主场优势不再进入夺冠模型。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -353,7 +353,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "瑞士 0-0 战平哥伦比亚并通过点球 4-3 晋级，在对阵阿根廷前进一步验证了防守结构和点球抗压能力。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -384,7 +384,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "巴西 1-2 不敌挪威后已经出局；后续更新应把他们视为阵容重建故事，而不是当前冠军候选。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -411,7 +411,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "墨西哥 2-3 不敌英格兰后已经出局。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -438,7 +438,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "优秀的位置纪律和球员角色熟悉度，让这套阵容的实际价值高于单纯身价评价。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -461,7 +461,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -488,7 +488,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "加拿大 0-3 不敌摩洛哥后已经出局。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -515,7 +515,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "葡萄牙 0-1 不敌西班牙后已经出局，也很可能意味着克里斯蒂亚诺·罗纳尔多的世界杯篇章结束。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -542,7 +542,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "埃及 2-3 不敌阿根廷后已经出局。模型保留其淘汰赛竞争力信号，但不再把埃及放入实时夺冠路径。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -565,7 +565,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -588,7 +588,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -611,7 +611,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -634,7 +634,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -661,7 +661,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "前两场小组赛暴露了防守控制问题，个人能力尚未转化为稳定的比赛掌控力。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -684,7 +684,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -707,7 +707,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -730,7 +730,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -753,7 +753,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -780,7 +780,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "巴拉圭 0-1 惜败法国后已经出局。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -807,7 +807,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "战平西班牙、逆境中战平乌拉圭，明显提升了球队状态与阵容默契评分。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -830,7 +830,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -853,7 +853,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -876,7 +876,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 1 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -899,7 +899,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -926,7 +926,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "塞内加尔的进攻足以威胁挪威，但单场丢三球提高了模型对开放转换阶段防守控制力的担忧。"
     ],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -949,7 +949,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -972,7 +972,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -995,7 +995,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 1 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1018,7 +1018,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 1 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1041,7 +1041,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1064,7 +1064,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1087,7 +1087,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1110,7 +1110,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1133,7 +1133,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1156,7 +1156,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1179,7 +1179,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1202,7 +1202,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1225,7 +1225,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T10:00:00+08:00",
+    "updatedAt": "2026-07-08T14:18:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   }
 ];

@@ -1,8 +1,8 @@
 {
-  "snapshotAt": "2026-07-08T10:00:00+08:00",
+  "snapshotAt": "2026-07-08T14:18:00+08:00",
   "competitionDateCutoff": "2026-07-08",
   "status": "in-tournament",
-  "notes": "Analyst snapshot after all Round-of-16 matches completed through July 7, 2026. Argentina beat Egypt 3-2, Switzerland advanced over Colombia 4-3 on penalties after a 0-0 draw, and the quarter-final bracket is now fully populated.",
+  "notes": "Analyst snapshot refreshed on July 8, 2026 after all Round-of-16 matches completed. Argentina beat Egypt 3-2, Switzerland advanced over Colombia 4-3 on penalties after a 0-0 draw, the quarter-final bracket is fully populated, and current FIFA player-stat leaderboards have been refreshed for the model context.",
   "sourceUrls": [
     "https://www.sbnation.com/soccer/1117513/world-cup-schedule-2026-how-to-watch-every-match-scores-and-more",
     "https://www.theguardian.com/football/live/2026/jun/21/new-zealand-v-egypt-world-cup-2026-live",
@@ -25,7 +25,11 @@
     "https://www.theguardian.com/football/2026/jul/07/lionel-messi-mo-salah-egypt-argentina-world-cup",
     "https://apnews.com/article/argentina-egypt-world-cup-messi-salah-44bd3074cde43fdb3b775757e0625976",
     "https://www.foxsports.com/stories/soccer/world-cup-2026-argentina-rallies-against-egypt-3-2-reach-quarterfinals",
-    "https://www.foxsports.com/stories/soccer/world-cup-2026-switzerland-beats-colombia-penalty-shootout-advance-quarterfinals"
+    "https://www.foxsports.com/stories/soccer/world-cup-2026-switzerland-beats-colombia-penalty-shootout-advance-quarterfinals",
+    "https://www.foxsports.com/soccer/fifa-world-cup/stats",
+    "https://www.theguardian.com/football/2026/jul/07/fifa-accuses-uefa-hypocrisy-folarin-balogun-world-cup-decision-red-card",
+    "https://www.aljazeera.com/sports/2026/7/6/neymar-quits-international-football-after-brazils-world-cup-knockout-loss",
+    "https://www.aljazeera.com/sports/2026/7/6/which-teams-are-in-the-world-cup-quarterfinals-and-whats-the-schedule"
   ],
   "defaultFactors": {
     "availabilityScore": 90,
