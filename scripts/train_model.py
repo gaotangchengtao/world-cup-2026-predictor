@@ -1,3 +1,15 @@
+"""离线训练 2026 世界杯预测模型，并生成前端可直接读取的球队预测画像。
+
+这段脚本负责“训练和汇总数据”，不会在网页运行时执行。主要流程是：
+1. 读取历史国家队赛果、当前世界杯赛果、阵容身价和人工维护的战术情境；
+2. 构造 Elo、近期状态、进失球、对手强度等特征；
+3. 依次训练多个候选分类器，自动选择验证准确率最高的一个；
+4. 把历史实力、本届状态和人员战术情境合成为球队画像；
+5. 输出 src/data/modelPredictions.ts，供 React 前端静态展示。
+
+完整公式和自主修改指南见项目根目录“预测模型说明与自主修改指南.txt”。
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -10,6 +22,7 @@ from collections import defaultdict, deque
 from pathlib import Path
 
 
+# 所有默认路径都相对于项目根目录，方便在不同电脑上移动整个项目。
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT = ROOT / "data" / "raw" / "results.csv"
 DEFAULT_CURRENT_STATE = ROOT / "data" / "current" / "world_cup_2026_state.json"
@@ -20,6 +33,7 @@ DEFAULT_PROFILE_JSON = ROOT / "outputs" / "current_model_profiles.json"
 DEFAULT_MODEL_DIR = ROOT / "models"
 
 
+# 同一国家在不同数据源中可能有不同英文写法，训练前先统一名称。
 ALIASES = {
     "usa": "united states",
     "united states of america": "united states",
@@ -34,6 +48,7 @@ ALIASES = {
 
 
 def normalize_name(value: str) -> str:
+    """去除重音和符号，并把国家名转换成模型使用的统一键。"""
     text = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
     text = re.sub(r"[^a-zA-Z0-9]+", " ", text).strip().lower()
     return ALIASES.get(text, text)
@@ -44,6 +59,7 @@ def clamp(value: float, low: float, high: float) -> float:
 
 
 def tournament_weight(name: str) -> float:
+    """返回赛事级别权重：世界杯正赛最重要，友谊赛影响最低。"""
     lowered = name.lower()
     if "world cup" in lowered and "qualification" not in lowered:
         return 2.4
@@ -57,11 +73,13 @@ def tournament_weight(name: str) -> float:
 
 
 def recency_weight(match_date, reference_date, half_life_years: float = 4.0) -> float:
+    # 指数时间衰减：每过 4 年权重减半，但最低保留 12% 的长期历史信息。
     age_years = max(0.0, (reference_date - match_date).days / 365.25)
     return max(0.12, math.pow(0.5, age_years / half_life_years))
 
 
 def parse_project_teams(path: Path) -> list[dict[str, object]]:
+    """从 teams.ts 提取训练需要的少量基础字段，不执行 TypeScript。"""
     text = path.read_text(encoding="utf-8")
     blocks = re.findall(r"\{\s*id:\s*\"[^\"]+\".*?\n\s*\},", text, flags=re.S)
     rows: list[dict[str, object]] = []
@@ -95,6 +113,7 @@ def parse_project_teams(path: Path) -> list[dict[str, object]]:
 
 
 def parse_current_squad_signals(path: Path, unavailable_players: set[str]) -> dict[str, float]:
+    """把名单完整度转换成 0-100 分，已确认未入选的球员会被排除。"""
     text = path.read_text(encoding="utf-8")
     rows = defaultdict(lambda: {"count": 0, "key": 0, "starters": 0, "positions": set()})
     for block in re.findall(r"\{ teamId: \"[^\"]+\".*? \},", text):
@@ -117,6 +136,7 @@ def parse_current_squad_signals(path: Path, unavailable_players: set[str]) -> di
         key_depth = min(1, row["key"] / 4) * 100
         starter_readiness = min(1, row["starters"] / 7) * 100
         sample_coverage = min(1, row["count"] / 8) * 100
+        # 名单信号 = 位置覆盖 32% + 核心球员深度 24% + 首发准备度 24% + 样本覆盖 20%。
         signals[team_id] = round(
             position_coverage * 0.32 + key_depth * 0.24
             + starter_readiness * 0.24 + sample_coverage * 0.20,
@@ -132,10 +152,12 @@ def rolling_average(values: deque[float], default: float) -> float:
 
 
 def expected_score(elo_a: float, elo_b: float) -> float:
+    """Elo 预期得分，结果在 0-1 之间；越接近 1 表示 A 队越被看好。"""
     return 1 / (1 + math.pow(10, (elo_b - elo_a) / 400))
 
 
 def update_elo(elo_a: float, elo_b: float, result_a: float, weight: float) -> tuple[float, float]:
+    # K 值乘上样本权重，因此近期世界杯正赛对 Elo 的影响最大。
     k = 24 * weight
     expected_a = expected_score(elo_a, elo_b)
     delta = k * (result_a - expected_a)
@@ -160,6 +182,7 @@ def append_result(
     recent_opponent_elo=None,
     team_match_counts=None,
 ) -> None:
+    """按时间顺序写入一场赛果，并同步更新 Elo 和多个近期状态窗口。"""
     home_points = 3 if home_score > away_score else 1 if home_score == away_score else 0
     away_points = 3 if away_score > home_score else 1 if home_score == away_score else 0
     result_home = 1.0 if home_score > away_score else 0.5 if home_score == away_score else 0.0
@@ -193,6 +216,7 @@ def append_result(
 
 
 def merged_team_context(current_state: dict, team_id: str) -> dict:
+    """合并默认情境和球队专属情境；球队专属值优先。"""
     defaults = current_state.get("defaultFactors", {})
     override = current_state.get("teams", {}).get(team_id, {})
     availability = float(override.get("availabilityScore", defaults.get("availabilityScore", 90)))
@@ -217,6 +241,7 @@ def json_for_ts(value: object) -> str:
 
 
 def main() -> int:
+    # 命令行参数允许替换历史 CSV、实时快照和输出位置，默认值适合本项目直接运行。
     parser = argparse.ArgumentParser(description="Train the offline World Cup prediction model.")
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT, help="Historical results CSV path.")
     parser.add_argument("--current-state", type=Path, default=DEFAULT_CURRENT_STATE, help="Current tournament state JSON.")
@@ -232,6 +257,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    # 先检查所有输入文件，缺少历史 CSV 时给出提示，但不影响前端使用旧的已生成结果。
     if not args.input.exists():
         print(f"Missing historical results CSV: {args.input}")
         print("Place a legally obtained CSV at data/raw/results.csv, then run npm run ml:train again.")
@@ -248,6 +274,7 @@ def main() -> int:
         print(f"Missing market-value snapshot: {args.market_values}")
         return 1
 
+    # 延迟导入机器学习依赖，让缺少依赖时的错误信息更容易理解。
     try:
         import joblib
         import pandas as pd
@@ -262,6 +289,8 @@ def main() -> int:
         print("Install dependencies with: python -m pip install -r requirements-ml.txt")
         return 1
 
+    # 冻结基础信号用于防止“上一次输出再次成为下一次输入”的反馈漂移；
+    # 最新身价只覆盖身价字段，不会悄悄改写赛前实力排名。
     teams = parse_project_teams(ROOT / "src" / "data" / "teams.ts")
     if not teams:
         print("Could not parse src/data/teams.ts")
@@ -288,6 +317,7 @@ def main() -> int:
     )
     current_state = json.loads(args.current_state.read_text(encoding="utf-8"))
 
+    # 清洗历史赛果：没有比分的未来赛程、无效日期和缺少球队名的行不会进入训练。
     results = pd.read_csv(args.input)
     required = {"date", "home_team", "away_team", "home_score", "away_score", "tournament", "neutral"}
     missing = required.difference(results.columns)
@@ -304,6 +334,7 @@ def main() -> int:
         print("No scored matches were available after filtering.")
         return 1
 
+    # 维护 5/10/20 场三个时间窗口，让模型同时看到短期状态和较稳定的中期趋势。
     reference_date = pd.Timestamp(current_state.get("competitionDateCutoff", results["date"].max()))
     elo = defaultdict(lambda: 1500.0)
     team_match_counts: dict[str, int] = defaultdict(int)
@@ -320,6 +351,7 @@ def main() -> int:
     labels: list[int] = []
     sample_weights: list[float] = []
 
+    # 每一行特征都只能使用该场比赛之前的信息，避免把赛果泄漏到训练输入中。
     for row in results.itertuples(index=False):
         home = normalize_name(str(row.home_team))
         away = normalize_name(str(row.away_team))
@@ -333,6 +365,8 @@ def main() -> int:
         elo_away = elo[away]
         elo_gap = elo_home - elo_away
         weight = competition_weight * recency_weight(row.date, reference_date)
+        # 25 项特征覆盖 Elo、近期积分/净胜球、攻防、对手强度、场地和赛事类型。
+        # 各树模型会自行学习非线性关系，因此这里没有给每项特征硬编码百分比。
         features.append(
             [
                 elo_gap,
@@ -362,6 +396,7 @@ def main() -> int:
                 int(row.date.year),
             ]
         )
+        # 三分类标签：0=主队胜，1=平局，2=客队胜。
         labels.append(0 if home_score > away_score else 1 if home_score == away_score else 2)
         sample_weights.append(weight)
 
@@ -388,6 +423,7 @@ def main() -> int:
         print("Not enough historical rows to train a useful model. Provide a larger results.csv.")
         return 1
 
+    # 按时间顺序保留最后 20% 比赛做验证，不随机打乱，更接近“用过去预测未来”。
     x_train, x_test, y_train, y_test, w_train, w_test = train_test_split(
         features,
         labels,
@@ -395,6 +431,7 @@ def main() -> int:
         test_size=0.2,
         shuffle=False,
     )
+    # 同时训练线性基线、梯度提升、随机森林和软投票组合，最后自动选验证分最高者。
     model = HistGradientBoostingClassifier(
         max_iter=240, learning_rate=0.04, l2_regularization=0.15, random_state=42,
     )
@@ -434,12 +471,14 @@ def main() -> int:
         ("RandomForestClassifier", forest, float(accuracy_score(y_test, forest.predict(x_test)))),
         ("Soft Voting Ensemble (RF + HGB)", ensemble, float(accuracy_score(y_test, ensemble.predict(x_test)))),
     ]
+    # accuracy 是胜/平/负判断正确率，不等同于任意球队的单场胜率。
     model_name, selected_model, validation_accuracy = max(candidate_scores, key=lambda item: item[2])
     baseline_accuracy = candidate_scores[0][2]
 
     args.model_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump(selected_model, args.model_dir / "world_cup_prediction_model.joblib")
 
+    # 历史模型训练完成后，再叠加本届世界杯真实赛果，形成“当前赛事状态”。
     tournament_stats = defaultdict(
         lambda: {"matches": 0, "points": 0, "goalsFor": 0, "goalsAgainst": 0, "opponentEloTotal": 0.0}
     )
@@ -474,6 +513,7 @@ def main() -> int:
     min_elo, max_elo = min(project_elos), max(project_elos)
     profiles = []
 
+    # 为 48 支球队生成前端画像。下面这些固定占比可以按需要自主调整。
     for team in teams:
         team_id = str(team["id"])
         normalized = str(team["normalized"])
@@ -486,6 +526,8 @@ def main() -> int:
         squad_value = float(team["squadValueEurM"])
         value_score = math.log10(max(1, squad_value)) / math.log10(1300) * 100
         rank_score = clamp(102 - float(team["strengthRank"]) * 1.35, 25, 98)
+        # 历史基础分：项目基础分 14%、Elo 22%、近期状态 18%、攻防各 10%、
+        # 身价 10%、实力排名 10%、名单结构 6%。
         historical_base = (
             float(team["strengthScore"]) * 0.14 + elo_score * 0.22 + recent_form * 0.18
             + historical_attack * 0.10 + historical_defense * 0.10 + value_score * 0.10
@@ -503,6 +545,7 @@ def main() -> int:
             opponent_quality = 50 if max_elo == min_elo else 100 * (opponent_elo - min_elo) / (max_elo - min_elo)
             tournament_attack = clamp(28 + goals_for_per_game * 22, 20, 98)
             tournament_defense = clamp(96 - goals_against_per_game * 28, 20, 98)
+            # 本届状态：场均积分 42%、净胜球 28%、进攻 13%、防守 12%、对手强度 5%。
             tournament_form = clamp(
                 (points_per_game / 3 * 100) * 0.42
                 + clamp(50 + goal_difference_per_game * 16, 15, 98) * 0.28
@@ -515,11 +558,13 @@ def main() -> int:
             tournament_form = recent_form
 
         context = merged_team_context(current_state, team_id)
+        # 人员战术情境：可用性 25%、战术 22%、角色适配 18%、默契 18%、教练 17%。
         context_score = (
             context["availabilityScore"] * 0.25 + context["tacticalFitScore"] * 0.22
             + context["playerFitScore"] * 0.18 + context["cohesionScore"] * 0.18
             + context["coachAdaptabilityScore"] * 0.17
         )
+        # 本届比赛越多，本届状态占比越高；3 场及以上固定为 45%，情境固定为 18%。
         current_weight = 0.0 if match_count == 0 else 0.28 if match_count == 1 else 0.38 if match_count == 2 else 0.45
         context_weight = 0.18
         history_weight = 1 - current_weight - context_weight
@@ -530,12 +575,14 @@ def main() -> int:
         attack_trend = clamp(historical_attack * (1 - current_weight) + tournament_attack * current_weight, 20, 98)
         defense_trend = clamp(historical_defense * (1 - current_weight) + tournament_defense * current_weight, 20, 98)
         evidence_score = min(96, 54 + match_count * 13)
+        # 置信度还考虑证据量；参赛场次越多，模型越少依赖赛前假设。
         confidence = clamp(
             ml_strength * 0.34 + tournament_form * 0.20 + context_score * 0.18
             + context["cohesionScore"] * 0.12 + evidence_score * 0.16,
             35, 96,
         )
         injury_penalty = max(0, 88 - context["availabilityScore"])
+        # 低置信度、低战术适配和伤停会共同提高爆冷风险。
         upset_index = (
             (100 - confidence) * 0.45 + (100 - context["tacticalFitScore"]) * 0.30
             + injury_penalty * 0.25
@@ -599,6 +646,7 @@ def main() -> int:
         ),
     }
 
+    # modelPredictions.ts 是自动生成文件，不应手改；改完权重后重新运行本脚本即可覆盖。
     output = f'''import type {{ ModelPredictionProfile, PredictionModelMeta }} from "../types/worldCup";
 
 export const predictionModelMeta: PredictionModelMeta = {json_for_ts(meta)};
