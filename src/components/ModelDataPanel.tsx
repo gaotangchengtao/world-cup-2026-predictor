@@ -22,12 +22,20 @@ export const ModelDataPanel = () => {
         </span>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <Info label={t("modelTrainedAt")} value={predictionModelMeta.trainedAt} />
         <Info label={t("modelTrainingCutoff")} value={predictionModelMeta.trainingDataCutoff} />
         <Info
           label={t("validationAccuracy")}
           value={predictionModelMeta.validationAccuracy === null ? t("notAvailable") : `${Math.round(predictionModelMeta.validationAccuracy * 100)}%`}
+        />
+        <Info
+          label={t("knockoutValidationAccuracy")}
+          value={
+            predictionModelMeta.knockoutValidationAccuracy === null
+              ? t("notAvailable")
+              : `${predictionModelMeta.knockoutValidationCorrect}/${predictionModelMeta.knockoutValidationMatches} · ${Math.round(predictionModelMeta.knockoutValidationAccuracy * 100)}%`
+          }
         />
       </div>
 

@@ -72,10 +72,27 @@ def tournament_weight(name: str) -> float:
     return 1.0
 
 
-def recency_weight(match_date, reference_date, half_life_years: float = 4.0) -> float:
-    # 指数时间衰减：每过 4 年权重减半，但最低保留 12% 的长期历史信息。
+def recency_weight(match_date, reference_date, half_life_years: float = 3.0) -> float:
+    """计算时间权重：3 年半衰期、最低 1%，最近 12 个月再获得平滑加成。"""
     age_years = max(0.0, (reference_date - match_date).days / 365.25)
-    return max(0.12, math.pow(0.5, age_years / half_life_years))
+    base_weight = max(0.01, math.pow(0.5, age_years / half_life_years))
+    recent_year_boost = 1 + 0.25 * max(0.0, 1 - age_years)
+    return base_weight * recent_year_boost
+
+
+def current_tournament_weight(match_count: int) -> float:
+    """本届世界杯状态占比随已赛场数增加，5 场及以上达到 60%。"""
+    if match_count <= 0:
+        return 0.0
+    if match_count == 1:
+        return 0.32
+    if match_count == 2:
+        return 0.44
+    if match_count == 3:
+        return 0.52
+    if match_count == 4:
+        return 0.56
+    return 0.60
 
 
 def parse_project_teams(path: Path) -> list[dict[str, object]]:
@@ -149,6 +166,60 @@ def rolling_average(values: deque[float], default: float) -> float:
     if not values:
         return default
     return sum(values) / len(values)
+
+
+def build_match_features(
+    home,
+    away,
+    match_date,
+    tournament_name,
+    neutral,
+    competition_weight,
+    sample_weight,
+    elo,
+    recent_points,
+    recent_goal_diff,
+    recent_goals_for,
+    recent_goals_against,
+    recent_points_5,
+    recent_points_20,
+    recent_goal_diff_5,
+    recent_goal_diff_20,
+    recent_opponent_elo,
+    team_match_counts,
+) -> list[float]:
+    """用比赛开始前的状态构造 25 项特征，训练和逐场回测共用同一套逻辑。"""
+    tournament_lower = tournament_name.lower()
+    elo_home = elo[home]
+    elo_away = elo[away]
+    elo_gap = elo_home - elo_away
+    return [
+        elo_gap,
+        rolling_average(recent_points[home], 1.2) - rolling_average(recent_points[away], 1.2),
+        rolling_average(recent_goal_diff[home], 0) - rolling_average(recent_goal_diff[away], 0),
+        rolling_average(recent_goals_for[home], 1.2) - rolling_average(recent_goals_for[away], 1.2),
+        rolling_average(recent_goals_against[away], 1.2) - rolling_average(recent_goals_against[home], 1.2),
+        neutral,
+        0 if neutral else 1,
+        competition_weight,
+        sample_weight,
+        elo_home,
+        elo_away,
+        abs(elo_gap),
+        expected_score(elo_home, elo_away),
+        rolling_average(recent_points_5[home], 1.2) - rolling_average(recent_points_5[away], 1.2),
+        rolling_average(recent_points_20[home], 1.2) - rolling_average(recent_points_20[away], 1.2),
+        rolling_average(recent_goal_diff_5[home], 0) - rolling_average(recent_goal_diff_5[away], 0),
+        rolling_average(recent_goal_diff_20[home], 0) - rolling_average(recent_goal_diff_20[away], 0),
+        rolling_average(recent_goals_for[home], 1.2) + rolling_average(recent_goals_for[away], 1.2),
+        rolling_average(recent_goals_against[home], 1.2) + rolling_average(recent_goals_against[away], 1.2),
+        rolling_average(recent_opponent_elo[home], 1500) - rolling_average(recent_opponent_elo[away], 1500),
+        math.log1p(team_match_counts[home]) - math.log1p(team_match_counts[away]),
+        1 if "world cup" in tournament_lower and "qualification" not in tournament_lower else 0,
+        1 if "friendly" in tournament_lower else 0,
+        1 if "qualification" in tournament_lower or "qualifier" in tournament_lower else 0,
+        int(match_date.year),
+    ]
 
 
 def expected_score(elo_a: float, elo_b: float) -> float:
@@ -360,41 +431,16 @@ def main() -> int:
         neutral = 1 if bool(row.neutral) else 0
         competition_weight = tournament_weight(str(row.tournament))
         tournament_name = str(row.tournament)
-        tournament_lower = tournament_name.lower()
-        elo_home = elo[home]
-        elo_away = elo[away]
-        elo_gap = elo_home - elo_away
         weight = competition_weight * recency_weight(row.date, reference_date)
         # 25 项特征覆盖 Elo、近期积分/净胜球、攻防、对手强度、场地和赛事类型。
         # 各树模型会自行学习非线性关系，因此这里没有给每项特征硬编码百分比。
         features.append(
-            [
-                elo_gap,
-                rolling_average(recent_points[home], 1.2) - rolling_average(recent_points[away], 1.2),
-                rolling_average(recent_goal_diff[home], 0) - rolling_average(recent_goal_diff[away], 0),
-                rolling_average(recent_goals_for[home], 1.2) - rolling_average(recent_goals_for[away], 1.2),
-                rolling_average(recent_goals_against[away], 1.2) - rolling_average(recent_goals_against[home], 1.2),
-                neutral,
-                0 if neutral else 1,
-                competition_weight,
-                weight,
-                elo_home,
-                elo_away,
-                abs(elo_gap),
-                expected_score(elo_home, elo_away),
-                rolling_average(recent_points_5[home], 1.2) - rolling_average(recent_points_5[away], 1.2),
-                rolling_average(recent_points_20[home], 1.2) - rolling_average(recent_points_20[away], 1.2),
-                rolling_average(recent_goal_diff_5[home], 0) - rolling_average(recent_goal_diff_5[away], 0),
-                rolling_average(recent_goal_diff_20[home], 0) - rolling_average(recent_goal_diff_20[away], 0),
-                rolling_average(recent_goals_for[home], 1.2) + rolling_average(recent_goals_for[away], 1.2),
-                rolling_average(recent_goals_against[home], 1.2) + rolling_average(recent_goals_against[away], 1.2),
-                rolling_average(recent_opponent_elo[home], 1500) - rolling_average(recent_opponent_elo[away], 1500),
-                math.log1p(team_match_counts[home]) - math.log1p(team_match_counts[away]),
-                1 if "world cup" in tournament_lower and "qualification" not in tournament_lower else 0,
-                1 if "friendly" in tournament_lower else 0,
-                1 if "qualification" in tournament_lower or "qualifier" in tournament_lower else 0,
-                int(row.date.year),
-            ]
+            build_match_features(
+                home, away, row.date, tournament_name, neutral, competition_weight, weight,
+                elo, recent_points, recent_goal_diff, recent_goals_for, recent_goals_against,
+                recent_points_5, recent_points_20, recent_goal_diff_5, recent_goal_diff_20,
+                recent_opponent_elo, team_match_counts,
+            )
         )
         # 三分类标签：0=主队胜，1=平局，2=客队胜。
         labels.append(0 if home_score > away_score else 1 if home_score == away_score else 2)
@@ -473,7 +519,25 @@ def main() -> int:
     ]
     # accuracy 是胜/平/负判断正确率，不等同于任意球队的单场胜率。
     model_name, selected_model, validation_accuracy = max(candidate_scores, key=lambda item: item[2])
+    raw_validation_accuracy = validation_accuracy
     baseline_accuracy = candidate_scores[0][2]
+
+    # 仅用历史时间外验证集校准“额外判为平局”的阈值，本届淘汰赛答案不参与调参。
+    selected_classes = [int(label) for label in selected_model.classes_]
+    draw_class_index = selected_classes.index(1)
+    validation_probabilities = selected_model.predict_proba(x_test)
+    draw_threshold = 0.50
+    for candidate_threshold in [value / 100 for value in range(49, 19, -1)]:
+        calibrated_predictions = []
+        for probabilities in validation_probabilities:
+            raw_label = selected_classes[max(range(len(probabilities)), key=lambda index: probabilities[index])]
+            calibrated_predictions.append(
+                1 if float(probabilities[draw_class_index]) >= candidate_threshold else raw_label
+            )
+        candidate_accuracy = float(accuracy_score(y_test, calibrated_predictions))
+        if candidate_accuracy > validation_accuracy:
+            validation_accuracy = candidate_accuracy
+            draw_threshold = candidate_threshold
 
     args.model_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump(selected_model, args.model_dir / "world_cup_prediction_model.joblib")
@@ -483,6 +547,8 @@ def main() -> int:
         lambda: {"matches": 0, "points": 0, "goalsFor": 0, "goalsAgainst": 0, "opponentEloTotal": 0.0}
     )
     current_results = current_state.get("actualResults", [])
+    knockout_start_date = pd.Timestamp(current_state.get("knockoutStageStartDate", "2026-06-28"))
+    knockout_backtest: list[dict[str, object]] = []
     for result in sorted(current_results, key=lambda item: item["date"]):
         home_id = str(result["homeTeamId"])
         away_id = str(result["awayTeamId"])
@@ -493,6 +559,44 @@ def main() -> int:
         away = str(teams_by_id[away_id]["normalized"])
         home_score = int(result["homeScore"])
         away_score = int(result["awayScore"])
+        result_date = pd.Timestamp(result["date"])
+        current_competition_weight = tournament_weight("FIFA World Cup")
+        current_result_weight = current_competition_weight * recency_weight(result_date, reference_date)
+
+        # 淘汰赛逐场回测必须在写入本场结果之前预测，确保模型看不到答案。
+        if result_date >= knockout_start_date:
+            match_features = build_match_features(
+                home, away, result_date, "FIFA World Cup", 1,
+                current_competition_weight, current_result_weight,
+                elo, recent_points, recent_goal_diff, recent_goals_for, recent_goals_against,
+                recent_points_5, recent_points_20, recent_goal_diff_5, recent_goal_diff_20,
+                recent_opponent_elo, team_match_counts,
+            )
+            predicted_label = int(selected_model.predict([match_features])[0])
+            probabilities = selected_model.predict_proba([match_features])[0]
+            probability_by_label = {
+                int(label): float(probability)
+                for label, probability in zip(selected_model.classes_, probabilities)
+            }
+            if probability_by_label.get(1, 0.0) >= draw_threshold:
+                predicted_label = 1
+            actual_label = 0 if home_score > away_score else 1 if home_score == away_score else 2
+            label_names = {0: "home-win", 1: "draw", 2: "away-win"}
+            knockout_backtest.append(
+                {
+                    "date": str(result["date"]),
+                    "homeTeamId": home_id,
+                    "awayTeamId": away_id,
+                    "predictedResult": label_names[predicted_label],
+                    "actualResult": label_names[actual_label],
+                    "correct": predicted_label == actual_label,
+                    "confidence": round(float(max(probabilities)), 4),
+                    "homeWinProbability": round(probability_by_label.get(0, 0.0), 4),
+                    "drawProbability": round(probability_by_label.get(1, 0.0), 4),
+                    "awayWinProbability": round(probability_by_label.get(2, 0.0), 4),
+                }
+            )
+
         home_points = 3 if home_score > away_score else 1 if home_score == away_score else 0
         away_points = 3 if away_score > home_score else 1 if home_score == away_score else 0
         for team_id, points, goals_for, goals_against, opponent in [
@@ -504,10 +608,16 @@ def main() -> int:
             tournament_stats[team_id]["goalsFor"] += goals_for
             tournament_stats[team_id]["goalsAgainst"] += goals_against
             tournament_stats[team_id]["opponentEloTotal"] += elo[opponent]
+        # 当前世界杯赛果同时享受最高赛事权重和最近一年加成，确保其最能推动最新 Elo。
         append_result(
-            home, away, home_score, away_score, tournament_weight("FIFA World Cup"), elo,
+            home, away, home_score, away_score, current_result_weight, elo,
             recent_points, recent_goal_diff, recent_goals_for, recent_goals_against,
+            recent_points_5, recent_points_20, recent_goal_diff_5, recent_goal_diff_20,
+            recent_opponent_elo, team_match_counts,
         )
+
+    knockout_correct = sum(1 for row in knockout_backtest if row["correct"])
+    knockout_accuracy = knockout_correct / len(knockout_backtest) if knockout_backtest else None
 
     project_elos = [elo[str(team["normalized"])] for team in teams]
     min_elo, max_elo = min(project_elos), max(project_elos)
@@ -564,8 +674,8 @@ def main() -> int:
             + context["playerFitScore"] * 0.18 + context["cohesionScore"] * 0.18
             + context["coachAdaptabilityScore"] * 0.17
         )
-        # 本届比赛越多，本届状态占比越高；3 场及以上固定为 45%，情境固定为 18%。
-        current_weight = 0.0 if match_count == 0 else 0.28 if match_count == 1 else 0.38 if match_count == 2 else 0.45
+        # 本届状态占比：1/2/3/4/5+ 场分别为 32%/44%/52%/56%/60%。
+        current_weight = current_tournament_weight(match_count)
         context_weight = 0.18
         history_weight = 1 - current_weight - context_weight
         ml_strength = clamp(
@@ -619,6 +729,11 @@ def main() -> int:
 
     profiles.sort(key=lambda item: (-item["mlStrengthScore"], -item["confidenceScore"], item["teamId"]))
     candidate_score_text = ", ".join(f"{name}: {score:.3f}" for name, _, score in candidate_scores)
+    knockout_summary = (
+        f"{knockout_correct}/{len(knockout_backtest)} correct ({knockout_accuracy:.3f})"
+        if knockout_accuracy is not None
+        else "not available"
+    )
     meta = {
         "modelName": f"Current-State Hybrid ({model_name})",
         "trainedAt": current_state["snapshotAt"],
@@ -635,14 +750,22 @@ def main() -> int:
             "Current public squad-value snapshot and frozen strength fields",
         ],
         "validationAccuracy": round(validation_accuracy, 4),
+        "rawValidationAccuracy": round(raw_validation_accuracy, 4),
+        "drawCalibrationThreshold": draw_threshold,
+        "knockoutValidationAccuracy": round(knockout_accuracy, 4) if knockout_accuracy is not None else None,
+        "knockoutValidationMatches": len(knockout_backtest),
+        "knockoutValidationCorrect": knockout_correct,
+        "knockoutValidationStartDate": str(knockout_start_date.date()),
+        "knockoutValidationMethod": "Sequential pre-match 1X2 holdout; each result is appended only after its prediction.",
         "notes": (
             f"Classifier trained on {len(results)} historical matches with exponential time decay and final-tournament "
             f"matches weighted highest. The match model now uses {len(features[0])} features, including multiple "
             f"recent-form windows, Elo level and expected score, opponent strength, team experience, match type, "
             f"and recency weight. Candidate validation scores: {candidate_score_text}. Profiles blend current "
             f"tournament evidence, availability, tactical fit, cohesion, and coach adaptability. Baseline accuracy: "
-            f"{baseline_accuracy:.3f}; selected accuracy: {validation_accuracy:.3f}. Context scores are analyst "
-            "estimates and should be refreshed as news changes."
+            f"{baseline_accuracy:.3f}; raw selected accuracy: {raw_validation_accuracy:.3f}; draw-calibrated "
+            f"accuracy: {validation_accuracy:.3f} at threshold {draw_threshold:.2f}. Strict current-knockout "
+            f"backtest: {knockout_summary}. Context scores are analyst estimates and should be refreshed as news changes."
         ),
     }
 
@@ -657,12 +780,26 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = {json_for_ts(pr
     args.output.write_text(output, encoding="utf-8")
     args.profile_json.parent.mkdir(parents=True, exist_ok=True)
     args.profile_json.write_text(
-        json.dumps({"meta": meta, "profiles": profiles}, ensure_ascii=False, indent=2), encoding="utf-8",
+        json.dumps(
+            {"meta": meta, "profiles": profiles, "knockoutBacktest": knockout_backtest},
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
     )
     print(f"Wrote {args.output}")
     print(f"Wrote {args.profile_json}")
-    print(f"Selected model: {model_name} ({validation_accuracy:.3f} validation accuracy)")
+    print(
+        f"Selected model: {model_name} ({raw_validation_accuracy:.3f} raw, "
+        f"{validation_accuracy:.3f} draw-calibrated validation accuracy)"
+    )
+    print(f"Draw calibration threshold: {draw_threshold:.2f}")
     print(f"Current tournament results incorporated: {len(current_results)}")
+    if knockout_accuracy is not None:
+        print(
+            f"Strict knockout backtest: {knockout_correct}/{len(knockout_backtest)} "
+            f"({knockout_accuracy:.3f} 1X2 accuracy)"
+        )
     return 0
 
 

@@ -252,6 +252,13 @@ export interface PredictionModelMeta {
   trainingDataCutoff: string;
   dataSources: string[];
   validationAccuracy: number | null;
+  rawValidationAccuracy: number | null;
+  drawCalibrationThreshold: number;
+  knockoutValidationAccuracy: number | null;
+  knockoutValidationMatches: number;
+  knockoutValidationCorrect: number;
+  knockoutValidationStartDate: string;
+  knockoutValidationMethod: string;
   notes: string;
 }
 
