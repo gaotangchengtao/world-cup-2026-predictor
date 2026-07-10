@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-08T06:18:01.908156+00:00",
+  "updatedAt": "2026-07-10T03:02:40.151501+00:00",
   "sourceUrl": "https://fdp.fifa.org/assetspublic/ce281/pdf/SquadLists-English.pdf",
   "statsSourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/statistics/player-statistics",
   "squadStatus": "final",
@@ -83,7 +83,8 @@
       "internationalCaps": 121,
       "internationalGoals": 8,
       "shirtNumber": 2,
-      "photoUrl": "assets/players/376285.webp"
+      "photoUrl": "assets/players/376285.webp",
+      "clubZh": "里尔奥林匹克体育会"
     },
     {
       "playerId": "algeria-512127",
@@ -355,7 +356,8 @@
       "internationalCaps": 62,
       "internationalGoals": 6,
       "shirtNumber": 19,
-      "photoUrl": "assets/players/379939.webp"
+      "photoUrl": "assets/players/379939.webp",
+      "clubZh": "里尔奥林匹克体育会"
     },
     {
       "playerId": "algeria-512132",
@@ -434,7 +436,8 @@
       "internationalCaps": 5,
       "internationalGoals": 0,
       "shirtNumber": 24,
-      "photoUrl": "assets/players/433631.webp"
+      "photoUrl": "assets/players/433631.webp",
+      "clubZh": "皇家沙勒罗瓦体育俱乐部"
     },
     {
       "playerId": "algeria-520072",
@@ -465,7 +468,8 @@
       "internationalCaps": 5,
       "internationalGoals": 0,
       "shirtNumber": 26,
-      "photoUrl": "assets/players/511010.webp"
+      "photoUrl": "assets/players/511010.webp",
+      "clubZh": "巴黎足球俱乐部"
     },
     {
       "playerId": "argentina-430624",
@@ -481,7 +485,7 @@
       "internationalCaps": 4,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "photoUrl": null
+      "photoUrl": "assets/players/430624.webp"
     },
     {
       "playerId": "argentina-402934",
@@ -514,7 +518,8 @@
       "internationalCaps": 77,
       "internationalGoals": 1,
       "shirtNumber": 3,
-      "photoUrl": null
+      "photoUrl": "assets/players/308322.webp",
+      "clubZh": "奥林匹克里昂"
     },
     {
       "playerId": "argentina-402926",
@@ -547,8 +552,8 @@
       "internationalCaps": 78,
       "internationalGoals": 5,
       "shirtNumber": 5,
-      "clubZh": "小保加体育会",
-      "photoUrl": null
+      "photoUrl": "assets/players/332847.webp",
+      "clubZh": "小保加体育会"
     },
     {
       "playerId": "argentina-402921",
@@ -597,7 +602,8 @@
       "internationalCaps": 4,
       "internationalGoals": 2,
       "shirtNumber": 8,
-      "photoUrl": "assets/players/463661.webp"
+      "photoUrl": "assets/players/463661.webp",
+      "clubZh": "斯特拉斯堡竞赛会"
     },
     {
       "playerId": "argentina-416081",
@@ -613,7 +619,7 @@
       "internationalCaps": 53,
       "internationalGoals": 14,
       "shirtNumber": 9,
-      "photoUrl": null
+      "photoUrl": "assets/players/416081.webp"
     },
     {
       "playerId": "argentina-229397",
@@ -1271,7 +1277,8 @@
       "internationalCaps": 9,
       "internationalGoals": 3,
       "shirtNumber": 23,
-      "photoUrl": "assets/players/491166.webp"
+      "photoUrl": "assets/players/491166.webp",
+      "clubZh": "墨尔本胜利足球俱乐部"
     },
     {
       "playerId": "australia-498421",
@@ -1335,7 +1342,8 @@
       "internationalCaps": 28,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "photoUrl": "assets/players/371739.webp"
+      "photoUrl": "assets/players/371739.webp",
+      "clubZh": "萨尔斯堡红牛足球俱乐部"
     },
     {
       "playerId": "austria-520035",
@@ -1350,7 +1358,8 @@
       "internationalCaps": 1,
       "internationalGoals": 0,
       "shirtNumber": 2,
-      "photoUrl": "assets/players/520035.webp"
+      "photoUrl": "assets/players/520035.webp",
+      "clubZh": "埃尔切足球俱乐部"
     },
     {
       "playerId": "austria-405263",
@@ -1500,7 +1509,8 @@
       "internationalCaps": 76,
       "internationalGoals": 24,
       "shirtNumber": 11,
-      "photoUrl": "assets/players/401131.webp"
+      "photoUrl": "assets/players/401131.webp",
+      "clubZh": "奥格斯堡足球俱乐部"
     },
     {
       "playerId": "austria-520034",
@@ -1564,7 +1574,8 @@
       "internationalCaps": 42,
       "internationalGoals": 3,
       "shirtNumber": 15,
-      "photoUrl": "assets/players/372243.webp"
+      "photoUrl": "assets/players/372243.webp",
+      "clubZh": "弗赖堡体育俱乐部"
     },
     {
       "playerId": "austria-463288",
@@ -1964,7 +1975,8 @@
       "internationalCaps": 0,
       "internationalGoals": 0,
       "shirtNumber": 13,
-      "photoUrl": "assets/players/499803.webp"
+      "photoUrl": "assets/players/499803.webp",
+      "clubZh": "斯特拉斯堡竞赛会"
     },
     {
       "playerId": "belgium-448377",
@@ -1997,7 +2009,8 @@
       "internationalCaps": 82,
       "internationalGoals": 10,
       "shirtNumber": 15,
-      "photoUrl": "assets/players/358122.webp"
+      "photoUrl": "assets/players/358122.webp",
+      "clubZh": "里尔奥林匹克体育会"
     },
     {
       "playerId": "belgium-448366",
@@ -2062,7 +2075,8 @@
       "internationalCaps": 3,
       "internationalGoals": 0,
       "shirtNumber": 19,
-      "photoUrl": "assets/players/497902.webp"
+      "photoUrl": "assets/players/497902.webp",
+      "clubZh": "斯特拉斯堡竞赛会"
     },
     {
       "playerId": "belgium-448343",
@@ -2161,7 +2175,8 @@
       "internationalCaps": 6,
       "internationalGoals": 0,
       "shirtNumber": 25,
-      "photoUrl": "assets/players/514166.webp"
+      "photoUrl": "assets/players/514166.webp",
+      "clubZh": "里尔奥林匹克体育会"
     },
     {
       "playerId": "belgium-494025",
@@ -2177,7 +2192,8 @@
       "internationalCaps": 4,
       "internationalGoals": 0,
       "shirtNumber": 26,
-      "photoUrl": "assets/players/494025.webp"
+      "photoUrl": "assets/players/494025.webp",
+      "clubZh": "里尔奥林匹克体育会"
     },
     {
       "playerId": "bosnia-herzegovina-482978",
@@ -2451,7 +2467,8 @@
       "internationalCaps": 21,
       "internationalGoals": 0,
       "shirtNumber": 17,
-      "photoUrl": "assets/players/389886.webp"
+      "photoUrl": "assets/players/389886.webp",
+      "clubZh": "卡尔斯鲁厄体育俱乐部"
     },
     {
       "playerId": "bosnia-herzegovina-489520",
@@ -2482,7 +2499,8 @@
       "internationalCaps": 12,
       "internationalGoals": 1,
       "shirtNumber": 19,
-      "photoUrl": "assets/players/504990.webp"
+      "photoUrl": "assets/players/504990.webp",
+      "clubZh": "萨尔斯堡红牛足球俱乐部"
     },
     {
       "playerId": "bosnia-herzegovina-464566",
@@ -2561,6 +2579,7 @@
       "internationalCaps": 8,
       "internationalGoals": 0,
       "shirtNumber": 24,
+      "clubZh": "格拉兹风暴体育俱乐部",
       "photoUrl": null
     },
     {
@@ -2592,7 +2611,8 @@
       "internationalCaps": 3,
       "internationalGoals": 1,
       "shirtNumber": 26,
-      "photoUrl": "assets/players/522846.webp"
+      "photoUrl": "assets/players/522846.webp",
+      "clubZh": "利贝雷茨足球俱乐部"
     },
     {
       "playerId": "brazil-308370",
@@ -2906,7 +2926,8 @@
       "internationalCaps": 18,
       "internationalGoals": 4,
       "shirtNumber": 19,
-      "photoUrl": "assets/players/463746.webp"
+      "photoUrl": "assets/players/463746.webp",
+      "clubZh": "奥林匹克里昂"
     },
     {
       "playerId": "brazil-411726",
@@ -3194,7 +3215,8 @@
       "internationalCaps": 62,
       "internationalGoals": 10,
       "shirtNumber": 11,
-      "photoUrl": "assets/players/373344.webp"
+      "photoUrl": "assets/players/373344.webp",
+      "clubZh": "阿波罗利马素足球会"
     },
     {
       "playerId": "cape-verde-407114",
@@ -3486,6 +3508,7 @@
       "fifaId": 480322,
       "teamId": "canada",
       "name": "Luc De Fougerolles",
+      "nameZh": "吕克·德富热罗勒",
       "position": "DF",
       "dateOfBirth": "2005-10-12",
       "age": 20,
@@ -3824,7 +3847,8 @@
       "internationalCaps": 11,
       "internationalGoals": 3,
       "shirtNumber": 24,
-      "photoUrl": "assets/players/493970.webp"
+      "photoUrl": "assets/players/493970.webp",
+      "clubZh": "皇家圣基莱斯联"
     },
     {
       "playerId": "canada-423941",
@@ -3906,8 +3930,8 @@
       "internationalCaps": 38,
       "internationalGoals": 1,
       "shirtNumber": 3,
-      "clubZh": "博洛尼亚1909足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/441622.webp",
+      "clubZh": "博洛尼亚1909足球俱乐部"
     },
     {
       "playerId": "colombia-315614",
@@ -4021,7 +4045,7 @@
       "internationalCaps": 127,
       "internationalGoals": 31,
       "shirtNumber": 10,
-      "photoUrl": null
+      "photoUrl": "assets/players/269058.webp"
     },
     {
       "playerId": "colombia-470760",
@@ -4118,8 +4142,8 @@
       "internationalCaps": 66,
       "internationalGoals": 5,
       "shirtNumber": 16,
-      "clubZh": "水晶宫足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/395550.webp",
+      "clubZh": "水晶宫足球俱乐部"
     },
     {
       "playerId": "colombia-394500",
@@ -4135,8 +4159,8 @@
       "internationalCaps": 46,
       "internationalGoals": 1,
       "shirtNumber": 17,
-      "clubZh": "皇家马略卡体育会",
-      "photoUrl": null
+      "photoUrl": "assets/players/394500.webp",
+      "clubZh": "皇家马略卡体育会"
     },
     {
       "playerId": "colombia-476345",
@@ -4300,7 +4324,7 @@
       "internationalCaps": 29,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "photoUrl": null
+      "photoUrl": "assets/players/441313.webp"
     },
     {
       "playerId": "dr-congo-426357",
@@ -4380,7 +4404,8 @@
       "internationalCaps": 15,
       "internationalGoals": 0,
       "shirtNumber": 6,
-      "photoUrl": "assets/players/494458.webp"
+      "photoUrl": "assets/players/494458.webp",
+      "clubZh": "里尔奥林匹克体育会"
     },
     {
       "playerId": "dr-congo-424119",
@@ -4395,7 +4420,8 @@
       "internationalCaps": 19,
       "internationalGoals": 2,
       "shirtNumber": 7,
-      "photoUrl": "assets/players/424119.webp"
+      "photoUrl": "assets/players/424119.webp",
+      "clubZh": "蒙彼利埃体育会"
     },
     {
       "playerId": "dr-congo-433076",
@@ -4411,7 +4437,7 @@
       "internationalCaps": 59,
       "internationalGoals": 0,
       "shirtNumber": 8,
-      "photoUrl": null
+      "photoUrl": "assets/players/433076.webp"
     },
     {
       "playerId": "dr-congo-510989",
@@ -4474,7 +4500,8 @@
       "internationalCaps": 27,
       "internationalGoals": 1,
       "shirtNumber": 12,
-      "photoUrl": "assets/players/477833.webp"
+      "photoUrl": "assets/players/477833.webp",
+      "clubZh": "皇家亨克体育会"
     },
     {
       "playerId": "dr-congo-426506",
@@ -4506,8 +4533,8 @@
       "internationalCaps": 21,
       "internationalGoals": 0,
       "shirtNumber": 14,
-      "clubZh": "桑德兰足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/486147.webp",
+      "clubZh": "桑德兰足球俱乐部"
     },
     {
       "playerId": "dr-congo-477864",
@@ -4636,7 +4663,8 @@
       "internationalCaps": 110,
       "internationalGoals": 7,
       "shirtNumber": 22,
-      "photoUrl": "assets/players/356532.webp"
+      "photoUrl": "assets/players/356532.webp",
+      "clubZh": "里尔奥林匹克体育会"
     },
     {
       "playerId": "dr-congo-477835",
@@ -4666,7 +4694,8 @@
       "internationalCaps": 29,
       "internationalGoals": 0,
       "shirtNumber": 24,
-      "photoUrl": "assets/players/477853.webp"
+      "photoUrl": "assets/players/477853.webp",
+      "clubZh": "艾里斯利马素足球会"
     },
     {
       "playerId": "dr-congo-433161",
@@ -4749,7 +4778,8 @@
       "internationalCaps": 56,
       "internationalGoals": 0,
       "shirtNumber": 3,
-      "photoUrl": "assets/players/407343.webp"
+      "photoUrl": "assets/players/407343.webp",
+      "clubZh": "吉尔维森特足球俱乐部"
     },
     {
       "playerId": "cote-divoire-335807",
@@ -4931,7 +4961,8 @@
       "internationalCaps": 29,
       "internationalGoals": 6,
       "shirtNumber": 14,
-      "photoUrl": "assets/players/477777.webp"
+      "photoUrl": "assets/players/477777.webp",
+      "clubZh": "布鲁日舒高皇家体育会"
     },
     {
       "playerId": "cote-divoire-430822",
@@ -4963,7 +4994,8 @@
       "internationalCaps": 0,
       "internationalGoals": 0,
       "shirtNumber": 16,
-      "photoUrl": "assets/players/486259.webp"
+      "photoUrl": "assets/players/486259.webp",
+      "clubZh": "皇家沙勒罗瓦体育俱乐部"
     },
     {
       "playerId": "cote-divoire-486317",
@@ -4979,7 +5011,8 @@
       "internationalCaps": 22,
       "internationalGoals": 3,
       "shirtNumber": 17,
-      "photoUrl": "assets/players/486317.webp"
+      "photoUrl": "assets/players/486317.webp",
+      "clubZh": "斯特拉斯堡竞赛会"
     },
     {
       "playerId": "cote-divoire-430831",
@@ -5078,7 +5111,8 @@
       "internationalCaps": 4,
       "internationalGoals": 0,
       "shirtNumber": 23,
-      "photoUrl": "assets/players/403090.webp"
+      "photoUrl": "assets/players/403090.webp",
+      "clubZh": "帕纳辛奈科斯足球俱乐部"
     },
     {
       "playerId": "cote-divoire-506202",
@@ -5108,7 +5142,8 @@
       "internationalCaps": 5,
       "internationalGoals": 0,
       "shirtNumber": 25,
-      "photoUrl": "assets/players/430834.webp"
+      "photoUrl": "assets/players/430834.webp",
+      "clubZh": "皇家沙勒罗瓦体育俱乐部"
     },
     {
       "playerId": "cote-divoire-514208",
@@ -5173,8 +5208,8 @@
       "internationalCaps": 20,
       "internationalGoals": 0,
       "shirtNumber": 3,
-      "clubZh": "佛罗伦萨足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/448174.webp",
+      "clubZh": "佛罗伦萨足球俱乐部"
     },
     {
       "playerId": "croatia-448180",
@@ -5224,8 +5259,8 @@
       "internationalCaps": 34,
       "internationalGoals": 0,
       "shirtNumber": 6,
-      "clubZh": "阿贾克斯足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/448171.webp",
+      "clubZh": "阿贾克斯足球俱乐部"
     },
     {
       "playerId": "croatia-389753",
@@ -5425,7 +5460,8 @@
       "internationalCaps": 17,
       "internationalGoals": 2,
       "shirtNumber": 18,
-      "photoUrl": "assets/players/448164.webp"
+      "photoUrl": "assets/players/448164.webp",
+      "clubZh": "奥格斯堡足球俱乐部"
     },
     {
       "playerId": "croatia-485065",
@@ -5458,7 +5494,8 @@
       "internationalCaps": 10,
       "internationalGoals": 2,
       "shirtNumber": 20,
-      "photoUrl": "assets/players/485068.webp"
+      "photoUrl": "assets/players/485068.webp",
+      "clubZh": "弗赖堡体育俱乐部"
     },
     {
       "playerId": "croatia-448160",
@@ -5482,6 +5519,7 @@
       "fifaId": 499290,
       "teamId": "croatia",
       "name": "Luka Vuskovic",
+      "nameZh": "卢卡·武什科维奇",
       "position": "DF",
       "dateOfBirth": "2007-02-24",
       "age": 19,
@@ -5540,7 +5578,8 @@
       "internationalCaps": 13,
       "internationalGoals": 1,
       "shirtNumber": 25,
-      "photoUrl": "assets/players/389740.webp"
+      "photoUrl": "assets/players/389740.webp",
+      "clubZh": "中日德兰足球俱乐部"
     },
     {
       "playerId": "croatia-389754",
@@ -5604,7 +5643,8 @@
       "internationalCaps": 61,
       "internationalGoals": 1,
       "shirtNumber": 3,
-      "photoUrl": "assets/players/431698.webp"
+      "photoUrl": "assets/players/431698.webp",
+      "clubZh": "艾伯哈足球会"
     },
     {
       "playerId": "curacao-466361",
@@ -5668,13 +5708,15 @@
       "internationalCaps": 52,
       "internationalGoals": 14,
       "shirtNumber": 7,
-      "photoUrl": "assets/players/466317.webp"
+      "photoUrl": "assets/players/466317.webp",
+      "clubZh": "禾宁丹足球会"
     },
     {
       "playerId": "curacao-494989",
       "fifaId": 494989,
       "teamId": "curacao",
       "name": "Livano Comenencia",
+      "nameZh": "利瓦诺·科梅南西亚",
       "position": "MF",
       "dateOfBirth": "2004-02-03",
       "age": 22,
@@ -5812,7 +5854,8 @@
       "internationalCaps": 24,
       "internationalGoals": 5,
       "shirtNumber": 16,
-      "photoUrl": "assets/players/466363.webp"
+      "photoUrl": "assets/players/466363.webp",
+      "clubZh": "比华伦体育会"
     },
     {
       "playerId": "curacao-466346",
@@ -5827,7 +5870,8 @@
       "internationalCaps": 36,
       "internationalGoals": 2,
       "shirtNumber": 17,
-      "photoUrl": "assets/players/466346.webp"
+      "photoUrl": "assets/players/466346.webp",
+      "clubZh": "禾宁丹足球会"
     },
     {
       "playerId": "curacao-511141",
@@ -6214,7 +6258,8 @@
       "internationalCaps": 23,
       "internationalGoals": 5,
       "shirtNumber": 15,
-      "photoUrl": "assets/players/486082.webp"
+      "photoUrl": "assets/players/486082.webp",
+      "clubZh": "奥林匹克里昂"
     },
     {
       "playerId": "czechia-441162",
@@ -6409,7 +6454,8 @@
       "internationalCaps": 37,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "飓风竞技俱乐部"
     },
     {
       "playerId": "ecuador-402979",
@@ -6442,8 +6488,8 @@
       "internationalCaps": 54,
       "internationalGoals": 2,
       "shirtNumber": 3,
-      "clubZh": "阿森纳足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "阿森纳足球俱乐部"
     },
     {
       "playerId": "ecuador-463465",
@@ -6458,8 +6504,8 @@
       "internationalCaps": 18,
       "internationalGoals": 0,
       "shirtNumber": 4,
-      "clubZh": "皇家布鲁日足球会",
-      "photoUrl": null
+      "photoUrl": "assets/players/463465.webp",
+      "clubZh": "皇家布鲁日足球会"
     },
     {
       "playerId": "ecuador-419005",
@@ -6491,8 +6537,8 @@
       "internationalCaps": 36,
       "internationalGoals": 2,
       "shirtNumber": 6,
-      "clubZh": "巴黎圣日耳曼足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "巴黎圣日耳曼足球俱乐部"
     },
     {
       "playerId": "ecuador-389782",
@@ -6540,8 +6586,8 @@
       "internationalCaps": 24,
       "internationalGoals": 3,
       "shirtNumber": 9,
-      "clubZh": "威尼斯足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "威尼斯足球俱乐部"
     },
     {
       "playerId": "ecuador-463495",
@@ -6574,7 +6620,8 @@
       "internationalCaps": 33,
       "internationalGoals": 2,
       "shirtNumber": 11,
-      "photoUrl": "assets/players/448310.webp"
+      "photoUrl": "assets/players/448310.webp",
+      "clubZh": "皇家圣基莱斯联"
     },
     {
       "playerId": "ecuador-419002",
@@ -6655,7 +6702,8 @@
       "internationalCaps": 21,
       "internationalGoals": 4,
       "shirtNumber": 16,
-      "photoUrl": "assets/players/402985.webp"
+      "photoUrl": "assets/players/402985.webp",
+      "clubZh": "飓风竞技俱乐部"
     },
     {
       "playerId": "ecuador-402974",
@@ -6687,7 +6735,8 @@
       "internationalCaps": 5,
       "internationalGoals": 0,
       "shirtNumber": 18,
-      "photoUrl": "assets/players/463476.webp"
+      "photoUrl": "assets/players/463476.webp",
+      "clubZh": "中日德兰足球俱乐部"
     },
     {
       "playerId": "ecuador-419020",
@@ -6770,8 +6819,8 @@
       "internationalCaps": 63,
       "internationalGoals": 3,
       "shirtNumber": 23,
-      "clubZh": "切尔西足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "切尔西足球俱乐部"
     },
     {
       "playerId": "ecuador-514326",
@@ -6818,13 +6867,15 @@
       "internationalCaps": 6,
       "internationalGoals": 0,
       "shirtNumber": 26,
-      "photoUrl": "assets/players/463489.webp"
+      "photoUrl": "assets/players/463489.webp",
+      "clubZh": "皇家亨克体育会"
     },
     {
       "playerId": "egypt-408948",
       "fifaId": 408948,
       "teamId": "egypt",
       "name": "Mohamed El Shenawy",
+      "nameZh": "穆罕默德·希纳维",
       "position": "GK",
       "dateOfBirth": "1988-12-18",
       "age": 37,
@@ -6833,8 +6884,8 @@
       "internationalCaps": 77,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "clubZh": "国民体育俱乐部 (埃及)",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "国民体育俱乐部 (埃及)"
     },
     {
       "playerId": "egypt-369267",
@@ -6897,8 +6948,8 @@
       "internationalCaps": 49,
       "internationalGoals": 6,
       "shirtNumber": 5,
-      "clubZh": "艾因足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/344661.webp",
+      "clubZh": "艾因足球俱乐部"
     },
     {
       "playerId": "egypt-416902",
@@ -7003,7 +7054,7 @@
       "fifaId": 424106,
       "teamId": "egypt",
       "name": "Haissem Hassan",
-      "nameZh": "海森 哈桑",
+      "nameZh": "海瑟姆·哈桑",
       "position": "FW",
       "dateOfBirth": "2002-02-08",
       "age": 24,
@@ -7138,7 +7189,8 @@
       "internationalCaps": 25,
       "internationalGoals": 3,
       "shirtNumber": 20,
-      "photoUrl": "assets/players/430465.webp"
+      "photoUrl": "assets/players/430465.webp",
+      "clubZh": "北西兰足球俱乐部"
     },
     {
       "playerId": "egypt-483183",
@@ -7170,8 +7222,8 @@
       "internationalCaps": 52,
       "internationalGoals": 11,
       "shirtNumber": 22,
-      "clubZh": "曼彻斯特城足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "曼彻斯特城足球俱乐部"
     },
     {
       "playerId": "egypt-416906",
@@ -7186,8 +7238,8 @@
       "internationalCaps": 12,
       "internationalGoals": 0,
       "shirtNumber": 23,
-      "clubZh": "国民体育俱乐部 (埃及)",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "国民体育俱乐部 (埃及)"
     },
     {
       "playerId": "egypt-506124",
@@ -7285,8 +7337,8 @@
       "internationalCaps": 6,
       "internationalGoals": 0,
       "shirtNumber": 3,
-      "clubZh": "曼彻斯特城足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/463780.webp",
+      "clubZh": "曼彻斯特城足球俱乐部"
     },
     {
       "playerId": "england-433097",
@@ -7727,8 +7779,8 @@
       "internationalCaps": 59,
       "internationalGoals": 0,
       "shirtNumber": 3,
-      "clubZh": "阿士东维拉足球会",
-      "photoUrl": null
+      "photoUrl": "assets/players/368860.webp",
+      "clubZh": "阿士东维拉足球会"
     },
     {
       "playerId": "france-389876",
@@ -7761,8 +7813,8 @@
       "internationalCaps": 50,
       "internationalGoals": 0,
       "shirtNumber": 5,
-      "clubZh": "巴塞罗那足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "巴塞罗那足球俱乐部"
     },
     {
       "playerId": "france-485677",
@@ -7778,8 +7830,8 @@
       "internationalCaps": 15,
       "internationalGoals": 0,
       "shirtNumber": 6,
-      "clubZh": "罗马体育俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/485677.webp",
+      "clubZh": "罗马体育俱乐部"
     },
     {
       "playerId": "france-398680",
@@ -7962,8 +8014,8 @@
       "internationalCaps": 34,
       "internationalGoals": 0,
       "shirtNumber": 17,
-      "clubZh": "阿森纳足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "阿森纳足球俱乐部"
     },
     {
       "playerId": "france-483549",
@@ -7996,8 +8048,8 @@
       "internationalCaps": 45,
       "internationalGoals": 2,
       "shirtNumber": 19,
-      "clubZh": "沙特希拉尔足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/408042.webp",
+      "clubZh": "沙特希拉尔足球俱乐部"
     },
     {
       "playerId": "france-464114",
@@ -8064,8 +8116,8 @@
       "internationalCaps": 0,
       "internationalGoals": 0,
       "shirtNumber": 23,
-      "clubZh": "朗斯竞赛会",
-      "photoUrl": null
+      "photoUrl": "assets/players/464127.webp",
+      "clubZh": "朗斯竞赛会"
     },
     {
       "playerId": "france-431861",
@@ -8569,7 +8621,8 @@
       "internationalCaps": 31,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "photoUrl": "assets/players/386473.webp"
+      "photoUrl": "assets/players/386473.webp",
+      "clubZh": "圣加仑足球俱乐部"
     },
     {
       "playerId": "ghana-448522",
@@ -8600,7 +8653,8 @@
       "internationalCaps": 12,
       "internationalGoals": 2,
       "shirtNumber": 3,
-      "photoUrl": "assets/players/506279.webp"
+      "photoUrl": "assets/players/506279.webp",
+      "clubZh": "北西兰足球俱乐部"
     },
     {
       "playerId": "ghana-494351",
@@ -8615,8 +8669,8 @@
       "internationalCaps": 11,
       "internationalGoals": 0,
       "shirtNumber": 4,
-      "clubZh": "沃尔夫斯堡足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/494351.webp",
+      "clubZh": "沃尔夫斯堡足球俱乐部"
     },
     {
       "playerId": "ghana-369089",
@@ -8632,8 +8686,8 @@
       "internationalCaps": 59,
       "internationalGoals": 16,
       "shirtNumber": 5,
-      "clubZh": "比利亚雷阿尔足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/369089.webp",
+      "clubZh": "比利亚雷阿尔足球俱乐部"
     },
     {
       "playerId": "ghana-441336",
@@ -8682,8 +8736,8 @@
       "internationalCaps": 9,
       "internationalGoals": 0,
       "shirtNumber": 8,
-      "clubZh": "皇家奥维耶多",
-      "photoUrl": null
+      "photoUrl": "assets/players/507253.webp",
+      "clubZh": "皇家奥维耶多"
     },
     {
       "playerId": "ghana-353235",
@@ -8699,8 +8753,8 @@
       "internationalCaps": 121,
       "internationalGoals": 34,
       "shirtNumber": 9,
-      "clubZh": "莱斯特城足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/353235.webp",
+      "clubZh": "莱斯特城足球俱乐部"
     },
     {
       "playerId": "ghana-486213",
@@ -8844,7 +8898,7 @@
       "internationalCaps": 12,
       "internationalGoals": 1,
       "shirtNumber": 18,
-      "photoUrl": null
+      "photoUrl": "assets/players/486150.webp"
     },
     {
       "playerId": "ghana-411376",
@@ -8940,7 +8994,8 @@
       "internationalCaps": 20,
       "internationalGoals": 4,
       "shirtNumber": 24,
-      "photoUrl": "assets/players/448525.webp"
+      "photoUrl": "assets/players/448525.webp",
+      "clubZh": "奥林匹克里昂"
     },
     {
       "playerId": "ghana-514401",
@@ -8970,8 +9025,8 @@
       "internationalCaps": 3,
       "internationalGoals": 0,
       "shirtNumber": 26,
-      "clubZh": "欧塞尔青年会",
-      "photoUrl": null
+      "photoUrl": "assets/players/520039.webp",
+      "clubZh": "欧塞尔青年会"
     },
     {
       "playerId": "haiti-295922",
@@ -8987,7 +9042,8 @@
       "internationalCaps": 85,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "photoUrl": "assets/players/295922.webp"
+      "photoUrl": "assets/players/295922.webp",
+      "clubZh": "巴斯蒂亚体育会"
     },
     {
       "playerId": "haiti-397775",
@@ -9319,7 +9375,8 @@
       "internationalCaps": 18,
       "internationalGoals": 1,
       "shirtNumber": 22,
-      "photoUrl": "assets/players/431781.webp"
+      "photoUrl": "assets/players/431781.webp",
+      "clubZh": "皇家根特体育会"
     },
     {
       "playerId": "haiti-466853",
@@ -9349,7 +9406,8 @@
       "internationalCaps": 8,
       "internationalGoals": 0,
       "shirtNumber": 24,
-      "photoUrl": "assets/players/498439.webp"
+      "photoUrl": "assets/players/498439.webp",
+      "clubZh": "华雷根祖尔特体育会"
     },
     {
       "playerId": "haiti-523215",
@@ -9459,7 +9517,8 @@
       "internationalCaps": 79,
       "internationalGoals": 1,
       "shirtNumber": 5,
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "柏斯波利斯足球俱乐部"
     },
     {
       "playerId": "iran-371736",
@@ -9507,7 +9566,8 @@
       "internationalCaps": 39,
       "internationalGoals": 14,
       "shirtNumber": 8,
-      "photoUrl": "assets/players/448497.webp"
+      "photoUrl": "assets/players/448497.webp",
+      "clubZh": "罗斯托夫足球俱乐部"
     },
     {
       "playerId": "iran-388475",
@@ -9523,7 +9583,8 @@
       "internationalCaps": 108,
       "internationalGoals": 59,
       "shirtNumber": 9,
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "奥林匹亚科斯足球俱乐部"
     },
     {
       "playerId": "iran-403236",
@@ -9555,7 +9616,8 @@
       "internationalCaps": 15,
       "internationalGoals": 1,
       "shirtNumber": 11,
-      "photoUrl": "assets/players/416989.webp"
+      "photoUrl": "assets/players/416989.webp",
+      "clubZh": "柏斯波利斯足球俱乐部"
     },
     {
       "playerId": "iran-448507",
@@ -9571,7 +9633,8 @@
       "internationalCaps": 15,
       "internationalGoals": 0,
       "shirtNumber": 12,
-      "photoUrl": "assets/players/448507.webp"
+      "photoUrl": "assets/players/448507.webp",
+      "clubZh": "柏斯波利斯足球俱乐部"
     },
     {
       "playerId": "iran-390534",
@@ -9586,7 +9649,8 @@
       "internationalCaps": 66,
       "internationalGoals": 6,
       "shirtNumber": 13,
-      "photoUrl": "assets/players/390534.webp"
+      "photoUrl": "assets/players/390534.webp",
+      "clubZh": "柏斯波利斯足球俱乐部"
     },
     {
       "playerId": "iran-411644",
@@ -9806,7 +9870,8 @@
       "internationalCaps": 21,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "photoUrl": "assets/players/368744.webp"
+      "photoUrl": "assets/players/368744.webp",
+      "clubZh": "塔拉巴体育会"
     },
     {
       "playerId": "iraq-396158",
@@ -9900,7 +9965,8 @@
       "internationalCaps": 28,
       "internationalGoals": 2,
       "shirtNumber": 7,
-      "photoUrl": "assets/players/464458.webp"
+      "photoUrl": "assets/players/464458.webp",
+      "clubZh": "AEK拉纳卡足球俱乐部"
     },
     {
       "playerId": "iraq-433585",
@@ -9916,7 +9982,7 @@
       "internationalCaps": 78,
       "internationalGoals": 8,
       "shirtNumber": 8,
-      "photoUrl": null
+      "photoUrl": "assets/players/433585.webp"
     },
     {
       "playerId": "iraq-436628",
@@ -9995,7 +10061,8 @@
       "internationalCaps": 7,
       "internationalGoals": 1,
       "shirtNumber": 13,
-      "photoUrl": "assets/players/434029.webp"
+      "photoUrl": "assets/players/434029.webp",
+      "clubZh": "塔拉巴体育会"
     },
     {
       "playerId": "iraq-434026",
@@ -10167,7 +10234,8 @@
       "internationalCaps": 8,
       "internationalGoals": 0,
       "shirtNumber": 24,
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "塔拉巴体育会"
     },
     {
       "playerId": "iraq-479056",
@@ -10280,6 +10348,7 @@
       "internationalCaps": 145,
       "internationalGoals": 4,
       "shirtNumber": 5,
+      "clubZh": "东京足球会",
       "photoUrl": null
     },
     {
@@ -10429,7 +10498,8 @@
       "internationalCaps": 71,
       "internationalGoals": 16,
       "shirtNumber": 14,
-      "photoUrl": "assets/players/395321.webp"
+      "photoUrl": "assets/players/395321.webp",
+      "clubZh": "皇家亨克体育会"
     },
     {
       "playerId": "japan-448557",
@@ -10479,7 +10549,8 @@
       "internationalCaps": 7,
       "internationalGoals": 0,
       "shirtNumber": 17,
-      "photoUrl": "assets/players/485503.webp"
+      "photoUrl": "assets/players/485503.webp",
+      "clubZh": "弗赖堡体育俱乐部"
     },
     {
       "playerId": "japan-430413",
@@ -10579,7 +10650,8 @@
       "internationalCaps": 4,
       "internationalGoals": 0,
       "shirtNumber": 23,
-      "photoUrl": "assets/players/511710.webp"
+      "photoUrl": "assets/players/511710.webp",
+      "clubZh": "鹿岛鹿角"
     },
     {
       "playerId": "japan-479294",
@@ -10693,7 +10765,8 @@
       "internationalCaps": 18,
       "internationalGoals": 0,
       "shirtNumber": 4,
-      "photoUrl": "assets/players/489550.webp"
+      "photoUrl": "assets/players/489550.webp",
+      "clubZh": "阿尔费萨里体育会"
     },
     {
       "playerId": "jordan-431225",
@@ -10709,8 +10782,8 @@
       "internationalCaps": 82,
       "internationalGoals": 3,
       "shirtNumber": 5,
-      "clubZh": "首尔足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "首尔足球俱乐部"
     },
     {
       "playerId": "jordan-491167",
@@ -10740,7 +10813,8 @@
       "internationalCaps": 41,
       "internationalGoals": 5,
       "shirtNumber": 7,
-      "photoUrl": "assets/players/431208.webp"
+      "photoUrl": "assets/players/431208.webp",
+      "clubZh": "拉查体育会"
     },
     {
       "playerId": "jordan-431230",
@@ -10772,7 +10846,8 @@
       "internationalCaps": 68,
       "internationalGoals": 30,
       "shirtNumber": 9,
-      "photoUrl": "assets/players/431212.webp"
+      "photoUrl": "assets/players/431212.webp",
+      "clubZh": "艾塞利亚体育会"
     },
     {
       "playerId": "jordan-431211",
@@ -10819,7 +10894,8 @@
       "internationalCaps": 5,
       "internationalGoals": 0,
       "shirtNumber": 12,
-      "photoUrl": "assets/players/483127.webp"
+      "photoUrl": "assets/players/483127.webp",
+      "clubZh": "阿尔费萨里体育会"
     },
     {
       "playerId": "jordan-396950",
@@ -10942,7 +11018,8 @@
       "internationalCaps": 32,
       "internationalGoals": 1,
       "shirtNumber": 20,
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "巴格达空军体育会"
     },
     {
       "playerId": "jordan-433534",
@@ -10957,7 +11034,8 @@
       "internationalCaps": 49,
       "internationalGoals": 5,
       "shirtNumber": 21,
-      "photoUrl": "assets/players/433534.webp"
+      "photoUrl": "assets/players/433534.webp",
+      "clubZh": "卡塔尔体育会"
     },
     {
       "playerId": "jordan-431223",
@@ -11034,7 +11112,8 @@
       "internationalCaps": 1,
       "internationalGoals": 0,
       "shirtNumber": 26,
-      "photoUrl": "assets/players/511889.webp"
+      "photoUrl": "assets/players/511889.webp",
+      "clubZh": "阿尔费萨里体育会"
     },
     {
       "playerId": "south-korea-274281",
@@ -11050,7 +11129,8 @@
       "internationalCaps": 88,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "photoUrl": "assets/players/274281.webp"
+      "photoUrl": "assets/players/274281.webp",
+      "clubZh": "东京足球会"
     },
     {
       "playerId": "south-korea-423874",
@@ -11066,7 +11146,8 @@
       "internationalCaps": 10,
       "internationalGoals": 0,
       "shirtNumber": 2,
-      "photoUrl": "assets/players/423874.webp"
+      "photoUrl": "assets/players/423874.webp",
+      "clubZh": "中日德兰足球俱乐部"
     },
     {
       "playerId": "south-korea-492315",
@@ -11113,7 +11194,8 @@
       "internationalCaps": 7,
       "internationalGoals": 0,
       "shirtNumber": 5,
-      "photoUrl": "assets/players/418485.webp"
+      "photoUrl": "assets/players/418485.webp",
+      "clubZh": "鹿岛鹿角"
     },
     {
       "playerId": "south-korea-395084",
@@ -11179,7 +11261,8 @@
       "internationalCaps": 45,
       "internationalGoals": 12,
       "shirtNumber": 9,
-      "photoUrl": "assets/players/430387.webp"
+      "photoUrl": "assets/players/430387.webp",
+      "clubZh": "中日德兰足球俱乐部"
     },
     {
       "playerId": "south-korea-390525",
@@ -11229,7 +11312,8 @@
       "internationalCaps": 3,
       "internationalGoals": 0,
       "shirtNumber": 12,
-      "photoUrl": "assets/players/402820.webp"
+      "photoUrl": "assets/players/402820.webp",
+      "clubZh": "全北现代汽车足球俱乐部"
     },
     {
       "playerId": "south-korea-423880",
@@ -11261,7 +11345,8 @@
       "internationalCaps": 1,
       "internationalGoals": 0,
       "shirtNumber": 14,
-      "photoUrl": "assets/players/522282.webp"
+      "photoUrl": "assets/players/522282.webp",
+      "clubZh": "全北现代汽车足球俱乐部"
     },
     {
       "playerId": "south-korea-448580",
@@ -11426,7 +11511,8 @@
       "internationalCaps": 23,
       "internationalGoals": 3,
       "shirtNumber": 24,
-      "photoUrl": "assets/players/430385.webp"
+      "photoUrl": "assets/players/430385.webp",
+      "clubZh": "全北现代汽车足球俱乐部"
     },
     {
       "playerId": "south-korea-423855",
@@ -11668,7 +11754,8 @@
       "internationalCaps": 153,
       "internationalGoals": 0,
       "shirtNumber": 13,
-      "photoUrl": "assets/players/215285.webp"
+      "photoUrl": "assets/players/215285.webp",
+      "clubZh": "AEL利马素"
     },
     {
       "playerId": "mexico-514336",
@@ -11976,7 +12063,8 @@
       "internationalCaps": 5,
       "internationalGoals": 0,
       "shirtNumber": 6,
-      "photoUrl": "assets/players/485760.webp"
+      "photoUrl": "assets/players/485760.webp",
+      "clubZh": "里尔奥林匹克体育会"
     },
     {
       "playerId": "morocco-494293",
@@ -12090,7 +12178,8 @@
       "internationalCaps": 3,
       "internationalGoals": 0,
       "shirtNumber": 13,
-      "photoUrl": "assets/players/485756.webp"
+      "photoUrl": "assets/players/485756.webp",
+      "clubZh": "皇家亨克体育会"
     },
     {
       "playerId": "morocco-403083",
@@ -12122,7 +12211,8 @@
       "internationalCaps": 6,
       "internationalGoals": 0,
       "shirtNumber": 15,
-      "photoUrl": "assets/players/505097.webp"
+      "photoUrl": "assets/players/505097.webp",
+      "clubZh": "斯特拉斯堡竞赛会"
     },
     {
       "playerId": "morocco-505112",
@@ -12138,7 +12228,8 @@
       "internationalCaps": 4,
       "internationalGoals": 0,
       "shirtNumber": 16,
-      "photoUrl": "assets/players/505112.webp"
+      "photoUrl": "assets/players/505112.webp",
+      "clubZh": "斯特拉斯堡竞赛会"
     },
     {
       "playerId": "morocco-524320",
@@ -12202,7 +12293,8 @@
       "internationalCaps": 71,
       "internationalGoals": 36,
       "shirtNumber": 20,
-      "photoUrl": "assets/players/411678.webp"
+      "photoUrl": "assets/players/411678.webp",
+      "clubZh": "奥林匹亚科斯足球俱乐部"
     },
     {
       "playerId": "morocco-ayoube-amaimouni",
@@ -12757,8 +12849,8 @@
       "internationalCaps": 26,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "clubZh": "米尔沃尔足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "米尔沃尔足球俱乐部"
     },
     {
       "playerId": "new-zealand-331463",
@@ -12871,8 +12963,8 @@
       "internationalCaps": 42,
       "internationalGoals": 3,
       "shirtNumber": 8,
-      "clubZh": "斯旺西城足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "斯旺西城足球俱乐部"
     },
     {
       "playerId": "new-zealand-274078",
@@ -12905,8 +12997,8 @@
       "internationalCaps": 30,
       "internationalGoals": 3,
       "shirtNumber": 10,
-      "clubZh": "威灵顿凤凰足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "威灵顿凤凰足球俱乐部"
     },
     {
       "playerId": "new-zealand-405454",
@@ -12955,8 +13047,8 @@
       "internationalCaps": 39,
       "internationalGoals": 1,
       "shirtNumber": 13,
-      "clubZh": "雷克瑟姆足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "雷克瑟姆足球俱乐部"
     },
     {
       "playerId": "new-zealand-371142",
@@ -13164,6 +13256,7 @@
       "internationalCaps": 57,
       "internationalGoals": 2,
       "shirtNumber": 26,
+      "clubZh": "布伦特里镇足球会",
       "photoUrl": null
     },
     {
@@ -13180,8 +13273,8 @@
       "internationalCaps": 73,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "clubZh": "塞维利亚足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "塞维利亚足球俱乐部"
     },
     {
       "playerId": "norway-433067",
@@ -13197,7 +13290,8 @@
       "internationalCaps": 31,
       "internationalGoals": 0,
       "shirtNumber": 2,
-      "photoUrl": "assets/players/433067.webp"
+      "photoUrl": "assets/players/433067.webp",
+      "clubZh": "克雷莫纳体育会"
     },
     {
       "playerId": "norway-483516",
@@ -13213,8 +13307,8 @@
       "internationalCaps": 54,
       "internationalGoals": 2,
       "shirtNumber": 3,
-      "clubZh": "布伦特福德足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "布伦特福德足球俱乐部"
     },
     {
       "playerId": "norway-419672",
@@ -13296,8 +13390,8 @@
       "internationalCaps": 68,
       "internationalGoals": 1,
       "shirtNumber": 8,
-      "clubZh": "富勒姆足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "富勒姆足球俱乐部"
     },
     {
       "playerId": "norway-419652",
@@ -13395,8 +13489,8 @@
       "internationalCaps": 24,
       "internationalGoals": 1,
       "shirtNumber": 14,
-      "clubZh": "里斯本与本菲卡体育",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "里斯本与本菲卡体育"
     },
     {
       "playerId": "norway-483530",
@@ -13445,8 +13539,8 @@
       "internationalCaps": 17,
       "internationalGoals": 0,
       "shirtNumber": 17,
-      "clubZh": "博洛尼亚1909足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "博洛尼亚1909足球俱乐部"
     },
     {
       "playerId": "norway-419681",
@@ -13611,7 +13705,8 @@
       "internationalCaps": 56,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "photoUrl": "assets/players/267702.webp"
+      "photoUrl": "assets/players/267702.webp",
+      "clubZh": "民族俱乐部 (巴拉圭)"
     },
     {
       "playerId": "panama-441242",
@@ -13644,8 +13739,8 @@
       "internationalCaps": 33,
       "internationalGoals": 1,
       "shirtNumber": 3,
-      "clubZh": "诺里奇城足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/418715.webp",
+      "clubZh": "诺里奇城足球俱乐部"
     },
     {
       "playerId": "panama-385030",
@@ -13708,7 +13803,7 @@
       "internationalCaps": 71,
       "internationalGoals": 8,
       "shirtNumber": 7,
-      "photoUrl": null
+      "photoUrl": "assets/players/411176.webp"
     },
     {
       "playerId": "panama-385833",
@@ -13867,7 +13962,8 @@
       "internationalCaps": 70,
       "internationalGoals": 17,
       "shirtNumber": 17,
-      "photoUrl": "assets/players/411174.webp"
+      "photoUrl": "assets/players/411174.webp",
+      "clubZh": "天主教大学竞技俱乐部"
     },
     {
       "playerId": "panama-337251",
@@ -13947,7 +14043,7 @@
       "internationalCaps": 50,
       "internationalGoals": 0,
       "shirtNumber": 22,
-      "photoUrl": null
+      "photoUrl": "assets/players/441241.webp"
     },
     {
       "playerId": "panama-385031",
@@ -13978,7 +14074,8 @@
       "internationalCaps": 13,
       "internationalGoals": 1,
       "shirtNumber": 24,
-      "photoUrl": "assets/players/466669.webp"
+      "photoUrl": "assets/players/466669.webp",
+      "clubZh": "天主教大学竞技俱乐部"
     },
     {
       "playerId": "panama-344582",
@@ -14025,7 +14122,8 @@
       "internationalCaps": 30,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "photoUrl": "assets/players/318647.webp"
+      "photoUrl": "assets/players/318647.webp",
+      "clubZh": "波特诺山丘"
     },
     {
       "playerId": "paraguay-486875",
@@ -14040,7 +14138,8 @@
       "internationalCaps": 15,
       "internationalGoals": 1,
       "shirtNumber": 2,
-      "photoUrl": "assets/players/486875.webp"
+      "photoUrl": "assets/players/486875.webp",
+      "clubZh": "波特诺山丘"
     },
     {
       "playerId": "paraguay-431202",
@@ -14154,7 +14253,8 @@
       "internationalCaps": 49,
       "internationalGoals": 7,
       "shirtNumber": 9,
-      "photoUrl": "assets/players/369768.webp"
+      "photoUrl": "assets/players/369768.webp",
+      "clubZh": "克雷莫纳体育会"
     },
     {
       "playerId": "paraguay-369761",
@@ -14193,6 +14293,7 @@
       "fifaId": 494531,
       "teamId": "paraguay",
       "name": "Orlando Gill",
+      "nameZh": "奥兰多·吉尔",
       "position": "GK",
       "dateOfBirth": "2000-06-11",
       "age": 26,
@@ -14313,7 +14414,8 @@
       "internationalCaps": 34,
       "internationalGoals": 4,
       "shirtNumber": 19,
-      "photoUrl": "assets/players/441234.webp"
+      "photoUrl": "assets/players/441234.webp",
+      "clubZh": "斯特拉斯堡竞赛会"
     },
     {
       "playerId": "paraguay-406205",
@@ -14361,7 +14463,8 @@
       "internationalCaps": 1,
       "internationalGoals": 0,
       "shirtNumber": 22,
-      "photoUrl": "assets/players/447991.webp"
+      "photoUrl": "assets/players/447991.webp",
+      "clubZh": "奥林匹亚俱乐部"
     },
     {
       "playerId": "paraguay-424422",
@@ -14423,7 +14526,8 @@
       "internationalCaps": 3,
       "internationalGoals": 1,
       "shirtNumber": 26,
-      "photoUrl": "assets/players/505495.webp"
+      "photoUrl": "assets/players/505495.webp",
+      "clubZh": "泰拿尼斯体育会"
     },
     {
       "playerId": "portugal-403001",
@@ -14472,8 +14576,8 @@
       "internationalCaps": 76,
       "internationalGoals": 3,
       "shirtNumber": 3,
-      "clubZh": "曼彻斯特城足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/384752.webp",
+      "clubZh": "曼彻斯特城足球俱乐部"
     },
     {
       "playerId": "portugal-492358",
@@ -14642,8 +14746,8 @@
       "internationalCaps": 14,
       "internationalGoals": 1,
       "shirtNumber": 13,
-      "clubZh": "比利亚雷阿尔足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/489704.webp",
+      "clubZh": "比利亚雷阿尔足球俱乐部"
     },
     {
       "playerId": "portugal-441146",
@@ -14810,8 +14914,8 @@
       "internationalCaps": 39,
       "internationalGoals": 0,
       "shirtNumber": 23,
-      "clubZh": "巴黎圣日耳曼足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/441149.webp",
+      "clubZh": "巴黎圣日耳曼足球俱乐部"
     },
     {
       "playerId": "portugal-491216",
@@ -14876,7 +14980,8 @@
       "internationalCaps": 8,
       "internationalGoals": 0,
       "shirtNumber": 1,
-      "photoUrl": "assets/players/419459.webp"
+      "photoUrl": "assets/players/419459.webp",
+      "clubZh": "赖扬体育俱乐部"
     },
     {
       "playerId": "qatar-416051",
@@ -14892,7 +14997,8 @@
       "internationalCaps": 113,
       "internationalGoals": 4,
       "shirtNumber": 2,
-      "photoUrl": "assets/players/416051.webp"
+      "photoUrl": "assets/players/416051.webp",
+      "clubZh": "萨德体育俱乐部"
     },
     {
       "playerId": "qatar-356673",
@@ -14938,7 +15044,8 @@
       "internationalCaps": 39,
       "internationalGoals": 1,
       "shirtNumber": 5,
-      "photoUrl": "assets/players/419473.webp"
+      "photoUrl": "assets/players/419473.webp",
+      "clubZh": "赖扬体育俱乐部"
     },
     {
       "playerId": "qatar-345059",
@@ -14954,7 +15061,8 @@
       "internationalCaps": 132,
       "internationalGoals": 11,
       "shirtNumber": 6,
-      "photoUrl": "assets/players/345059.webp"
+      "photoUrl": "assets/players/345059.webp",
+      "clubZh": "赖扬体育俱乐部"
     },
     {
       "playerId": "qatar-353251",
@@ -14970,7 +15078,8 @@
       "internationalCaps": 78,
       "internationalGoals": 10,
       "shirtNumber": 7,
-      "photoUrl": "assets/players/353251.webp"
+      "photoUrl": "assets/players/353251.webp",
+      "clubZh": "赖扬体育俱乐部"
     },
     {
       "playerId": "qatar-429063",
@@ -15002,7 +15111,8 @@
       "internationalCaps": 74,
       "internationalGoals": 17,
       "shirtNumber": 9,
-      "photoUrl": "assets/players/385070.webp"
+      "photoUrl": "assets/players/385070.webp",
+      "clubZh": "加拉法体育俱乐部"
     },
     {
       "playerId": "qatar-284190",
@@ -15018,7 +15128,8 @@
       "internationalCaps": 190,
       "internationalGoals": 39,
       "shirtNumber": 10,
-      "photoUrl": "assets/players/284190.webp"
+      "photoUrl": "assets/players/284190.webp",
+      "clubZh": "萨德体育俱乐部"
     },
     {
       "playerId": "qatar-386347",
@@ -15034,7 +15145,8 @@
       "internationalCaps": 138,
       "internationalGoals": 40,
       "shirtNumber": 11,
-      "photoUrl": "assets/players/386347.webp"
+      "photoUrl": "assets/players/386347.webp",
+      "clubZh": "萨德体育俱乐部"
     },
     {
       "playerId": "qatar-354861",
@@ -15065,7 +15177,8 @@
       "internationalCaps": 9,
       "internationalGoals": 0,
       "shirtNumber": 13,
-      "photoUrl": "assets/players/510991.webp"
+      "photoUrl": "assets/players/510991.webp",
+      "clubZh": "加拉法体育俱乐部"
     },
     {
       "playerId": "qatar-homam-ahmed",
@@ -15111,7 +15224,8 @@
       "internationalCaps": 130,
       "internationalGoals": 21,
       "shirtNumber": 16,
-      "photoUrl": "assets/players/385067.webp"
+      "photoUrl": "assets/players/385067.webp",
+      "clubZh": "萨德体育俱乐部"
     },
     {
       "playerId": "qatar-419436",
@@ -15127,7 +15241,8 @@
       "internationalCaps": 15,
       "internationalGoals": 1,
       "shirtNumber": 17,
-      "photoUrl": "assets/players/419436.webp"
+      "photoUrl": "assets/players/419436.webp",
+      "clubZh": "加拉法体育俱乐部"
     },
     {
       "playerId": "qatar-386387",
@@ -15206,7 +15321,8 @@
       "internationalCaps": 60,
       "internationalGoals": 0,
       "shirtNumber": 22,
-      "photoUrl": "assets/players/416056.webp"
+      "photoUrl": "assets/players/416056.webp",
+      "clubZh": "萨德体育俱乐部"
     },
     {
       "playerId": "qatar-386348",
@@ -15350,8 +15466,8 @@
       "internationalCaps": 56,
       "internationalGoals": 1,
       "shirtNumber": 5,
-      "clubZh": "沙特希拉尔足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/403335.webp",
+      "clubZh": "沙特希拉尔足球俱乐部"
     },
     {
       "playerId": "saudi-arabia-403319",
@@ -15366,8 +15482,8 @@
       "internationalCaps": 49,
       "internationalGoals": 1,
       "shirtNumber": 6,
-      "clubZh": "沙特希拉尔足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "沙特希拉尔足球俱乐部"
     },
     {
       "playerId": "saudi-arabia-436537",
@@ -15415,8 +15531,8 @@
       "internationalCaps": 74,
       "internationalGoals": 16,
       "shirtNumber": 9,
-      "clubZh": "沙特艾阿里足球会",
-      "photoUrl": null
+      "photoUrl": "assets/players/419291.webp",
+      "clubZh": "沙特艾阿里足球会"
     },
     {
       "playerId": "saudi-arabia-339745",
@@ -15431,8 +15547,8 @@
       "internationalCaps": 113,
       "internationalGoals": 27,
       "shirtNumber": 10,
-      "clubZh": "沙特希拉尔足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "沙特希拉尔足球俱乐部"
     },
     {
       "playerId": "saudi-arabia-425804",
@@ -15464,8 +15580,8 @@
       "internationalCaps": 57,
       "internationalGoals": 1,
       "shirtNumber": 12,
-      "clubZh": "朗斯竞赛会",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "朗斯竞赛会"
     },
     {
       "playerId": "saudi-arabia-430518",
@@ -15641,8 +15757,8 @@
       "internationalCaps": 81,
       "internationalGoals": 8,
       "shirtNumber": 23,
-      "clubZh": "沙特希拉尔足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "沙特希拉尔足球俱乐部"
     },
     {
       "playerId": "saudi-arabia-419303",
@@ -16222,14 +16338,15 @@
       "internationalCaps": 33,
       "internationalGoals": 0,
       "shirtNumber": 6,
-      "clubZh": "巴列卡诺闪电",
-      "photoUrl": null
+      "photoUrl": "assets/players/448825.webp",
+      "clubZh": "巴列卡诺闪电"
     },
     {
       "playerId": "senegal-484698",
       "fifaId": 484698,
       "teamId": "senegal",
       "name": "Assane Diao",
+      "nameZh": "阿萨内·迪奥",
       "position": "FW",
       "dateOfBirth": "2005-09-07",
       "age": 20,
@@ -16352,8 +16469,8 @@
       "internationalCaps": 32,
       "internationalGoals": 0,
       "shirtNumber": 14,
-      "clubZh": "加拉塔萨雷体育俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/430671.webp",
+      "clubZh": "加拉塔萨雷体育俱乐部"
     },
     {
       "playerId": "senegal-403642",
@@ -16369,8 +16486,8 @@
       "internationalCaps": 64,
       "internationalGoals": 2,
       "shirtNumber": 15,
-      "clubZh": "摩纳哥体育协会足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "摩纳哥体育协会足球俱乐部"
     },
     {
       "playerId": "senegal-433806",
@@ -16437,7 +16554,8 @@
       "internationalCaps": 34,
       "internationalGoals": 0,
       "shirtNumber": 19,
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "奥林匹克里昂"
     },
     {
       "playerId": "senegal-496358",
@@ -16503,7 +16621,7 @@
       "internationalCaps": 6,
       "internationalGoals": 0,
       "shirtNumber": 23,
-      "photoUrl": null
+      "photoUrl": "assets/players/448821.webp"
     },
     {
       "playerId": "senegal-494279",
@@ -16741,7 +16859,8 @@
       "internationalCaps": 9,
       "internationalGoals": 1,
       "shirtNumber": 12,
-      "photoUrl": "assets/players/463234.webp"
+      "photoUrl": "assets/players/463234.webp",
+      "clubZh": "AEL利马素"
     },
     {
       "playerId": "south-africa-sphephelo-sithole",
@@ -17496,6 +17615,7 @@
       "fifaId": 489689,
       "teamId": "sweden",
       "name": "Lucas Bergvall",
+      "nameZh": "卢卡斯·贝里瓦尔",
       "position": "MF",
       "dateOfBirth": "2006-02-02",
       "age": 20,
@@ -17754,7 +17874,8 @@
       "internationalCaps": 9,
       "internationalGoals": 0,
       "shirtNumber": 22,
-      "photoUrl": "assets/players/503047.webp"
+      "photoUrl": "assets/players/503047.webp",
+      "clubZh": "皇家圣基莱斯联"
     },
     {
       "playerId": "sweden-360496",
@@ -17787,7 +17908,8 @@
       "internationalCaps": 3,
       "internationalGoals": 0,
       "shirtNumber": 24,
-      "photoUrl": "assets/players/519958.webp"
+      "photoUrl": "assets/players/519958.webp",
+      "clubZh": "米赞比体育会"
     },
     {
       "playerId": "sweden-489691",
@@ -17971,7 +18093,8 @@
       "internationalCaps": 14,
       "internationalGoals": 5,
       "shirtNumber": 9,
-      "photoUrl": "assets/players/502727.webp"
+      "photoUrl": "assets/players/502727.webp",
+      "clubZh": "弗赖堡体育俱乐部"
     },
     {
       "playerId": "switzerland-311558",
@@ -18186,7 +18309,8 @@
       "internationalCaps": 30,
       "internationalGoals": 1,
       "shirtNumber": 22,
-      "photoUrl": "assets/players/448103.webp"
+      "photoUrl": "assets/players/448103.webp",
+      "clubZh": "奥格斯堡足球俱乐部"
     },
     {
       "playerId": "switzerland-448112",
@@ -18251,7 +18375,8 @@
       "internationalCaps": 16,
       "internationalGoals": 5,
       "shirtNumber": 26,
-      "photoUrl": "assets/players/448104.webp"
+      "photoUrl": "assets/players/448104.webp",
+      "clubZh": "福尔图娜杜塞尔多夫"
     },
     {
       "playerId": "tunisia-520245",
@@ -18428,7 +18553,8 @@
       "internationalCaps": 19,
       "internationalGoals": 2,
       "shirtNumber": 11,
-      "photoUrl": "assets/players/464484.webp"
+      "photoUrl": "assets/players/464484.webp",
+      "clubZh": "奥格斯堡足球俱乐部"
     },
     {
       "playerId": "tunisia-441362",
@@ -18617,7 +18743,8 @@
       "internationalCaps": 5,
       "internationalGoals": 0,
       "shirtNumber": 23,
-      "photoUrl": "assets/players/506335.webp"
+      "photoUrl": "assets/players/506335.webp",
+      "clubZh": "北雪平体育会"
     },
     {
       "playerId": "tunisia-520246",
@@ -19137,8 +19264,8 @@
       "internationalCaps": 25,
       "internationalGoals": 0,
       "shirtNumber": 3,
-      "clubZh": "阿美利加足球俱乐部 (墨西哥)",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "阿美利加足球俱乐部 (墨西哥)"
     },
     {
       "playerId": "uruguay-419101",
@@ -19188,8 +19315,8 @@
       "internationalCaps": 75,
       "internationalGoals": 3,
       "shirtNumber": 6,
-      "clubZh": "托特纳姆热刺足球俱乐部",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "托特纳姆热刺足球俱乐部"
     },
     {
       "playerId": "uruguay-402898",
@@ -19273,7 +19400,8 @@
       "internationalCaps": 39,
       "internationalGoals": 2,
       "shirtNumber": 11,
-      "photoUrl": "assets/players/439956.webp"
+      "photoUrl": "assets/players/439956.webp",
+      "clubZh": "帕纳辛奈科斯足球俱乐部"
     },
     {
       "playerId": "uruguay-402897",
@@ -19357,8 +19485,8 @@
       "internationalCaps": 37,
       "internationalGoals": 2,
       "shirtNumber": 16,
-      "clubZh": "拿坡里足球会",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "拿坡里足球会"
     },
     {
       "playerId": "uruguay-402895",
@@ -19408,7 +19536,8 @@
       "internationalCaps": 11,
       "internationalGoals": 3,
       "shirtNumber": 19,
-      "photoUrl": "assets/players/332897.webp"
+      "photoUrl": "assets/players/332897.webp",
+      "clubZh": "堤格雷斯UANL"
     },
     {
       "playerId": "uruguay-419100",
@@ -19506,8 +19635,8 @@
       "internationalCaps": 7,
       "internationalGoals": 1,
       "shirtNumber": 25,
-      "clubZh": "皇家盐湖城",
-      "photoUrl": null
+      "photoUrl": null,
+      "clubZh": "皇家盐湖城"
     },
     {
       "playerId": "uruguay-419142",
@@ -19890,7 +20019,8 @@
       "internationalCaps": 29,
       "internationalGoals": 0,
       "shirtNumber": 22,
-      "photoUrl": "assets/players/419077.webp"
+      "photoUrl": "assets/players/419077.webp",
+      "clubZh": "图卢兹足球俱乐部"
     },
     {
       "playerId": "usa-423700",
@@ -20033,8 +20163,8 @@
       "internationalCaps": 52,
       "internationalGoals": 1,
       "shirtNumber": 5,
-      "clubZh": "德黑兰独立足球俱乐部",
-      "photoUrl": null
+      "photoUrl": "assets/players/371415.webp",
+      "clubZh": "德黑兰独立足球俱乐部"
     },
     {
       "playerId": "uzbekistan-479106",
@@ -20065,7 +20195,7 @@
       "internationalCaps": 91,
       "internationalGoals": 10,
       "shirtNumber": 7,
-      "photoUrl": null
+      "photoUrl": "assets/players/371348.webp"
     },
     {
       "playerId": "uzbekistan-368545",
@@ -20125,7 +20255,8 @@
       "internationalCaps": 46,
       "internationalGoals": 10,
       "shirtNumber": 11,
-      "photoUrl": "assets/players/479080.webp"
+      "photoUrl": "assets/players/479080.webp",
+      "clubZh": "柏斯波利斯足球俱乐部"
     },
     {
       "playerId": "uzbekistan-479110",
@@ -20279,7 +20410,8 @@
       "internationalCaps": 86,
       "internationalGoals": 25,
       "shirtNumber": 21,
-      "photoUrl": "assets/players/368546.webp"
+      "photoUrl": "assets/players/368546.webp",
+      "clubZh": "柏斯波利斯足球俱乐部"
     },
     {
       "playerId": "uzbekistan-464933",

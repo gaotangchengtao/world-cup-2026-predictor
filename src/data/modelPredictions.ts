@@ -1,9 +1,9 @@
 import type { ModelPredictionProfile, PredictionModelMeta } from "../types/worldCup";
 
 export const predictionModelMeta: PredictionModelMeta = {
-  "modelName": "Current-State Hybrid (Soft Voting Ensemble (RF + HGB))",
-  "trainedAt": "2026-07-08T14:18:00+08:00",
-  "trainingDataCutoff": "2026-07-08",
+  "modelName": "Current-State Hybrid (RandomForestClassifier)",
+  "trainedAt": "2026-07-10T11:03:00+08:00",
+  "trainingDataCutoff": "2026-07-10",
   "dataSources": [
     "Historical international results CSV (local)",
     "Current tournament state snapshot (committed)",
@@ -15,8 +15,8 @@ export const predictionModelMeta: PredictionModelMeta = {
     "Projected current-squad structure and role fields",
     "Current public squad-value snapshot and frozen strength fields"
   ],
-  "validationAccuracy": 0.5925,
-  "notes": "Classifier trained on 49215 historical matches with exponential time decay and final-tournament matches weighted highest. The match model now uses 25 features, including multiple recent-form windows, Elo level and expected score, opponent strength, team experience, match type, and recency weight. Candidate validation scores: Logistic Regression Baseline: 0.434, HistGradientBoostingClassifier: 0.588, RandomForestClassifier: 0.589, Soft Voting Ensemble (RF + HGB): 0.593. Profiles blend current tournament evidence, availability, tactical fit, cohesion, and coach adaptability. Baseline accuracy: 0.434; selected accuracy: 0.593. Context scores are analyst estimates and should be refreshed as news changes."
+  "validationAccuracy": 0.5914,
+  "notes": "Classifier trained on 49215 historical matches with exponential time decay and final-tournament matches weighted highest. The match model now uses 25 features, including multiple recent-form windows, Elo level and expected score, opponent strength, team experience, match type, and recency weight. Candidate validation scores: Logistic Regression Baseline: 0.426, HistGradientBoostingClassifier: 0.589, RandomForestClassifier: 0.591, Soft Voting Ensemble (RF + HGB): 0.590. Profiles blend current tournament evidence, availability, tactical fit, cohesion, and coach adaptability. Baseline accuracy: 0.426; selected accuracy: 0.591. Context scores are analyst estimates and should be refreshed as news changes."
 };
 
 export const modelPredictionProfiles: ModelPredictionProfile[] = [
@@ -25,31 +25,35 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "mlStrengthScore": 91,
     "recentFormScore": 98,
     "tournamentFormScore": 90,
-    "attackTrend": 87,
-    "defenseTrend": 84,
-    "squadAvailabilityScore": 94,
+    "attackTrend": 84,
+    "defenseTrend": 85,
+    "squadAvailabilityScore": 92,
     "tacticalFitScore": 96,
     "playerFitScore": 95,
     "squadCohesionScore": 95,
     "currentSquadSignalScore": 55,
     "coachAdaptabilityScore": 95,
-    "currentMatchCount": 4,
+    "currentMatchCount": 5,
     "confidenceScore": 93,
     "upsetRisk": "low",
-    "keyAbsences": [],
-    "keyAbsencesZh": [],
+    "keyAbsences": [
+      "Kylian Mbappe - right-ankle discomfort after the Morocco match; availability currently expected"
+    ],
+    "keyAbsencesZh": [
+      "基利安·姆巴佩 - 对摩洛哥赛后右脚踝不适，目前预计仍可出战"
+    ],
     "tacticalNotes": [
-      "France have now survived a low-margin knockout test against Paraguay and move into a high-leverage quarter-final against Morocco with elite transition threat intact."
+      "France beat Morocco 2-0 to become the first confirmed semi-finalist. Mbappe and Dembele scored, the team kept another knockout clean sheet, and France will face the winner of Spain versus Belgium."
     ],
     "tacticalNotesZh": [
-      "法国已经通过对巴拉圭的低比分淘汰赛考验，并将在 1/4 决赛对阵摩洛哥。球队的转换进攻威胁和大赛稳定性仍然是核心优势。"
+      "法国 2-0 淘汰摩洛哥，成为首支晋级四强的球队。姆巴佩和登贝莱进球，球队再次在淘汰赛保持零封，半决赛将对阵西班牙与比利时之间的胜者。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
-    "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
+    "updatedAt": "2026-07-10T11:03:00+08:00",
+    "explanation": "Hybrid estimate using recency-weighted international history, 5 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
     "teamId": "argentina",
-    "mlStrengthScore": 89,
+    "mlStrengthScore": 88,
     "recentFormScore": 98,
     "tournamentFormScore": 86,
     "attackTrend": 89,
@@ -75,12 +79,12 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "阿根廷 3-2 逆转埃及后将对阵瑞士。梅西的组织和收官阶段控制力让他们继续保持冠军热门身份，但连续丢球信号也让防守控制力需要继续观察。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
     "teamId": "spain",
-    "mlStrengthScore": 87,
+    "mlStrengthScore": 86,
     "recentFormScore": 90,
     "tournamentFormScore": 81,
     "attackTrend": 75,
@@ -102,12 +106,12 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "西班牙 1-0 淘汰葡萄牙后将对阵比利时；连续零封趋势让防守稳定性评分继续保持高位。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
     "teamId": "england",
-    "mlStrengthScore": 86,
+    "mlStrengthScore": 85,
     "recentFormScore": 93,
     "tournamentFormScore": 83,
     "attackTrend": 92,
@@ -133,7 +137,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "英格兰 3-2 险胜墨西哥后将对阵挪威；模型奖励逆境韧性，但保留少量人员可用性与纪律风险。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -150,7 +154,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "currentSquadSignalScore": 55,
     "coachAdaptabilityScore": 92,
     "currentMatchCount": 4,
-    "confidenceScore": 89,
+    "confidenceScore": 88,
     "upsetRisk": "low",
     "keyAbsences": [],
     "keyAbsencesZh": [],
@@ -160,7 +164,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "挪威 2-1 淘汰巴西是当前模型里最强的赛事信号之一，进攻趋势和高压局信心都被上调。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -191,61 +195,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "进攻体系正在稳定制造机会，中后卫位置的阵容深度是主要人员风险。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
-    "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
-  },
-  {
-    "teamId": "morocco",
-    "mlStrengthScore": 76,
-    "recentFormScore": 79,
-    "tournamentFormScore": 67,
-    "attackTrend": 55,
-    "defenseTrend": 85,
-    "squadAvailabilityScore": 93,
-    "tacticalFitScore": 94,
-    "playerFitScore": 94,
-    "squadCohesionScore": 94,
-    "currentSquadSignalScore": 55,
-    "coachAdaptabilityScore": 90,
-    "currentMatchCount": 4,
-    "confidenceScore": 83,
-    "upsetRisk": "low",
-    "keyAbsences": [],
-    "keyAbsencesZh": [],
-    "tacticalNotes": [
-      "Morocco's 3-0 win over Canada sharply boosts its knockout form and confirms the defensive-to-transition pattern remains repeatable."
-    ],
-    "tacticalNotesZh": [
-      "摩洛哥 3-0 淘汰加拿大后，淘汰赛状态明显上调；防守站稳后快速转换的模式依然可靠。"
-    ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
-    "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
-  },
-  {
-    "teamId": "netherlands",
-    "mlStrengthScore": 75,
-    "recentFormScore": 82,
-    "tournamentFormScore": 65,
-    "attackTrend": 88,
-    "defenseTrend": 65,
-    "squadAvailabilityScore": 91,
-    "tacticalFitScore": 90,
-    "playerFitScore": 89,
-    "squadCohesionScore": 89,
-    "currentSquadSignalScore": 55,
-    "coachAdaptabilityScore": 88,
-    "currentMatchCount": 3,
-    "confidenceScore": 80,
-    "upsetRisk": "low",
-    "keyAbsences": [],
-    "keyAbsencesZh": [],
-    "tacticalNotes": [
-      "Five goals against Sweden increased the model's attacking-form estimate, though transition defense remains a watch point."
-    ],
-    "tacticalNotesZh": [
-      "对瑞典打进五球显著提高了进攻状态评分，但由攻转守仍需持续观察。"
-    ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -272,7 +222,34 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "哥伦比亚点球不敌瑞士后已经出局。整体攻守平衡仍有复盘价值，但不再进入实时夺冠模型。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
+    "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
+  },
+  {
+    "teamId": "netherlands",
+    "mlStrengthScore": 74,
+    "recentFormScore": 82,
+    "tournamentFormScore": 65,
+    "attackTrend": 88,
+    "defenseTrend": 65,
+    "squadAvailabilityScore": 91,
+    "tacticalFitScore": 90,
+    "playerFitScore": 89,
+    "squadCohesionScore": 89,
+    "currentSquadSignalScore": 55,
+    "coachAdaptabilityScore": 88,
+    "currentMatchCount": 3,
+    "confidenceScore": 80,
+    "upsetRisk": "low",
+    "keyAbsences": [],
+    "keyAbsencesZh": [],
+    "tacticalNotes": [
+      "Five goals against Sweden increased the model's attacking-form estimate, though transition defense remains a watch point."
+    ],
+    "tacticalNotesZh": [
+      "对瑞典打进五球显著提高了进攻状态评分，但由攻转守仍需持续观察。"
+    ],
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -299,7 +276,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "比利时 4-1 淘汰美国后，显著修正了小组赛阶段的不稳定信号，终结效率和比赛掌控力都被上调。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -326,7 +303,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "美国 1-4 不敌比利时后已经出局；主场优势不再进入夺冠模型。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -353,7 +330,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "瑞士 0-0 战平哥伦比亚并通过点球 4-3 晋级，在对阵阿根廷前进一步验证了防守结构和点球抗压能力。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -370,7 +347,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "currentSquadSignalScore": 55,
     "coachAdaptabilityScore": 91,
     "currentMatchCount": 4,
-    "confidenceScore": 78,
+    "confidenceScore": 77,
     "upsetRisk": "medium",
     "keyAbsences": [
       "Raphinha - hamstring status uncertain"
@@ -384,8 +361,35 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "巴西 1-2 不敌挪威后已经出局；后续更新应把他们视为阵容重建故事，而不是当前冠军候选。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
+  },
+  {
+    "teamId": "morocco",
+    "mlStrengthScore": 69,
+    "recentFormScore": 67,
+    "tournamentFormScore": 57,
+    "attackTrend": 50,
+    "defenseTrend": 77,
+    "squadAvailabilityScore": 93,
+    "tacticalFitScore": 94,
+    "playerFitScore": 94,
+    "squadCohesionScore": 94,
+    "currentSquadSignalScore": 55,
+    "coachAdaptabilityScore": 90,
+    "currentMatchCount": 5,
+    "confidenceScore": 78,
+    "upsetRisk": "low",
+    "keyAbsences": [],
+    "keyAbsencesZh": [],
+    "tacticalNotes": [
+      "Morocco are eliminated after a 2-0 quarter-final loss to France. Their compact defensive structure held until the second half, but limited attacking output against elite opposition ended the title path."
+    ],
+    "tacticalNotesZh": [
+      "摩洛哥在 1/4 决赛 0-2 不敌法国后出局。球队的紧凑防守坚持到下半场，但面对顶级对手时进攻产出不足，最终结束夺冠路径。"
+    ],
+    "updatedAt": "2026-07-10T11:03:00+08:00",
+    "explanation": "Hybrid estimate using recency-weighted international history, 5 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
     "teamId": "mexico",
@@ -411,7 +415,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "墨西哥 2-3 不敌英格兰后已经出局。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -438,31 +442,8 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "优秀的位置纪律和球员角色熟悉度，让这套阵容的实际价值高于单纯身价评价。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
-  },
-  {
-    "teamId": "south-korea",
-    "mlStrengthScore": 66,
-    "recentFormScore": 56,
-    "tournamentFormScore": 63,
-    "attackTrend": 48,
-    "defenseTrend": 59,
-    "squadAvailabilityScore": 90,
-    "tacticalFitScore": 83,
-    "playerFitScore": 84,
-    "squadCohesionScore": 85,
-    "currentSquadSignalScore": 55,
-    "coachAdaptabilityScore": 80,
-    "currentMatchCount": 2,
-    "confidenceScore": 73,
-    "upsetRisk": "medium",
-    "keyAbsences": [],
-    "keyAbsencesZh": [],
-    "tacticalNotes": [],
-    "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
-    "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
     "teamId": "canada",
@@ -488,8 +469,31 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "加拿大 0-3 不敌摩洛哥后已经出局。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
+  },
+  {
+    "teamId": "south-korea",
+    "mlStrengthScore": 65,
+    "recentFormScore": 56,
+    "tournamentFormScore": 63,
+    "attackTrend": 48,
+    "defenseTrend": 59,
+    "squadAvailabilityScore": 90,
+    "tacticalFitScore": 83,
+    "playerFitScore": 84,
+    "squadCohesionScore": 85,
+    "currentSquadSignalScore": 55,
+    "coachAdaptabilityScore": 80,
+    "currentMatchCount": 2,
+    "confidenceScore": 73,
+    "upsetRisk": "medium",
+    "keyAbsences": [],
+    "keyAbsencesZh": [],
+    "tacticalNotes": [],
+    "tacticalNotesZh": [],
+    "updatedAt": "2026-07-10T11:03:00+08:00",
+    "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
     "teamId": "portugal",
@@ -515,35 +519,8 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "葡萄牙 0-1 不敌西班牙后已经出局，也很可能意味着克里斯蒂亚诺·罗纳尔多的世界杯篇章结束。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
-  },
-  {
-    "teamId": "egypt",
-    "mlStrengthScore": 60,
-    "recentFormScore": 57,
-    "tournamentFormScore": 50,
-    "attackTrend": 61,
-    "defenseTrend": 61,
-    "squadAvailabilityScore": 91,
-    "tacticalFitScore": 89,
-    "playerFitScore": 90,
-    "squadCohesionScore": 91,
-    "currentSquadSignalScore": 55,
-    "coachAdaptabilityScore": 87,
-    "currentMatchCount": 4,
-    "confidenceScore": 73,
-    "upsetRisk": "medium",
-    "keyAbsences": [],
-    "keyAbsencesZh": [],
-    "tacticalNotes": [
-      "Egypt are eliminated after pushing Argentina into a 3-2 knockout match. The model keeps a positive tournament-form note, but removes them from live title paths."
-    ],
-    "tacticalNotesZh": [
-      "埃及 2-3 不敌阿根廷后已经出局。模型保留其淘汰赛竞争力信号，但不再把埃及放入实时夺冠路径。"
-    ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
-    "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
     "teamId": "australia",
@@ -565,8 +542,35 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
+  },
+  {
+    "teamId": "egypt",
+    "mlStrengthScore": 59,
+    "recentFormScore": 57,
+    "tournamentFormScore": 50,
+    "attackTrend": 61,
+    "defenseTrend": 61,
+    "squadAvailabilityScore": 91,
+    "tacticalFitScore": 89,
+    "playerFitScore": 90,
+    "squadCohesionScore": 91,
+    "currentSquadSignalScore": 55,
+    "coachAdaptabilityScore": 87,
+    "currentMatchCount": 4,
+    "confidenceScore": 73,
+    "upsetRisk": "medium",
+    "keyAbsences": [],
+    "keyAbsencesZh": [],
+    "tacticalNotes": [
+      "Egypt are eliminated after pushing Argentina into a 3-2 knockout match. The model keeps a positive tournament-form note, but removes them from live title paths."
+    ],
+    "tacticalNotesZh": [
+      "埃及 2-3 不敌阿根廷后已经出局。模型保留其淘汰赛竞争力信号，但不再把埃及放入实时夺冠路径。"
+    ],
+    "updatedAt": "2026-07-10T11:03:00+08:00",
+    "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
     "teamId": "ghana",
@@ -582,43 +586,20 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "currentSquadSignalScore": 55,
     "coachAdaptabilityScore": 85,
     "currentMatchCount": 2,
-    "confidenceScore": 70,
+    "confidenceScore": 69,
     "upsetRisk": "medium",
     "keyAbsences": [],
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
-  },
-  {
-    "teamId": "cote-divoire",
-    "mlStrengthScore": 58,
-    "recentFormScore": 67,
-    "tournamentFormScore": 43,
-    "attackTrend": 56,
-    "defenseTrend": 63,
-    "squadAvailabilityScore": 89,
-    "tacticalFitScore": 82,
-    "playerFitScore": 83,
-    "squadCohesionScore": 84,
-    "currentSquadSignalScore": 55,
-    "coachAdaptabilityScore": 80,
-    "currentMatchCount": 3,
-    "confidenceScore": 68,
-    "upsetRisk": "medium",
-    "keyAbsences": [],
-    "keyAbsencesZh": [],
-    "tacticalNotes": [],
-    "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
-    "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
     "teamId": "scotland",
     "mlStrengthScore": 58,
     "recentFormScore": 55,
-    "tournamentFormScore": 53,
+    "tournamentFormScore": 52,
     "attackTrend": 44,
     "defenseTrend": 72,
     "squadAvailabilityScore": 90,
@@ -634,7 +615,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -651,7 +632,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "currentSquadSignalScore": 55,
     "coachAdaptabilityScore": 82,
     "currentMatchCount": 2,
-    "confidenceScore": 67,
+    "confidenceScore": 66,
     "upsetRisk": "medium",
     "keyAbsences": [],
     "keyAbsencesZh": [],
@@ -661,7 +642,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "前两场小组赛暴露了防守控制问题，个人能力尚未转化为稳定的比赛掌控力。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -684,7 +665,30 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
+    "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
+  },
+  {
+    "teamId": "cote-divoire",
+    "mlStrengthScore": 57,
+    "recentFormScore": 67,
+    "tournamentFormScore": 43,
+    "attackTrend": 56,
+    "defenseTrend": 63,
+    "squadAvailabilityScore": 89,
+    "tacticalFitScore": 82,
+    "playerFitScore": 83,
+    "squadCohesionScore": 84,
+    "currentSquadSignalScore": 55,
+    "coachAdaptabilityScore": 80,
+    "currentMatchCount": 3,
+    "confidenceScore": 68,
+    "upsetRisk": "medium",
+    "keyAbsences": [],
+    "keyAbsencesZh": [],
+    "tacticalNotes": [],
+    "tacticalNotesZh": [],
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -707,7 +711,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -730,7 +734,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -753,7 +757,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -780,7 +784,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "巴拉圭 0-1 惜败法国后已经出局。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 4 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -807,14 +811,14 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "战平西班牙、逆境中战平乌拉圭，明显提升了球队状态与阵容默契评分。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
     "teamId": "sweden",
     "mlStrengthScore": 50,
     "recentFormScore": 29,
-    "tournamentFormScore": 39,
+    "tournamentFormScore": 38,
     "attackTrend": 58,
     "defenseTrend": 24,
     "squadAvailabilityScore": 90,
@@ -830,7 +834,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -853,7 +857,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -876,7 +880,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 1 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -899,7 +903,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -926,7 +930,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "tacticalNotesZh": [
       "塞内加尔的进攻足以威胁挪威，但单场丢三球提高了模型对开放转换阶段防守控制力的担忧。"
     ],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -949,7 +953,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -966,13 +970,13 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "currentSquadSignalScore": 55,
     "coachAdaptabilityScore": 84,
     "currentMatchCount": 3,
-    "confidenceScore": 63,
+    "confidenceScore": 62,
     "upsetRisk": "medium",
     "keyAbsences": [],
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -995,7 +999,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 1 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1018,12 +1022,12 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 1 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
     "teamId": "south-africa",
-    "mlStrengthScore": 43,
+    "mlStrengthScore": 42,
     "recentFormScore": 36,
     "tournamentFormScore": 28,
     "attackTrend": 38,
@@ -1041,7 +1045,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1064,7 +1068,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1087,7 +1091,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1110,7 +1114,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1127,13 +1131,13 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "currentSquadSignalScore": 55,
     "coachAdaptabilityScore": 70,
     "currentMatchCount": 2,
-    "confidenceScore": 53,
+    "confidenceScore": 52,
     "upsetRisk": "high",
     "keyAbsences": [],
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1156,7 +1160,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 3 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1179,7 +1183,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1202,7 +1206,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   },
   {
@@ -1225,7 +1229,7 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = [
     "keyAbsencesZh": [],
     "tacticalNotes": [],
     "tacticalNotesZh": [],
-    "updatedAt": "2026-07-08T14:18:00+08:00",
+    "updatedAt": "2026-07-10T11:03:00+08:00",
     "explanation": "Hybrid estimate using recency-weighted international history, 2 current World Cup match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
   }
 ];

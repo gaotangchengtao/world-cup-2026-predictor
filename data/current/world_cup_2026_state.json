@@ -1,8 +1,8 @@
 {
-  "snapshotAt": "2026-07-08T14:18:00+08:00",
-  "competitionDateCutoff": "2026-07-08",
+  "snapshotAt": "2026-07-10T11:03:00+08:00",
+  "competitionDateCutoff": "2026-07-10",
   "status": "in-tournament",
-  "notes": "Analyst snapshot refreshed on July 8, 2026 after all Round-of-16 matches completed. Argentina beat Egypt 3-2, Switzerland advanced over Colombia 4-3 on penalties after a 0-0 draw, the quarter-final bracket is fully populated, and current FIFA player-stat leaderboards have been refreshed for the model context.",
+  "notes": "Analyst snapshot refreshed on July 10, 2026 after France beat Morocco 2-0 in the first quarter-final. France are the first confirmed semi-finalist, Kylian Mbappe and Lionel Messi are level on eight tournament goals, and FIFA player statistics have been refreshed after Match 97.",
   "sourceUrls": [
     "https://www.sbnation.com/soccer/1117513/world-cup-schedule-2026-how-to-watch-every-match-scores-and-more",
     "https://www.theguardian.com/football/live/2026/jun/21/new-zealand-v-egypt-world-cup-2026-live",
@@ -29,7 +29,8 @@
     "https://www.foxsports.com/soccer/fifa-world-cup/stats",
     "https://www.theguardian.com/football/2026/jul/07/fifa-accuses-uefa-hypocrisy-folarin-balogun-world-cup-decision-red-card",
     "https://www.aljazeera.com/sports/2026/7/6/neymar-quits-international-football-after-brazils-world-cup-knockout-loss",
-    "https://www.aljazeera.com/sports/2026/7/6/which-teams-are-in-the-world-cup-quarterfinals-and-whats-the-schedule"
+    "https://www.aljazeera.com/sports/2026/7/6/which-teams-are-in-the-world-cup-quarterfinals-and-whats-the-schedule",
+    "https://elpais.com/deportes/mundial-futbol/2026-07-09/francia-saca-el-rodillo-y-el-pincel-ante-marruecos-y-ya-esta-en-semifinales-del-mundial.html"
   ],
   "defaultFactors": {
     "availabilityScore": 90,
@@ -132,10 +133,10 @@
       "cohesionScore": 94,
       "coachAdaptabilityScore": 90,
       "tacticalNotes": [
-        "Morocco's 3-0 win over Canada sharply boosts its knockout form and confirms the defensive-to-transition pattern remains repeatable."
+        "Morocco are eliminated after a 2-0 quarter-final loss to France. Their compact defensive structure held until the second half, but limited attacking output against elite opposition ended the title path."
       ],
       "tacticalNotesZh": [
-        "摩洛哥 3-0 淘汰加拿大后，淘汰赛状态明显上调；防守站稳后快速转换的模式依然可靠。"
+        "摩洛哥在 1/4 决赛 0-2 不敌法国后出局。球队的紧凑防守坚持到下半场，但面对顶级对手时进攻产出不足，最终结束夺冠路径。"
       ]
     },
     "haiti": {
@@ -339,15 +340,21 @@
       ]
     },
     "france": {
-      "availabilityScore": 94,
+      "availabilityScore": 92,
       "tacticalFitScore": 96,
       "cohesionScore": 95,
       "coachAdaptabilityScore": 95,
+      "keyAbsences": [
+        "Kylian Mbappe - right-ankle discomfort after the Morocco match; availability currently expected"
+      ],
+      "keyAbsencesZh": [
+        "基利安·姆巴佩 - 对摩洛哥赛后右脚踝不适，目前预计仍可出战"
+      ],
       "tacticalNotes": [
-        "France have now survived a low-margin knockout test against Paraguay and move into a high-leverage quarter-final against Morocco with elite transition threat intact."
+        "France beat Morocco 2-0 to become the first confirmed semi-finalist. Mbappe and Dembele scored, the team kept another knockout clean sheet, and France will face the winner of Spain versus Belgium."
       ],
       "tacticalNotesZh": [
-        "法国已经通过对巴拉圭的低比分淘汰赛考验，并将在 1/4 决赛对阵摩洛哥。球队的转换进攻威胁和大赛稳定性仍然是核心优势。"
+        "法国 2-0 淘汰摩洛哥，成为首支晋级四强的球队。姆巴佩和登贝莱进球，球队再次在淘汰赛保持零封，半决赛将对阵西班牙与比利时之间的胜者。"
       ]
     },
     "senegal": {
@@ -958,6 +965,13 @@
       "awayTeamId": "colombia",
       "homeScore": 0,
       "awayScore": 0
+    },
+    {
+      "date": "2026-07-09",
+      "homeTeamId": "morocco",
+      "awayTeamId": "france",
+      "homeScore": 0,
+      "awayScore": 2
     }
   ]
 }

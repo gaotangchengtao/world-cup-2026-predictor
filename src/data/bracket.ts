@@ -89,7 +89,7 @@ export const defaultBracketRounds: BracketRound[] = [
     name: "Quarter-finals",
     order: 3,
     matches: [
-      match("qf-1", "quarter-finals", "Quarter-finals", 97, slot("qf-1-a", "Winner of Match 89"), slot("qf-1-b", "Winner of Match 90"), "sf-1", "slotA"),
+      match("qf-1", "quarter-finals", "Quarter-finals", 97, slot("qf-1-a", "Winner of Match 89"), slot("qf-1-b", "Winner of Match 90"), "sf-1", "slotA", "france"),
       match("qf-2", "quarter-finals", "Quarter-finals", 98, slot("qf-2-a", "Winner of Match 93"), slot("qf-2-b", "Winner of Match 94"), "sf-1", "slotB"),
       match("qf-3", "quarter-finals", "Quarter-finals", 99, slot("qf-3-a", "Winner of Match 91"), slot("qf-3-b", "Winner of Match 92"), "sf-2", "slotA"),
       match("qf-4", "quarter-finals", "Quarter-finals", 100, slot("qf-4-a", "Winner of Match 95"), slot("qf-4-b", "Winner of Match 96"), "sf-2", "slotB"),

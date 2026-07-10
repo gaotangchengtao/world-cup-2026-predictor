@@ -1,0 +1,366 @@
+2026 美加墨世界杯预测模型说明与自主修改指南
+================================================
+
+版本时间：2026-07-10 11:03（北京时间）
+当前赛事样本：68 场 2026 世界杯已结束比赛
+历史训练样本：49,215 场国家队比赛
+当前入选模型：RandomForestClassifier（随机森林）
+时间外验证准确率：0.5914（约 59.1%）
+
+重要说明
+--------
+1. 本项目输出的是概率参考，不是比赛结果保证。
+2. “验证准确率 59.1%”表示模型对保留的较新历史比赛进行胜/平/负三分类时，约 59.1% 判断正确；它不是某支球队的胜率。
+3. 随机森林和梯度提升树属于非线性模型，25 个输入特征不会像线性公式那样各自拥有永远固定的百分比。下面列出的固定占比，是模型外围的样本权重、球队画像合成和网页单场胜率合成权重。
+4. 页面上的夺冠概率会随着真实淘汰赛路径变化。已经结束的比赛由真实胜者锁定，不再让模型把出局球队继续向后推进。
+
+
+一、数据来源
+============
+
+1. 历史国家队比赛
+
+本机文件：
+D:\世界杯历史资料\results.csv
+
+项目训练副本：
+D:\美加墨世界杯预测\data\raw\results.csv
+
+主要字段：日期、主队、客队、比分、赛事类型、城市、国家、是否中立场。
+训练时会排除比分为空的未来赛程。原始 CSV 不提交 GitHub。
+
+2. 2026 世界杯实时赛果和人工分析状态
+
+文件：
+D:\美加墨世界杯预测\data\current\world_cup_2026_state.json
+
+包含：
+- 已结束比赛比分（actualResults）
+- 球员可用性/伤停评分（availabilityScore）
+- 战术适配评分（tacticalFitScore）
+- 球员角色适配评分（playerFitScore；未填写时由战术适配和默契推算）
+- 阵容默契评分（cohesionScore）
+- 教练调整能力评分（coachAdaptabilityScore）
+- 关键伤停和中英文战术说明
+
+3. 冻结的赛前球队基础信号
+
+文件：
+D:\美加墨世界杯预测\data\current\team_baseline_signals.json
+
+作用：保存赛前 strengthRank、strengthScore 和阵容总身价基线，防止上一次模型输出再次成为下一次输入，造成“越算越强”的反馈漂移。
+
+4. 球队和阵容数据
+
+主要文件：
+D:\美加墨世界杯预测\src\data\teams.ts
+D:\美加墨世界杯预测\src\data\players.ts
+D:\美加墨世界杯预测\src\data\officialSquads.json
+D:\美加墨世界杯预测\src\data\marketValues.json
+
+官方名单来源：FIFA 最终名单 PDF。
+阵容结构信号考虑：位置覆盖、核心球员数量、预计首发比例、名单覆盖率。
+阵容身价来自当前项目的公开资料核验/人工维护快照，不直接自动抓取 Transfermarkt。
+
+5. 本届世界杯球员统计
+
+文件：
+D:\美加墨世界杯预测\src\data\playerTournamentStats.json
+
+来源：FIFA 官网公开球员统计页面及其公开 GameDay 数据接口。
+当前规模：1,248 名正式名单球员、50 项赛事指标。
+包括：进球、助攻、射门、xG、传球、抢回球权、黄红牌、门将扑救、跑动距离、冲刺等。
+
+注意：当前版本会在网页球员数据中心直接展示这些官方统计，也会用它们进行人工状态审查；为了避免和球队本届比赛比分重复计权，单项球员统计目前没有作为一个独立固定百分比直接加入训练公式。模型对本届球员表现的直接量化主要通过本届球队赛果、进失球和当前阵容结构体现，伤停与适配性通过 current state 人工评分体现。
+
+官方统计页：
+https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/statistics/player-statistics
+
+
+二、历史比赛样本权重
+====================
+
+每场历史比赛的训练权重：
+
+样本权重 = 赛事类型权重 × 时间衰减权重
+
+赛事类型权重：
+- 世界杯正赛：2.40
+- 欧洲杯/美洲杯/非洲杯/亚洲杯/金杯赛/国家联赛：1.35
+- 世界杯及洲际赛事预选赛：1.10
+- 其他正式比赛：1.00
+- 友谊赛：0.55
+
+时间衰减公式：
+
+时间权重 = max(0.12, 0.5 ^ (比赛距今天的年数 / 4))
+
+解释：半衰期为 4 年。一场 4 年前的比赛保留约 50% 时间权重，8 年前约 25%，但最低保留 12%，避免传统强弱和长期比赛风格完全丢失。
+
+可修改位置：
+D:\美加墨世界杯预测\scripts\train_model.py
+
+修改函数：
+- tournament_weight()：赛事类型权重
+- recency_weight()：时间半衰期和最低权重
+
+
+三、Elo 公式和 25 项训练特征
+============================
+
+Elo 预期得分：
+
+E(A) = 1 / (1 + 10 ^ ((EloB - EloA) / 400))
+
+Elo 更新：
+
+新 EloA = 旧 EloA + 24 × 样本权重 × (实际结果 - E(A))
+
+实际结果：胜=1，平=0.5，负=0。
+
+25 项特征主要包括：
+- 双方 Elo 差、各自 Elo、Elo 差绝对值、Elo 预期得分
+- 近 5 场、近 10 场、近 20 场积分状态差
+- 近 5 场、近 10 场、近 20 场净胜球差
+- 近期进球能力、近期失球控制
+- 最近对手平均 Elo 差
+- 历史比赛经验差
+- 中立场/非中立场
+- 世界杯正赛、预选赛、友谊赛标记
+- 赛事类型权重、时间衰减后的样本权重、比赛年份
+
+候选模型会使用按时间顺序切分的最后 20% 样本验证，不随机打乱：
+- Logistic Regression 基线：0.426
+- HistGradientBoostingClassifier：0.589
+- RandomForestClassifier：0.591
+- Random Forest + HGB 软投票：0.590
+
+当前自动选中验证分最高的 RandomForestClassifier。
+
+可修改位置：
+D:\美加墨世界杯预测\scripts\train_model.py
+
+修改区域：
+- features.append(...)：25 项输入特征
+- HistGradientBoostingClassifier(...)：梯度提升参数
+- RandomForestClassifier(...)：随机森林参数
+- candidate_scores：候选模型和自动选择规则
+
+
+四、球队综合实力画像的固定占比
+================================
+
+1. 历史基础分 HistoricalBase
+
+HistoricalBase =
+  项目 strengthScore × 14%
+  + Elo 标准化分 × 22%
+  + 近期状态 × 18%
+  + 历史进攻趋势 × 10%
+  + 历史防守趋势 × 10%
+  + 阵容身价对数分 × 10%
+  + strengthRank 换算分 × 10%
+  + 当前名单结构信号 × 6%
+
+合计：100%。
+
+2. 本届世界杯状态分 TournamentForm
+
+TournamentForm =
+  本届场均积分 × 42%
+  + 本届场均净胜球 × 28%
+  + 本届进攻产出 × 13%
+  + 本届防守稳定 × 12%
+  + 本届对手强度 × 5%
+
+合计：100%。
+
+3. 人员与战术情境分 ContextScore
+
+ContextScore =
+  阵容可用性 × 25%
+  + 战术适配 × 22%
+  + 球员角色适配 × 18%
+  + 阵容默契 × 18%
+  + 教练调整能力 × 17%
+
+合计：100%。
+
+4. 最终球队综合实力 MLStrength
+
+MLStrength = HistoricalBase × 历史占比
+             + TournamentForm × 本届赛事占比
+             + ContextScore × 18%
+
+本届已赛场数对应占比：
+- 0 场：历史 82%，本届赛事 0%，人员战术 18%
+- 1 场：历史 54%，本届赛事 28%，人员战术 18%
+- 2 场：历史 44%，本届赛事 38%，人员战术 18%
+- 3 场及以上：历史 37%，本届赛事 45%，人员战术 18%
+
+因此进入淘汰赛后，本届真实表现会成为单一最大信息来源，但历史实力和人员战术仍能防止小样本比分完全主导结果。
+
+这些占比的可修改位置：
+D:\美加墨世界杯预测\scripts\train_model.py
+
+搜索以下变量/公式：
+- historical_base
+- tournament_form
+- context_score
+- current_weight
+- context_weight
+- history_weight
+- ml_strength
+
+
+五、置信度和爆冷风险公式
+========================
+
+预测置信度 =
+  综合实力 × 34%
+  + 本届状态 × 20%
+  + 人员战术情境 × 18%
+  + 阵容默契 × 12%
+  + 证据量 × 16%
+
+证据量 = min(96, 54 + 本届已赛场数 × 13)
+
+爆冷指数 =
+  (100 - 置信度) × 45%
+  + (100 - 战术适配) × 30%
+  + 伤停惩罚 × 25%
+
+爆冷风险等级：
+- 爆冷指数 >= 26：高
+- 爆冷指数 >= 15：中
+- 其余：低
+
+
+六、网页单场比赛胜率公式
+========================
+
+网页在具体两队相遇时先计算综合优势 Edge：
+
+Edge =
+  综合实力差 × 36%
+  + 本届状态差 × 22%
+  + 攻防对位差 × 10%
+  + 阵容可用性差 × 8%
+  + 战术适配差 × 8%
+  + 球员角色适配差 × 8%
+  + 阵容默契差 × 5%
+  + 教练调整能力差 × 3%
+
+合计：100%。
+
+平局概率：
+
+P(平) = clamp(0.24 - |Edge| × 0.0025, 0.12, 0.28)
+
+常规时间 A 队胜率：
+
+P(A胜) = clamp((1 - P(平)) × sigmoid(Edge / 8.5), 0.04, 0.90)
+
+常规时间 B 队胜率：
+
+P(B胜) = 1 - P(平) - P(A胜)
+
+淘汰赛 A 队晋级概率：
+
+P(A晋级) = clamp(
+  P(A胜) + P(平) × 0.5
+  + 阵容默契差 × 0.001
+  + 教练调整能力差 × 0.001,
+  0.05,
+  0.95
+)
+
+夺冠概率：把一支球队在每一轮可能遇到不同对手的“路径概率 × 对阵晋级概率”逐轮相乘并汇总。真实已结束比赛的胜者概率固定为 1，负者固定为 0。
+
+可修改位置：
+D:\美加墨世界杯预测\src\utils\modelPredictions.ts
+
+修改函数：
+- getMatchupPrediction()：单场胜/平/负和晋级概率
+- getBracketChampionProbabilities()：整条淘汰赛路径和夺冠概率
+- getRecommendedWinnerId()：胜率非常接近时的推荐胜者规则
+
+
+七、你可以自主修改哪些内容
+============================
+
+最常改、且不需要理解机器学习代码的文件：
+
+1. 添加最新比赛比分
+D:\美加墨世界杯预测\data\current\world_cup_2026_state.json
+修改 actualResults，并同时更新 snapshotAt、competitionDateCutoff 和球队说明。
+
+2. 修改伤停、战术、默契和教练评分
+D:\美加墨世界杯预测\data\current\world_cup_2026_state.json
+在 teams 下找到球队 id，修改 0-100 分字段。建议每次只调整 2-5 分，并在 tacticalNotes 中写明依据。
+
+3. 修改球队基础排名和赛前强度
+D:\美加墨世界杯预测\data\current\team_baseline_signals.json
+
+4. 修改阵容身价
+D:\美加墨世界杯预测\src\data\marketValues.json
+
+5. 修改历史数据
+D:\世界杯历史资料\results.csv
+修改后复制到 data\raw\results.csv，或者训练时通过 --input 指定该文件。
+
+6. 修改模型占比
+D:\美加墨世界杯预测\scripts\train_model.py
+修改后请确保每组百分比之和仍为 1.00。
+
+7. 修改网页单场胜率占比
+D:\美加墨世界杯预测\src\utils\modelPredictions.ts
+修改 Edge 的 8 个权重后，也请确保总和为 1.00。
+
+8. 修改真实淘汰赛锁定路径
+D:\美加墨世界杯预测\src\data\bracket.ts
+actualWinnerTeamId 用于锁定真实胜者。只应在比赛正式结束并核对来源后修改。
+
+不要直接手改以下自动生成文件：
+- src\data\modelPredictions.ts
+- src\data\officialSquads.json
+- src\data\playerTournamentStats.json
+
+它们会在下一次更新/训练时被覆盖。
+
+
+八、修改后怎样重新生成
+======================
+
+在项目目录 D:\美加墨世界杯预测 打开 PowerShell：
+
+刷新 FIFA 球员名单和统计（不重复下载照片）：
+
+D:\AnacondaTools\anac\envs\wc2026\python.exe -u scripts\update_official_player_data.py --skip-photos
+
+重新训练模型：
+
+$env:Path="D:\CodexTools\node-v24.16.0-win-x64;$env:Path"
+D:\CodexTools\node-v24.16.0-win-x64\npm.cmd run ml:train
+
+使用你下载的历史文件重新训练：
+
+D:\CodexTools\node-v24.16.0-win-x64\npm.cmd run ml:train -- --input "D:\世界杯历史资料\results.csv"
+
+最后检查网页：
+
+D:\CodexTools\node-v24.16.0-win-x64\npm.cmd run lint
+D:\CodexTools\node-v24.16.0-win-x64\npm.cmd run build
+
+
+九、这次更新后的关键状态
+========================
+
+- 比赛数据已更新到法国 2-0 摩洛哥（2026-07-09 UTC / 北京时间 2026-07-10）。
+- 法国是第一支确认进入半决赛的球队。
+- 球员统计快照更新时间：2026-07-10 03:02 UTC（北京时间 11:02）。
+- 射手榜校验：Lionel Messi 8、Kylian Mbappe 8、Erling Haaland 7、Harry Kane 6、Ousmane Dembele 5。
+- 模型已纳入 68 场本届世界杯赛果并重新训练。
+- 当前模型元数据可在 src\data\modelPredictions.ts 文件顶部查看。
+
+最后提醒：人工评分代表分析判断，不是 FIFA 官方评级。最好在每次调整时同时记录来源和日期，这样以后回看预测时，能知道当时为什么这样判断。

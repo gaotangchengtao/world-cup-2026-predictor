@@ -15,9 +15,11 @@ const scheduleSources = {
   skyBracket:
     "https://www.skysports.com/football/news/32461/13556636/world-cup-2026-bracket-and-knockout-fixtures-whos-facing-who-in-the-last-16-and-route-to-final",
   sbNationRound16: "https://www.sbnation.com/soccer/1121525/2026-world-cup-round-of-16-scores-schedule",
+  franceMorocco:
+    "https://elpais.com/deportes/mundial-futbol/2026-07-09/francia-saca-el-rodillo-y-el-pincel-ante-marruecos-y-ya-esta-en-semifinales-del-mundial.html",
 };
 
-export const tournamentScheduleUpdatedAt = "2026-07-08T14:18:00+08:00";
+export const tournamentScheduleUpdatedAt = "2026-07-10T11:03:00+08:00";
 
 export const tournamentSchedule: TournamentFixture[] = [
   {
@@ -157,10 +159,17 @@ export const tournamentSchedule: TournamentFixture[] = [
     date: "2026-07-09T20:00:00Z",
     venue: "Boston Stadium",
     city: "Foxborough",
-    status: "scheduled",
+    status: "completed",
     teamAId: "morocco",
     teamBId: "france",
-    sourceUrls: [scheduleSources.skyBracket, scheduleSources.foxScores, scheduleSources.fifaSchedule],
+    teamAScore: 0,
+    teamBScore: 2,
+    winnerTeamId: "france",
+    sourceUrls: [
+      scheduleSources.franceMorocco,
+      scheduleSources.foxScores,
+      scheduleSources.fifaSchedule,
+    ],
   },
   {
     id: "qf-2",

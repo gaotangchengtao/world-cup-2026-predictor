@@ -2,42 +2,42 @@ import type { OffFieldStory } from "../types/worldCup";
 
 export const offFieldStories: OffFieldStory[] = [
   {
-    id: "quarterfinal-bracket-complete-july8",
+    id: "france-first-semifinalist-july10",
     title: {
-      zh: "世界杯 1/4 决赛完整对阵出炉",
-      en: "World Cup quarterfinal bracket is now complete",
+      zh: "法国 2-0 淘汰摩洛哥，率先晋级四强",
+      en: "France beat Morocco 2-0 to become the first semifinalist",
     },
     summary: {
-      zh: "截至 2026-07-08 的公开赛程快照，1/4 决赛为法国 vs 摩洛哥、西班牙 vs 比利时、挪威 vs 英格兰、阿根廷 vs 瑞士。",
-      en: "As of the July 8 public schedule snapshot, the quarterfinals are France vs Morocco, Spain vs Belgium, Norway vs England, and Argentina vs Switzerland.",
+      zh: "姆巴佩和登贝莱在下半场进球，法国 2-0 击败摩洛哥，将在半决赛对阵西班牙与比利时之间的胜者。",
+      en: "Second-half goals from Mbappe and Dembele gave France a 2-0 win over Morocco; France will face the winner of Spain versus Belgium in the semifinal.",
     },
     whyItMatters: {
       zh: "淘汰赛路径会直接改变夺冠概率：强队纸面实力再高，只要已经出局，就不应继续占据冠军热门位置。",
       en: "The bracket path directly changes title odds: eliminated teams should no longer remain in the champion shortlist just because their paper strength is high.",
     },
-    source: "FOX Sports / FIFA",
-    publishedAt: "2026-07-08",
-    url: "https://www.foxsports.com/stories/soccer/world-cup-bracket-live-quarterfinals-update-standings",
+    source: "El Pais / FIFA",
+    publishedAt: "2026-07-10",
+    url: "https://elpais.com/deportes/mundial-futbol/2026-07-09/francia-saca-el-rodillo-y-el-pincel-ante-marruecos-y-ya-esta-en-semifinales-del-mundial.html",
     category: "matchday",
     attentionScore: 100,
     reliability: "reported",
   },
   {
-    id: "golden-boot-race-july8",
+    id: "golden-boot-race-july10",
     title: {
-      zh: "金靴榜刷新：梅西 8 球领跑",
-      en: "Golden Boot race updates with Messi on eight goals",
+      zh: "金靴榜刷新：梅西与姆巴佩同为 8 球",
+      en: "Golden Boot race: Messi and Mbappe level on eight goals",
     },
     summary: {
-      zh: "FIFA 公开统计与 FOX 榜单显示，截至 2026-07-08，梅西以 8 球领跑射手榜，姆巴佩和哈兰德同为 7 球，凯恩 6 球紧随其后。",
-      en: "FIFA public statistics and FOX leaderboards show Messi leading the Golden Boot race with eight goals as of July 8, followed by Mbappe and Haaland on seven and Kane on six.",
+      zh: "截至北京时间 2026-07-10 11:02 的 FIFA 公开统计，梅西与姆巴佩同为 8 球，哈兰德 7 球、凯恩 6 球，登贝莱升至 5 球。",
+      en: "FIFA public statistics refreshed at 03:02 UTC on July 10 show Messi and Mbappe level on eight goals, followed by Haaland on seven, Kane on six, and Dembele on five.",
     },
     whyItMatters: {
       zh: "射手榜会影响新手关注球员、淘汰赛看点和模型中的当前状态信号；球员数据中心也已同步刷新进球、助攻、防守、纪律和体能类统计。",
       en: "The scoring race shapes beginner-friendly player focus, knockout storylines, and current-form model signals; the player data center now also reflects updated goals, assists, defending, discipline, and physical metrics.",
     },
     source: "FIFA / FOX Sports",
-    publishedAt: "2026-07-08",
+    publishedAt: "2026-07-10",
     url: "https://www.foxsports.com/soccer/fifa-world-cup/stats",
     category: "media",
     attentionScore: 97,

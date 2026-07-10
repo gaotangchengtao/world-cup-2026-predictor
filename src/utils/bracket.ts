@@ -47,11 +47,11 @@ export const completeBracketState = (
 
   matches.forEach((match) => {
     const current = completed[match.id] ?? {};
-    const winnerTeamId = isWinnerInMatch(current.winnerTeamId, current.slotA, current.slotB)
-      ? current.winnerTeamId
-      : isWinnerInMatch(match.actualWinnerTeamId, current.slotA, current.slotB)
-        ? match.actualWinnerTeamId
-      : pickWinner(current.slotA, current.slotB, teams);
+    const winnerTeamId = isWinnerInMatch(match.actualWinnerTeamId, current.slotA, current.slotB)
+      ? match.actualWinnerTeamId
+      : isWinnerInMatch(current.winnerTeamId, current.slotA, current.slotB)
+        ? current.winnerTeamId
+        : pickWinner(current.slotA, current.slotB, teams);
 
     completed[match.id] = {
       ...current,
@@ -61,7 +61,7 @@ export const completeBracketState = (
     if (winnerTeamId && match.nextMatchId && match.nextSlot) {
       completed[match.nextMatchId] = {
         ...completed[match.nextMatchId],
-        [match.nextSlot]: completed[match.nextMatchId]?.[match.nextSlot] ?? winnerTeamId,
+        [match.nextSlot]: winnerTeamId,
       };
     }
   });
