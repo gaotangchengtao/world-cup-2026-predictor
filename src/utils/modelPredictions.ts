@@ -33,6 +33,70 @@ const poissonProbability = (expectedGoals: number, goals: number) => {
   return (Math.exp(-safeExpectedGoals) * safeExpectedGoals ** goals) / factorial(goals);
 };
 
+const dixonColesCorrection = (
+  teamAScore: number,
+  teamBScore: number,
+  expectedTeamAGoals: number,
+  expectedTeamBGoals: number,
+) => {
+  const rho = predictionModelMeta.scoreLowScoreCorrelationRho;
+  if (teamAScore === 0 && teamBScore === 0) return Math.max(0.02, 1 - expectedTeamAGoals * expectedTeamBGoals * rho);
+  if (teamAScore === 0 && teamBScore === 1) return Math.max(0.02, 1 + expectedTeamAGoals * rho);
+  if (teamAScore === 1 && teamBScore === 0) return Math.max(0.02, 1 + expectedTeamBGoals * rho);
+  if (teamAScore === 1 && teamBScore === 1) return Math.max(0.02, 1 - rho);
+  return 1;
+};
+
+const bivariatePoissonProbability = (
+  expectedTeamAGoals: number,
+  expectedTeamBGoals: number,
+  teamAScore: number,
+  teamBScore: number,
+) => {
+  const shared = clamp(
+    predictionModelMeta.scoreSharedGoalRate,
+    0,
+    Math.min(expectedTeamAGoals * 0.8, expectedTeamBGoals * 0.8),
+  );
+  const teamAOnly = Math.max(0.001, expectedTeamAGoals - shared);
+  const teamBOnly = Math.max(0.001, expectedTeamBGoals - shared);
+  let probability = 0;
+  for (let commonGoals = 0; commonGoals <= Math.min(teamAScore, teamBScore); commonGoals += 1) {
+    probability +=
+      (teamAOnly ** (teamAScore - commonGoals) / factorial(teamAScore - commonGoals))
+      * (teamBOnly ** (teamBScore - commonGoals) / factorial(teamBScore - commonGoals))
+      * (shared ** commonGoals / factorial(commonGoals));
+  }
+  return Math.exp(-(teamAOnly + teamBOnly + shared)) * probability;
+};
+
+const scorelineProbability = (
+  expectedTeamAGoals: number,
+  expectedTeamBGoals: number,
+  teamAScore: number,
+  teamBScore: number,
+) => {
+  if (predictionModelMeta.scoreDistributionFamily === "bivariate-poisson") {
+    return bivariatePoissonProbability(
+      expectedTeamAGoals,
+      expectedTeamBGoals,
+      teamAScore,
+      teamBScore,
+    );
+  }
+  const independentProbability =
+    poissonProbability(expectedTeamAGoals, teamAScore)
+    * poissonProbability(expectedTeamBGoals, teamBScore);
+  return predictionModelMeta.scoreDistributionFamily === "dixon-coles"
+    ? independentProbability * dixonColesCorrection(
+      teamAScore,
+      teamBScore,
+      expectedTeamAGoals,
+      expectedTeamBGoals,
+    )
+    : independentProbability;
+};
+
 type OutcomeLabel = 0 | 1 | 2;
 
 const mostLikelyScoreline = (
@@ -46,9 +110,12 @@ const mostLikelyScoreline = (
     for (let teamBScore = 0; teamBScore <= maxGoals; teamBScore += 1) {
       const label: OutcomeLabel = teamAScore > teamBScore ? 0 : teamAScore === teamBScore ? 1 : 2;
       if (outcomeLabel !== undefined && label !== outcomeLabel) continue;
-      const probability =
-        poissonProbability(expectedTeamAGoals, teamAScore)
-        * poissonProbability(expectedTeamBGoals, teamBScore);
+      const probability = scorelineProbability(
+        expectedTeamAGoals,
+        expectedTeamBGoals,
+        teamAScore,
+        teamBScore,
+      );
       if (probability > best.probability) best = { teamAScore, teamBScore, probability };
     }
   }
@@ -99,6 +166,9 @@ const buildScorePrediction = (
       : finalTeamAScore === finalTeamBScore
         ? "penalties"
         : "extra-time",
+    distributionFamily: predictionModelMeta.scoreDistributionFamily,
+    lowScoreCorrelationRho: predictionModelMeta.scoreLowScoreCorrelationRho,
+    sharedGoalRate: predictionModelMeta.scoreSharedGoalRate,
   };
 };
 
@@ -113,6 +183,9 @@ const reverseScorePrediction = (score: MatchScorePrediction): MatchScorePredicti
   finalTeamBScore: score.finalTeamAScore,
   extraTimePlayed: score.extraTimePlayed,
   decidedBy: score.decidedBy,
+  distributionFamily: score.distributionFamily,
+  lowScoreCorrelationRho: score.lowScoreCorrelationRho,
+  sharedGoalRate: score.sharedGoalRate,
 });
 // 使用 Map 可以按 teamId 快速取得离线训练生成的球队画像。
 const profileByTeamId = new Map(modelPredictionProfiles.map((profile) => [profile.teamId, profile]));

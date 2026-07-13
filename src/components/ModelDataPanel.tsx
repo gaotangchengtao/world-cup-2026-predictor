@@ -30,6 +30,18 @@ export const ModelDataPanel = () => {
           value={predictionModelMeta.validationAccuracy === null ? t("notAvailable") : `${Math.round(predictionModelMeta.validationAccuracy * 100)}%`}
         />
         <Info
+          label={t("validationProbabilityQuality")}
+          value={`Log loss ${predictionModelMeta.validationLogLoss.toFixed(3)} / Brier ${predictionModelMeta.validationBrierScore.toFixed(3)} / RPS ${predictionModelMeta.validationRankedProbabilityScore.toFixed(3)}`}
+        />
+        <Info
+          label={t("historicalValidationSplit")}
+          value={`${predictionModelMeta.historicalTrainingRows} / ${predictionModelMeta.historicalTuningRows} / ${predictionModelMeta.historicalEvaluationRows}`}
+        />
+        <Info
+          label={t("probabilityTemperature")}
+          value={`${predictionModelMeta.probabilityTemperature.toFixed(2)} / ${predictionModelMeta.probabilityTemperatureCandidatesTested} ${t("candidatesUnit")}`}
+        />
+        <Info
           label={t("knockoutValidationAccuracy")}
           value={
             predictionModelMeta.knockoutValidationAccuracy === null
@@ -44,6 +56,10 @@ export const ModelDataPanel = () => {
               ? t("notAvailable")
               : `${predictionModelMeta.knockoutOneXTwoCorrect}/${predictionModelMeta.knockoutValidationMatches} / ${Math.round(predictionModelMeta.knockoutOneXTwoAccuracy * 100)}%`
           }
+        />
+        <Info
+          label={t("knockoutProbabilityQuality")}
+          value={`Log loss ${predictionModelMeta.knockoutProbabilityLogLoss.toFixed(3)} / Brier ${predictionModelMeta.knockoutProbabilityBrierScore.toFixed(3)} / RPS ${predictionModelMeta.knockoutProbabilityRankedProbabilityScore.toFixed(3)}`}
         />
         <Info
           label={t("knockoutDevelopmentAccuracy")}
@@ -96,6 +112,10 @@ export const ModelDataPanel = () => {
         <Info
           label={t("scoreModelFamily")}
           value={predictionModelMeta.scoreModelFamily}
+        />
+        <Info
+          label={t("scoreDistributionFamily")}
+          value={`${predictionModelMeta.scoreDistributionFamily} / rho ${predictionModelMeta.scoreLowScoreCorrelationRho.toFixed(2)} / shared ${predictionModelMeta.scoreSharedGoalRate.toFixed(2)}`}
         />
       </div>
 

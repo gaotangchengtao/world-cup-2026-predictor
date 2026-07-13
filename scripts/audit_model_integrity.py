@@ -27,6 +27,34 @@ def require(condition: bool, message: str) -> None:
         raise AssertionError(message)
 
 
+def multiclass_log_loss(labels: list[int], probability_rows: list[list[float]]) -> float:
+    return sum(
+        -math.log(max(1e-12, min(1.0, probabilities[label])))
+        for label, probabilities in zip(labels, probability_rows)
+    ) / len(labels)
+
+
+def multiclass_brier_score(labels: list[int], probability_rows: list[list[float]]) -> float:
+    return sum(
+        sum(
+            (probability - (1.0 if index == label else 0.0)) ** 2
+            for index, probability in enumerate(probabilities)
+        )
+        for label, probabilities in zip(labels, probability_rows)
+    ) / len(labels)
+
+
+def ranked_probability_score(labels: list[int], probability_rows: list[list[float]]) -> float:
+    total = 0.0
+    for label, probabilities in zip(labels, probability_rows):
+        observed = [1.0 if index == label else 0.0 for index in range(3)]
+        total += (
+            (probabilities[0] - observed[0]) ** 2
+            + (probabilities[0] + probabilities[1] - observed[0] - observed[1]) ** 2
+        ) / 2
+    return total / len(labels)
+
+
 def main() -> int:
     require(RESULTS_PATH.exists(), f"缺少赛果文件：{RESULTS_PATH}")
     require(STATE_PATH.exists(), f"缺少赛事状态文件：{STATE_PATH}")
@@ -74,6 +102,38 @@ def main() -> int:
         math.isclose(meta["knockoutOneXTwoAccuracy"], one_x_two_correct / len(backtest), abs_tol=1e-4),
         "胜平负准确率计算不一致",
     )
+    probability_labels = [
+        {"home-win": 0, "draw": 1, "away-win": 2}[row["actualResult"]]
+        for row in backtest
+    ]
+    probability_rows = [
+        [row["homeWinProbability"], row["drawProbability"], row["awayWinProbability"]]
+        for row in backtest
+    ]
+    require(
+        math.isclose(
+            meta["knockoutProbabilityLogLoss"],
+            multiclass_log_loss(probability_labels, probability_rows),
+            abs_tol=1e-4,
+        ),
+        "淘汰赛概率对数损失计算不一致",
+    )
+    require(
+        math.isclose(
+            meta["knockoutProbabilityBrierScore"],
+            multiclass_brier_score(probability_labels, probability_rows),
+            abs_tol=1e-4,
+        ),
+        "淘汰赛概率 Brier 分数计算不一致",
+    )
+    require(
+        math.isclose(
+            meta["knockoutProbabilityRankedProbabilityScore"],
+            ranked_probability_score(probability_labels, probability_rows),
+            abs_tol=1e-4,
+        ),
+        "淘汰赛概率 RPS 计算不一致",
+    )
     require(meta["knockoutValidationAccuracy"] > 0.85, "晋级者顺序回放尚未超过 85% 目标")
     weight_sum = sum(
         meta[key]
@@ -102,6 +162,26 @@ def main() -> int:
     require(historical_cutoff < tournament_start, "历史训练数据必须在本届世界杯开赛前截断")
     require(meta["historicalSourceRowsOnOrAfterStart"] >= 0, "历史 CSV 边界计数无效")
     require(meta["scoredHistoricalRowsOnOrAfterStart"] >= 0, "历史 CSV 赛果边界计数无效")
+    require(
+        meta["historicalTrainingRows"]
+        + meta["historicalTuningRows"]
+        + meta["historicalEvaluationRows"]
+        == meta["historicalRows"],
+        "历史训练、调参和最终评估样本之和不一致",
+    )
+    require(
+        date.fromisoformat(meta["historicalTrainingEndDate"])
+        <= date.fromisoformat(meta["historicalTuningStartDate"])
+        <= date.fromisoformat(meta["historicalTuningEndDate"])
+        <= date.fromisoformat(meta["historicalEvaluationStartDate"])
+        <= date.fromisoformat(meta["historicalEvaluationEndDate"]),
+        "历史三段时间边界没有严格按先后排列",
+    )
+    require(meta["validationLogLoss"] > 0, "最终留出集对数损失无效")
+    require(0 <= meta["validationBrierScore"] <= 2, "最终留出集 Brier 分数无效")
+    require(0 <= meta["validationRankedProbabilityScore"] <= 1, "最终留出集 RPS 无效")
+    require(meta["probabilityTemperature"] > 0, "概率温度必须大于 0")
+    require(meta["drawCalibrationMinimumGain"] >= 0, "平局阈值最小收益门槛无效")
 
     outcome_feature_candidates = output["outcomeFeatureCandidates"]
     require(
@@ -119,6 +199,8 @@ def main() -> int:
     selected_outcome_candidate = min(
         stable_outcome_candidates,
         key=lambda item: (
+            float(item["rankedProbabilityScore"]),
+            float(item["logLoss"]),
             int(item["featureCount"]),
             -float(item["accuracy"]),
         ),
@@ -147,7 +229,11 @@ def main() -> int:
     ]
     selected_outcome_recency = min(
         stable_outcome_recency,
-        key=lambda item: abs(float(item["halfLifeYears"]) - 1.5),
+        key=lambda item: (
+            float(item["validationRankedProbabilityScore"]),
+            float(item["validationLogLoss"]),
+            abs(float(item["halfLifeYears"]) - 1.5),
+        ),
     )
     require(
         math.isclose(
@@ -156,6 +242,27 @@ def main() -> int:
             abs_tol=1e-9,
         ),
         "胜平负时间半衰期与稳健验证选择不一致",
+    )
+    temperature_candidates = output["probabilityTemperatureCandidates"]
+    require(
+        meta["probabilityTemperatureCandidatesTested"] == len(temperature_candidates),
+        "概率温度候选数量不一致",
+    )
+    selected_temperature = min(
+        temperature_candidates,
+        key=lambda item: (
+            float(item["logLoss"]),
+            float(item["rankedProbabilityScore"]),
+            abs(float(item["temperature"]) - 1.0),
+        ),
+    )
+    require(
+        math.isclose(
+            meta["probabilityTemperature"],
+            float(selected_temperature["temperature"]),
+            abs_tol=1e-9,
+        ),
+        "概率温度与历史调参结果不一致",
     )
 
     score_errors = []
@@ -184,6 +291,10 @@ def main() -> int:
                 score["extraTimeTeamAScore"] == score["extraTimeTeamBScore"] == 0,
                 f"M{row['matchNumber']} 未进入加时却记录了加时进球",
             )
+        require(
+            score["distributionFamily"] == meta["scoreDistributionFamily"],
+            f"M{row['matchNumber']} 比分分布与模型元数据不一致",
+        )
         error = (
             abs(score["finalTeamAScore"] - row["actualHomeScore"])
             + abs(score["finalTeamBScore"] - row["actualAwayScore"])
@@ -321,13 +432,47 @@ def main() -> int:
         meta["scoreModelFamily"] == selected_recency_candidate["modelFamily"],
         "历史进球模型结构与候选验证结果不一致",
     )
+    require(meta["historicalScoreValidationPoissonDeviance"] > 0, "最终历史比分泊松偏差无效")
+    require(meta["historicalScoreValidationJointLogLoss"] > 0, "最终历史联合比分损失无效")
+    score_distribution_candidates = output["scoreDistributionCandidates"]
+    require(
+        meta["scoreDistributionCandidatesTested"] == len(score_distribution_candidates),
+        "比分分布候选数量不一致",
+    )
+    best_distribution_loss = min(
+        float(item["tuningJointLogLoss"]) for item in score_distribution_candidates
+    )
+    stable_distributions = [
+        item for item in score_distribution_candidates
+        if float(item["tuningJointLogLoss"]) <= best_distribution_loss + 0.001
+    ]
+    selected_distribution = min(
+        stable_distributions,
+        key=lambda item: (
+            float(item["tuningJointLogLoss"]),
+            -int(item["tuningExactCorrect"]),
+            0 if item["distributionFamily"] == "independent-poisson" else 1,
+        ),
+    )
+    require(
+        meta["scoreDistributionFamily"] == selected_distribution["distributionFamily"],
+        "比分概率分布与历史调参结果不一致",
+    )
     require(
         math.isclose(
-            meta["historicalScoreValidationPoissonDeviance"],
-            float(selected_recency_candidate["validationPoissonDeviance"]),
-            abs_tol=1e-4,
+            meta["scoreLowScoreCorrelationRho"],
+            float(selected_distribution["lowScoreCorrelationRho"]),
+            abs_tol=1e-9,
         ),
-        "历史进球泊松偏差与候选验证结果不一致",
+        "Dixon-Coles 低比分相关参数不一致",
+    )
+    require(
+        math.isclose(
+            meta["scoreSharedGoalRate"],
+            float(selected_distribution["sharedGoalRate"]),
+            abs_tol=1e-9,
+        ),
+        "双变量泊松共同进球参数不一致",
     )
 
     for scheduled in output.get("scheduledMatchPredictions", []):
@@ -347,6 +492,10 @@ def main() -> int:
                 score["finalTeamAScore"] == score["finalTeamBScore"],
                 f"待赛 M{scheduled['matchNumber']} 点球标记必须对应 120 分钟平局",
             )
+        require(
+            score["distributionFamily"] == meta["scoreDistributionFamily"],
+            f"待赛 M{scheduled['matchNumber']} 比分分布与模型元数据不一致",
+        )
 
     print("数据与模型完整性检查通过")
     print(f"- 已结束比赛：{len(matches)}")

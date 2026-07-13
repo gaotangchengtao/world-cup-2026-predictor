@@ -1,0 +1,48 @@
+{
+  "reviewedAt": "2026-07-14",
+  "purpose": "Prediction-method provenance. These sources inform general model design; no external prediction result is copied into this project.",
+  "sources": [
+    {
+      "id": "fifa-2026-schedule-results",
+      "title": "FIFA World Cup 2026 match schedule, fixtures, results and stadiums",
+      "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/match-schedule-fixtures-results-teams-stadiums",
+      "sourceType": "official",
+      "usedFor": ["fixture verification", "result verification", "venue verification"]
+    },
+    {
+      "id": "dixon-coles-1997",
+      "title": "Modelling association football scores and inefficiencies in the football betting market",
+      "url": "https://doi.org/10.1111/1467-9876.00065",
+      "sourceType": "peer-reviewed",
+      "usedFor": ["time decay", "low-score dependence correction", "score probability matrix"]
+    },
+    {
+      "id": "ley-et-al-2019",
+      "title": "Ranking soccer teams on the basis of their current strength: a comparison of maximum likelihood approaches",
+      "url": "https://doi.org/10.1177/1471082X18817650",
+      "sourceType": "peer-reviewed",
+      "usedFor": ["independent Poisson benchmark", "bivariate Poisson benchmark", "ranked probability score"]
+    },
+    {
+      "id": "wheatcroft-2021",
+      "title": "Forecasting football matches by predicting match statistics",
+      "url": "https://doi.org/10.3233/JSA-200462",
+      "sourceType": "peer-reviewed",
+      "usedFor": ["attack and defence signal design", "bivariate match-statistics perspective"]
+    },
+    {
+      "id": "sklearn-probability-calibration",
+      "title": "scikit-learn probability calibration user guide",
+      "url": "https://scikit-learn.org/stable/modules/calibration.html",
+      "sourceType": "official-documentation",
+      "usedFor": ["probability calibration", "independent calibration data", "Brier score", "log loss"]
+    },
+    {
+      "id": "fu-berlin-wc2026-method",
+      "title": "Freie Universität Berlin World Cup 2026 Dixon-Coles methodology",
+      "url": "https://www.wiwiss.fu-berlin.de/wm2026/DC_Methodik.html",
+      "sourceType": "university-methodology",
+      "usedFor": ["2026 tournament simulation comparison", "friendlies down-weighting", "recent-match half-life comparison"]
+    }
+  ]
+}

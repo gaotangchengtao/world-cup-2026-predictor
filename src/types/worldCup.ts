@@ -246,6 +246,9 @@ export interface MatchScorePrediction {
   finalTeamBScore: number;
   extraTimePlayed: boolean;
   decidedBy: ScoreDecision;
+  distributionFamily: "independent-poisson" | "dixon-coles" | "bivariate-poisson";
+  lowScoreCorrelationRho: number;
+  sharedGoalRate: number;
 }
 
 export interface MatchupPrediction {
@@ -287,6 +290,22 @@ export interface PredictionModelMeta {
   dataSources: string[];
   validationAccuracy: number | null;
   rawValidationAccuracy: number | null;
+  validationLogLoss: number;
+  validationBrierScore: number;
+  validationRankedProbabilityScore: number;
+  historicalTrainingRows: number;
+  historicalTuningRows: number;
+  historicalEvaluationRows: number;
+  historicalRows: number;
+  historicalTrainingEndDate: string;
+  historicalTuningStartDate: string;
+  historicalTuningEndDate: string;
+  historicalEvaluationStartDate: string;
+  historicalEvaluationEndDate: string;
+  tuningRawAccuracy: number;
+  tuningCalibratedAccuracy: number;
+  probabilityTemperature: number;
+  probabilityTemperatureCandidatesTested: number;
   outcomeFeatureSet: string;
   outcomeFeatureCount: number;
   outcomeFeatureCandidatesTested: number;
@@ -295,6 +314,7 @@ export interface PredictionModelMeta {
   outcomeRecencyCandidatesTested: number;
   outcomeRecencySelectionTolerance: number;
   drawCalibrationThreshold: number;
+  drawCalibrationMinimumGain: number;
   knockoutValidationAccuracy: number | null;
   knockoutValidationMatches: number;
   knockoutValidationCorrect: number;
@@ -302,6 +322,9 @@ export interface PredictionModelMeta {
   knockoutValidationMethod: string;
   knockoutOneXTwoAccuracy: number | null;
   knockoutOneXTwoCorrect: number;
+  knockoutProbabilityLogLoss: number;
+  knockoutProbabilityBrierScore: number;
+  knockoutProbabilityRankedProbabilityScore: number;
   knockoutDevelopmentAccuracy: number | null;
   knockoutDevelopmentMatches: number;
   knockoutDevelopmentCorrect: number;
@@ -315,6 +338,10 @@ export interface PredictionModelMeta {
   advancementEnvironmentWeight: number;
   scoreModelName: string;
   scoreModelFamily: string;
+  scoreDistributionFamily: "independent-poisson" | "dixon-coles" | "bivariate-poisson";
+  scoreLowScoreCorrelationRho: number;
+  scoreSharedGoalRate: number;
+  scoreDistributionCandidatesTested: number;
   scoreFeatureSet: string;
   scoreFeatureCount: number;
   scoreFeatureCandidatesTested: number;
@@ -322,6 +349,7 @@ export interface PredictionModelMeta {
   scoreRecencyCandidatesTested: number;
   historicalScoreValidationMae: number;
   historicalScoreValidationPoissonDeviance: number;
+  historicalScoreValidationJointLogLoss: number;
   historicalExactScoreAccuracy: number;
   knockoutScoreMatches: number;
   knockoutScoreMae: number;
