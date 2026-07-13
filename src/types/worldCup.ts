@@ -287,6 +287,13 @@ export interface PredictionModelMeta {
   dataSources: string[];
   validationAccuracy: number | null;
   rawValidationAccuracy: number | null;
+  outcomeFeatureSet: string;
+  outcomeFeatureCount: number;
+  outcomeFeatureCandidatesTested: number;
+  outcomeFeatureSelectionTolerance: number;
+  outcomeRecencyHalfLifeYears: number;
+  outcomeRecencyCandidatesTested: number;
+  outcomeRecencySelectionTolerance: number;
   drawCalibrationThreshold: number;
   knockoutValidationAccuracy: number | null;
   knockoutValidationMatches: number;
@@ -307,6 +314,10 @@ export interface PredictionModelMeta {
   advancementClassifierWeight: number;
   advancementEnvironmentWeight: number;
   scoreModelName: string;
+  scoreModelFamily: string;
+  scoreFeatureSet: string;
+  scoreFeatureCount: number;
+  scoreFeatureCandidatesTested: number;
   scoreRecencyHalfLifeYears: number;
   scoreRecencyCandidatesTested: number;
   historicalScoreValidationMae: number;
@@ -331,6 +342,10 @@ export interface PredictionModelMeta {
   scoreScale: number;
   scoreEnvironmentAdjustment: number;
   scoreGroupCalibrationWeight: number;
+  scoreOffset: number;
+  scoreFavoriteGoalBoost: number;
+  scoreUnderdogGoalSuppression: number;
+  scoreOutcomeProbabilityWeight: number;
   groupScoreCalibrationModelName: string;
   groupScoreCalibrationRows: number;
   groupScoreCalibrationValidationRows: number;

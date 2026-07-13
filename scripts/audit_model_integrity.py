@@ -103,6 +103,61 @@ def main() -> int:
     require(meta["historicalSourceRowsOnOrAfterStart"] >= 0, "历史 CSV 边界计数无效")
     require(meta["scoredHistoricalRowsOnOrAfterStart"] >= 0, "历史 CSV 赛果边界计数无效")
 
+    outcome_feature_candidates = output["outcomeFeatureCandidates"]
+    require(
+        meta["outcomeFeatureCandidatesTested"] == len(outcome_feature_candidates),
+        "胜平负变量集候选数量不一致",
+    )
+    best_outcome_accuracy = max(
+        float(item["accuracy"]) for item in outcome_feature_candidates
+    )
+    stable_outcome_candidates = [
+        item for item in outcome_feature_candidates
+        if float(item["accuracy"])
+        >= best_outcome_accuracy - float(meta["outcomeFeatureSelectionTolerance"])
+    ]
+    selected_outcome_candidate = min(
+        stable_outcome_candidates,
+        key=lambda item: (
+            int(item["featureCount"]),
+            -float(item["accuracy"]),
+        ),
+    )
+    require(
+        meta["outcomeFeatureSet"] == selected_outcome_candidate["featureSet"],
+        "胜平负变量集与时间验证选择不一致",
+    )
+    require(
+        meta["outcomeFeatureCount"] == int(selected_outcome_candidate["featureCount"]),
+        "胜平负变量数量不一致",
+    )
+    outcome_recency_candidates = output["outcomeRecencyCandidates"]
+    require(
+        meta["outcomeRecencyCandidatesTested"] == len(outcome_recency_candidates),
+        "胜平负时间尺度候选数量不一致",
+    )
+    best_outcome_recency_accuracy = max(
+        float(item["validationAccuracy"]) for item in outcome_recency_candidates
+    )
+    stable_outcome_recency = [
+        item for item in outcome_recency_candidates
+        if float(item["validationAccuracy"])
+        >= best_outcome_recency_accuracy
+        - float(meta["outcomeRecencySelectionTolerance"])
+    ]
+    selected_outcome_recency = min(
+        stable_outcome_recency,
+        key=lambda item: abs(float(item["halfLifeYears"]) - 1.5),
+    )
+    require(
+        math.isclose(
+            meta["outcomeRecencyHalfLifeYears"],
+            float(selected_outcome_recency["halfLifeYears"]),
+            abs_tol=1e-9,
+        ),
+        "胜平负时间半衰期与稳健验证选择不一致",
+    )
+
     score_errors = []
     exact_score_correct = 0
     individual_team_within_one = 0
@@ -219,7 +274,32 @@ def main() -> int:
         == int(selected_group_candidate["validationExactCorrect"]),
         "小组赛校准器精确比分计数不一致",
     )
-    require(meta["scoreRecencyCandidatesTested"] == 5, "历史进球时间尺度候选数应为 5")
+    score_feature_candidates = output["scoreFeatureCandidates"]
+    require(
+        meta["scoreFeatureCandidatesTested"] == len(score_feature_candidates),
+        "比分变量集候选数量不一致",
+    )
+    selected_score_feature = min(
+        score_feature_candidates,
+        key=lambda item: (
+            float(item["validationPoissonDeviance"]),
+            float(item["validationMae"]),
+            int(item["featureCount"]),
+        ),
+    )
+    require(
+        meta["scoreFeatureSet"] == selected_score_feature["featureSet"],
+        "比分变量集与历史时间验证选择不一致",
+    )
+    require(
+        meta["scoreFeatureCount"] == int(selected_score_feature["featureCount"]),
+        "比分变量数量不一致",
+    )
+    require(
+        meta["scoreRecencyCandidatesTested"] == len(output["scoreRecencyCandidates"]),
+        "历史进球模型候选数量不一致",
+    )
+    require(meta["scoreRecencyCandidatesTested"] >= 5, "历史进球模型候选不足")
     selected_recency_candidate = min(
         output["scoreRecencyCandidates"],
         key=lambda item: (
@@ -236,6 +316,10 @@ def main() -> int:
             abs_tol=1e-9,
         ),
         "历史进球时间衰减参数与候选验证结果不一致",
+    )
+    require(
+        meta["scoreModelFamily"] == selected_recency_candidate["modelFamily"],
+        "历史进球模型结构与候选验证结果不一致",
     )
     require(
         math.isclose(

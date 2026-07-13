@@ -85,6 +85,18 @@ export const ModelDataPanel = () => {
           label={t("scoreRecencyHalfLife")}
           value={`${predictionModelMeta.scoreRecencyHalfLifeYears.toFixed(1)} ${t("yearsUnit")}`}
         />
+        <Info
+          label={t("outcomeRecencyHalfLife")}
+          value={`${predictionModelMeta.outcomeRecencyHalfLifeYears.toFixed(1)} ${t("yearsUnit")}`}
+        />
+        <Info
+          label={t("activeFeatureSets")}
+          value={`${predictionModelMeta.outcomeFeatureSet} (${predictionModelMeta.outcomeFeatureCount}) / ${predictionModelMeta.scoreFeatureSet} (${predictionModelMeta.scoreFeatureCount})`}
+        />
+        <Info
+          label={t("scoreModelFamily")}
+          value={predictionModelMeta.scoreModelFamily}
+        />
       </div>
 
       <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-3 light:border-slate-900/10 light:bg-white">

@@ -259,12 +259,39 @@ def most_likely_scoreline(
     return best_score
 
 
+def soft_outcome_scoreline(
+    expected_home_goals: float,
+    expected_away_goals: float,
+    outcome_probabilities: tuple[float, float, float],
+    outcome_probability_weight: float,
+    max_goals: int = 7,
+) -> tuple[int, int]:
+    """Blend the Poisson score matrix with 1X2 probabilities instead of hard-locking it."""
+    best_score = (0, 0)
+    best_probability = -1.0
+    for home_goals in range(max_goals + 1):
+        for away_goals in range(max_goals + 1):
+            label = 0 if home_goals > away_goals else 1 if home_goals == away_goals else 2
+            outcome_factor = max(0.01, outcome_probabilities[label]) ** outcome_probability_weight
+            probability = (
+                poisson_probability(expected_home_goals, home_goals)
+                * poisson_probability(expected_away_goals, away_goals)
+                * outcome_factor
+            )
+            if probability > best_probability:
+                best_score = (home_goals, away_goals)
+                best_probability = probability
+    return best_score
+
+
 def build_knockout_score_prediction(
     expected_home_goals: float,
     expected_away_goals: float,
     regulation_outcome_label: int,
     home_environment_readiness: float = 65.0,
     away_environment_readiness: float = 65.0,
+    outcome_probabilities: tuple[float, float, float] | None = None,
+    outcome_probability_weight: float = -1.0,
 ) -> dict[str, object]:
     """生成 90 分钟和加时后的比分；点球大战永远不写进比分。
 
@@ -274,11 +301,19 @@ def build_knockout_score_prediction(
     """
     expected_home_goals = clamp(float(expected_home_goals), 0.15, 4.5)
     expected_away_goals = clamp(float(expected_away_goals), 0.15, 4.5)
-    regulation_home, regulation_away = most_likely_scoreline(
-        expected_home_goals,
-        expected_away_goals,
-        regulation_outcome_label,
-    )
+    if outcome_probabilities is not None and outcome_probability_weight >= 0:
+        regulation_home, regulation_away = soft_outcome_scoreline(
+            expected_home_goals,
+            expected_away_goals,
+            outcome_probabilities,
+            outcome_probability_weight,
+        )
+    else:
+        regulation_home, regulation_away = most_likely_scoreline(
+            expected_home_goals,
+            expected_away_goals,
+            regulation_outcome_label,
+        )
     extra_home = 0
     extra_away = 0
     extra_time_played = regulation_home == regulation_away
@@ -327,6 +362,9 @@ def calibrated_expected_goals(
     scale = parameters["scale"]
     environment_adjustment = parameters["environmentAdjustment"]
     group_calibration_weight = parameters.get("groupCalibrationWeight", 0.0)
+    score_offset = parameters.get("scoreOffset", 0.0)
+    favorite_goal_boost = parameters.get("favoriteGoalBoost", 0.0)
+    underdog_goal_suppression = parameters.get("underdogGoalSuppression", 0.0)
 
     home_full_tournament_signal = (
         float(record["homeTournamentAttackRate"]) * attack_share
@@ -385,6 +423,24 @@ def calibrated_expected_goals(
             away_expected * (1 - group_calibration_weight)
             + float(record["groupCalibratedExpectedAwayGoals"]) * group_calibration_weight
         )
+    # A second-stage global calibration can alter overall scoring pace and the expected
+    # gap between favorite and underdog. It is symmetric: no team or fixture has a rule.
+    home_expected += score_offset
+    away_expected += score_offset
+    advancement_gap = clamp(
+        (
+            float(record.get("homeAdvancementScore", 50.0))
+            - float(record.get("awayAdvancementScore", 50.0))
+        ) / 25,
+        -1.0,
+        1.0,
+    )
+    if advancement_gap > 0:
+        home_expected += favorite_goal_boost * advancement_gap
+        away_expected -= underdog_goal_suppression * advancement_gap
+    elif advancement_gap < 0:
+        away_expected += favorite_goal_boost * abs(advancement_gap)
+        home_expected -= underdog_goal_suppression * abs(advancement_gap)
     return clamp(home_expected, 0.15, 4.5), clamp(away_expected, 0.15, 4.5)
 
 
@@ -544,6 +600,54 @@ def rolling_average(values: deque[float], default: float) -> float:
     return sum(values) / len(values)
 
 
+def tail_average(values: deque[float], size: int, default: float) -> float:
+    """Return an average from the newest ``size`` observations only."""
+    if not values:
+        return default
+    sample = list(values)[-size:]
+    return sum(sample) / len(sample)
+
+
+def rolling_std(values: deque[float], default: float = 0.0) -> float:
+    """Measure recent volatility without using any future match information."""
+    if len(values) < 2:
+        return default
+    mean = sum(values) / len(values)
+    return math.sqrt(sum((value - mean) ** 2 for value in values) / len(values))
+
+
+def rolling_rate(values: deque[float], predicate, default: float = 0.0) -> float:
+    """Calculate an event rate, such as clean sheets, in a rolling window."""
+    if not values:
+        return default
+    return sum(1 for value in values if predicate(value)) / len(values)
+
+
+def days_since_previous_match(
+    match_dates: deque[pd.Timestamp],
+    match_date: pd.Timestamp,
+) -> float:
+    """Days of rest before kickoff; 30 days is a neutral unseen-team default."""
+    if not match_dates:
+        return 30.0
+    return float(clamp((match_date - match_dates[-1]).days, 1, 180))
+
+
+def prior_match_load(
+    match_dates: deque[pd.Timestamp],
+    match_date: pd.Timestamp,
+    window_days: int,
+) -> float:
+    """Count prior matches in a calendar window, excluding the current match."""
+    return float(
+        sum(
+            1
+            for previous_date in match_dates
+            if 0 < (match_date - previous_date).days <= window_days
+        )
+    )
+
+
 def build_match_features(
     home,
     away,
@@ -563,12 +667,21 @@ def build_match_features(
     recent_goal_diff_20,
     recent_opponent_elo,
     team_match_counts,
+    recent_match_dates,
 ) -> list[float]:
-    """用比赛开始前的状态构造 25 项特征，训练和逐场回测共用同一套逻辑。"""
+    """用比赛开始前的状态构造 47 项特征，训练和逐场回测共用同一套逻辑。"""
     tournament_lower = tournament_name.lower()
     elo_home = elo[home]
     elo_away = elo[away]
     elo_gap = elo_home - elo_away
+    home_goals_for_5 = tail_average(recent_goals_for[home], 5, 1.2)
+    away_goals_for_5 = tail_average(recent_goals_for[away], 5, 1.2)
+    home_goals_against_5 = tail_average(recent_goals_against[home], 5, 1.2)
+    away_goals_against_5 = tail_average(recent_goals_against[away], 5, 1.2)
+    home_goals_for_10 = rolling_average(recent_goals_for[home], 1.2)
+    away_goals_for_10 = rolling_average(recent_goals_for[away], 1.2)
+    home_goals_against_10 = rolling_average(recent_goals_against[home], 1.2)
+    away_goals_against_10 = rolling_average(recent_goals_against[away], 1.2)
     return [
         elo_gap,
         rolling_average(recent_points[home], 1.2) - rolling_average(recent_points[away], 1.2),
@@ -595,7 +708,56 @@ def build_match_features(
         1 if "friendly" in tournament_lower else 0,
         1 if "qualification" in tournament_lower or "qualifier" in tournament_lower else 0,
         int(match_date.year),
+        # Short-horizon attack/defence levels and their direction of travel.
+        home_goals_for_5,
+        away_goals_for_5,
+        home_goals_against_5,
+        away_goals_against_5,
+        home_goals_for_5 - home_goals_for_10,
+        away_goals_for_5 - away_goals_for_10,
+        home_goals_against_5 - home_goals_against_10,
+        away_goals_against_5 - away_goals_against_10,
+        # Volatility helps distinguish a stable 1.5-goal attack from erratic scoring.
+        rolling_std(recent_goals_for[home]),
+        rolling_std(recent_goals_for[away]),
+        rolling_std(recent_goals_against[home]),
+        rolling_std(recent_goals_against[away]),
+        # Clean-sheet and scoreless rates provide interpretable defensive/attack signals.
+        rolling_rate(recent_goals_against[home], lambda value: value == 0),
+        rolling_rate(recent_goals_against[away], lambda value: value == 0),
+        rolling_rate(recent_goals_for[home], lambda value: value == 0),
+        rolling_rate(recent_goals_for[away], lambda value: value == 0),
+        # Calendar load captures fatigue and rhythm before the match starts.
+        days_since_previous_match(recent_match_dates[home], match_date),
+        days_since_previous_match(recent_match_dates[away], match_date),
+        prior_match_load(recent_match_dates[home], match_date, 30),
+        prior_match_load(recent_match_dates[away], match_date, 30),
+        prior_match_load(recent_match_dates[home], match_date, 90),
+        prior_match_load(recent_match_dates[away], match_date, 90),
     ]
+
+
+FEATURE_SET_COLUMNS: dict[str, tuple[int, ...]] = {
+    # The subsets let validation decide whether extra detail adds signal or noise.
+    "core-25": tuple(range(25)),
+    "form-41": tuple(range(41)),
+    "schedule-31": tuple(range(25)) + tuple(range(41, 47)),
+    "balanced-39": tuple(range(33)) + tuple(range(41, 47)),
+    "full-47": tuple(range(47)),
+}
+
+
+def select_feature_row(row: list[float], columns: tuple[int, ...]) -> list[float]:
+    """Project one complete pre-match feature row onto a validated subset."""
+    return [row[index] for index in columns]
+
+
+def select_feature_rows(
+    rows: list[list[float]],
+    columns: tuple[int, ...],
+) -> list[list[float]]:
+    """Project many rows while preserving their chronological order."""
+    return [select_feature_row(row, columns) for row in rows]
 
 
 def expected_score(elo_a: float, elo_b: float) -> float:
@@ -628,11 +790,15 @@ def append_result(
     recent_goal_diff_20=None,
     recent_opponent_elo=None,
     team_match_counts=None,
+    match_date=None,
+    recent_match_dates=None,
 ) -> None:
     """按时间顺序写入一场赛果，并同步更新 Elo 和多个近期状态窗口。"""
     home_points = 3 if home_score > away_score else 1 if home_score == away_score else 0
     away_points = 3 if away_score > home_score else 1 if home_score == away_score else 0
     result_home = 1.0 if home_score > away_score else 0.5 if home_score == away_score else 0.0
+    home_elo_before = elo[home]
+    away_elo_before = elo[away]
     elo[home], elo[away] = update_elo(elo[home], elo[away], result_home, weight)
     recent_points[home].append(home_points)
     recent_points[away].append(away_points)
@@ -655,11 +821,14 @@ def append_result(
         recent_goal_diff_20[home].append(home_score - away_score)
         recent_goal_diff_20[away].append(away_score - home_score)
     if recent_opponent_elo is not None:
-        recent_opponent_elo[home].append(elo[away])
-        recent_opponent_elo[away].append(elo[home])
+        recent_opponent_elo[home].append(away_elo_before)
+        recent_opponent_elo[away].append(home_elo_before)
     if team_match_counts is not None:
         team_match_counts[home] += 1
         team_match_counts[away] += 1
+    if recent_match_dates is not None and match_date is not None:
+        recent_match_dates[home].append(match_date)
+        recent_match_dates[away].append(match_date)
 
 
 def merged_team_context(current_state: dict, team_id: str) -> dict:
@@ -699,6 +868,15 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="TypeScript output path.")
     parser.add_argument("--profile-json", type=Path, default=DEFAULT_PROFILE_JSON, help="Machine-readable profile output.")
     parser.add_argument("--model-dir", type=Path, default=DEFAULT_MODEL_DIR, help="Optional local model artifact directory.")
+    parser.add_argument(
+        "--score-feature-set",
+        choices=list(FEATURE_SET_COLUMNS),
+        default=None,
+        help=(
+            "Diagnostic override for the score feature subset. By default the subset "
+            "is selected only from pre-tournament time validation."
+        ),
+    )
     parser.add_argument(
         "--world-cup-only",
         action="store_true",
@@ -852,11 +1030,18 @@ def main() -> int:
     recent_goals_for: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
     recent_goals_against: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
     recent_opponent_elo: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
+    recent_match_dates: dict[str, deque[pd.Timestamp]] = defaultdict(
+        lambda: deque(maxlen=20)
+    )
     features: list[list[float]] = []
     labels: list[int] = []
     home_goal_targets: list[int] = []
     away_goal_targets: list[int] = []
     sample_weights: list[float] = []
+    outcome_recency_half_lives = [1.0, 1.5, 2.0, 3.0, 5.0]
+    outcome_sample_weights_by_half_life: dict[float, list[float]] = {
+        half_life: [] for half_life in outcome_recency_half_lives
+    }
     score_recency_half_lives = [1.0, 1.5, 2.0, 3.0, 5.0]
     score_sample_weights_by_half_life: dict[float, list[float]] = {
         half_life: [] for half_life in score_recency_half_lives
@@ -872,14 +1057,14 @@ def main() -> int:
         competition_weight = tournament_weight(str(row.tournament))
         tournament_name = str(row.tournament)
         weight = competition_weight * recency_weight(row.date, reference_date)
-        # 25 项特征覆盖 Elo、近期积分/净胜球、攻防、对手强度、场地和赛事类型。
+        # 47 项候选变量覆盖 Elo、近期攻防、趋势/波动、赛程负荷、场地和赛事类型。
         # 各树模型会自行学习非线性关系，因此这里没有给每项特征硬编码百分比。
         features.append(
             build_match_features(
                 home, away, row.date, tournament_name, neutral, competition_weight, weight,
                 elo, recent_points, recent_goal_diff, recent_goals_for, recent_goals_against,
                 recent_points_5, recent_points_20, recent_goal_diff_5, recent_goal_diff_20,
-                recent_opponent_elo, team_match_counts,
+                recent_opponent_elo, team_match_counts, recent_match_dates,
             )
         )
         # 三分类标签：0=主队胜，1=平局，2=客队胜。
@@ -887,6 +1072,10 @@ def main() -> int:
         home_goal_targets.append(home_score)
         away_goal_targets.append(away_score)
         sample_weights.append(weight)
+        for half_life in outcome_recency_half_lives:
+            outcome_sample_weights_by_half_life[half_life].append(
+                competition_weight * recency_weight(row.date, reference_date, half_life)
+            )
         for half_life in score_recency_half_lives:
             score_sample_weights_by_half_life[half_life].append(
                 competition_weight * recency_weight(row.date, reference_date, half_life)
@@ -909,6 +1098,8 @@ def main() -> int:
             recent_goal_diff_20,
             recent_opponent_elo,
             team_match_counts,
+            row.date,
+            recent_match_dates,
         )
 
     if len(features) < 100:
@@ -917,8 +1108,8 @@ def main() -> int:
 
     # 按时间顺序保留最后 20% 比赛做验证，不随机打乱，更接近“用过去预测未来”。
     (
-        x_train,
-        x_test,
+        x_train_all,
+        x_test_all,
         y_train,
         y_test,
         home_goals_train,
@@ -936,60 +1127,221 @@ def main() -> int:
         test_size=0.2,
         shuffle=False,
     )
-    # 同时训练线性基线、梯度提升、随机森林和软投票组合，最后自动选验证分最高者。
-    model = HistGradientBoostingClassifier(
-        max_iter=240, learning_rate=0.04, l2_regularization=0.15, random_state=42,
+    # 特征并非越多越好。这里让开赛前的时间外验证集独立选择胜平负特征组合，
+    # 淘汰赛回测只作为最终审计，不参与这一选择。
+    def make_outcome_candidates() -> list[tuple[str, object]]:
+        return [
+            (
+                "Logistic Regression Baseline",
+                make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000)),
+            ),
+            (
+                "HistGradientBoostingClassifier",
+                HistGradientBoostingClassifier(
+                    max_iter=240,
+                    learning_rate=0.04,
+                    l2_regularization=0.15,
+                    random_state=42,
+                ),
+            ),
+            (
+                "RandomForestClassifier",
+                RandomForestClassifier(
+                    n_estimators=280,
+                    min_samples_leaf=12,
+                    max_features="sqrt",
+                    n_jobs=-1,
+                    random_state=42,
+                ),
+            ),
+            (
+                "Soft Voting Ensemble (RF + HGB)",
+                VotingClassifier(
+                    estimators=[
+                        (
+                            "rf",
+                            RandomForestClassifier(
+                                n_estimators=280,
+                                min_samples_leaf=12,
+                                max_features="sqrt",
+                                n_jobs=-1,
+                                random_state=42,
+                            ),
+                        ),
+                        (
+                            "hgb",
+                            HistGradientBoostingClassifier(
+                                max_iter=240,
+                                learning_rate=0.04,
+                                l2_regularization=0.15,
+                                random_state=42,
+                            ),
+                        ),
+                    ],
+                    voting="soft",
+                ),
+            ),
+        ]
+
+    outcome_feature_candidates: list[dict[str, object]] = []
+    baseline_accuracy = 0.0
+    for feature_set_name, feature_columns in FEATURE_SET_COLUMNS.items():
+        candidate_x_train = select_feature_rows(x_train_all, feature_columns)
+        candidate_x_test = select_feature_rows(x_test_all, feature_columns)
+        for candidate_name, candidate_model in make_outcome_candidates():
+            if candidate_name == "Logistic Regression Baseline":
+                candidate_model.fit(
+                    candidate_x_train,
+                    y_train,
+                    logisticregression__sample_weight=w_train,
+                )
+            else:
+                candidate_model.fit(candidate_x_train, y_train, sample_weight=w_train)
+            candidate_accuracy = float(
+                accuracy_score(y_test, candidate_model.predict(candidate_x_test))
+            )
+            if (
+                feature_set_name == "core-25"
+                and candidate_name == "Logistic Regression Baseline"
+            ):
+                baseline_accuracy = candidate_accuracy
+            outcome_feature_candidates.append(
+                {
+                    "modelName": candidate_name,
+                    "featureSet": feature_set_name,
+                    "featureColumns": feature_columns,
+                    "model": candidate_model,
+                    "accuracy": candidate_accuracy,
+                }
+            )
+
+    best_outcome_accuracy = max(
+        float(item["accuracy"]) for item in outcome_feature_candidates
     )
-    forest = RandomForestClassifier(
-        n_estimators=280,
-        min_samples_leaf=12,
-        max_features="sqrt",
-        n_jobs=-1,
-        random_state=42,
+    outcome_accuracy_tolerance = 0.002
+    statistically_near_best = [
+        item for item in outcome_feature_candidates
+        if float(item["accuracy"]) >= best_outcome_accuracy - outcome_accuracy_tolerance
+    ]
+    selected_outcome_candidate = min(
+        statistically_near_best,
+        key=lambda item: (
+            len(item["featureColumns"]),
+            -float(item["accuracy"]),
+        ),
     )
-    ensemble = VotingClassifier(
-        estimators=[
-            ("rf", RandomForestClassifier(
-                n_estimators=280,
-                min_samples_leaf=12,
-                max_features="sqrt",
-                n_jobs=-1,
-                random_state=42,
-            )),
-            ("hgb", HistGradientBoostingClassifier(
-                max_iter=240,
-                learning_rate=0.04,
-                l2_regularization=0.15,
-                random_state=42,
-            )),
-        ],
-        voting="soft",
+    model_name = str(selected_outcome_candidate["modelName"])
+    selected_outcome_feature_set = str(selected_outcome_candidate["featureSet"])
+    selected_outcome_columns = selected_outcome_candidate["featureColumns"]
+    selected_model = selected_outcome_candidate["model"]
+    validation_accuracy = float(selected_outcome_candidate["accuracy"])
+    candidate_scores = [
+        (
+            f'{item["modelName"]} [{item["featureSet"]}]',
+            item["model"],
+            float(item["accuracy"]),
+        )
+        for item in outcome_feature_candidates
+    ]
+    x_test = select_feature_rows(x_test_all, selected_outcome_columns)
+    x_train_outcome = select_feature_rows(x_train_all, selected_outcome_columns)
+
+    # After selecting the algorithm and feature subset, tune only the time-decay scale.
+    # This keeps the search tractable while allowing recent seasons to dominate when they
+    # genuinely improve the untouched pre-tournament validation period.
+    outcome_recency_candidates: list[dict[str, float]] = []
+    outcome_models_by_half_life: dict[float, object] = {}
+    for half_life in outcome_recency_half_lives:
+        recency_model = next(
+            candidate_model
+            for candidate_name, candidate_model in make_outcome_candidates()
+            if candidate_name == model_name
+        )
+        recency_train_weights = outcome_sample_weights_by_half_life[half_life][
+            :len(x_train_outcome)
+        ]
+        if model_name == "Logistic Regression Baseline":
+            recency_model.fit(
+                x_train_outcome,
+                y_train,
+                logisticregression__sample_weight=recency_train_weights,
+            )
+        else:
+            recency_model.fit(
+                x_train_outcome,
+                y_train,
+                sample_weight=recency_train_weights,
+            )
+        recency_accuracy = float(
+            accuracy_score(y_test, recency_model.predict(x_test))
+        )
+        outcome_recency_candidates.append(
+            {
+                "halfLifeYears": half_life,
+                "validationAccuracy": recency_accuracy,
+            }
+        )
+        outcome_models_by_half_life[half_life] = recency_model
+    best_outcome_recency_accuracy = max(
+        float(item["validationAccuracy"])
+        for item in outcome_recency_candidates
     )
-    baseline = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
-    def make_goal_model(random_state: int):
+    outcome_recency_accuracy_tolerance = 0.002
+    stable_outcome_recency_candidates = [
+        item for item in outcome_recency_candidates
+        if float(item["validationAccuracy"])
+        >= best_outcome_recency_accuracy - outcome_recency_accuracy_tolerance
+    ]
+    selected_outcome_recency = min(
+        stable_outcome_recency_candidates,
+        key=lambda item: abs(float(item["halfLifeYears"]) - 1.5),
+    )
+    selected_outcome_half_life = float(selected_outcome_recency["halfLifeYears"])
+    selected_model = outcome_models_by_half_life[selected_outcome_half_life]
+    validation_accuracy = float(selected_outcome_recency["validationAccuracy"])
+
+    def make_goal_model(
+        random_state: int,
+        *,
+        max_iter: int = 220,
+        learning_rate: float = 0.04,
+        l2_regularization: float = 0.2,
+        max_leaf_nodes: int = 31,
+        min_samples_leaf: int = 20,
+    ):
         """创建进球回归器；候选时间尺度必须使用完全相同的模型结构。"""
         return HistGradientBoostingRegressor(
             loss="poisson",
-            max_iter=220,
-            learning_rate=0.04,
-            l2_regularization=0.2,
+            max_iter=max_iter,
+            learning_rate=learning_rate,
+            l2_regularization=l2_regularization,
+            max_leaf_nodes=max_leaf_nodes,
+            min_samples_leaf=min_samples_leaf,
             random_state=random_state,
         )
 
-    model.fit(x_train, y_train, sample_weight=w_train)
-    forest.fit(x_train, y_train, sample_weight=w_train)
-    ensemble.fit(x_train, y_train, sample_weight=w_train)
-    baseline.fit(x_train, y_train, logisticregression__sample_weight=w_train)
-    candidate_scores = [
-        ("Logistic Regression Baseline", baseline, float(accuracy_score(y_test, baseline.predict(x_test)))),
-        ("HistGradientBoostingClassifier", model, float(accuracy_score(y_test, model.predict(x_test)))),
-        ("RandomForestClassifier", forest, float(accuracy_score(y_test, forest.predict(x_test)))),
-        ("Soft Voting Ensemble (RF + HGB)", ensemble, float(accuracy_score(y_test, ensemble.predict(x_test)))),
-    ]
+    def make_direct_goal_model(random_state: int):
+        """Create a direct 0-8 goal-count classifier as a nonlinear alternative."""
+        return HistGradientBoostingClassifier(
+            max_iter=140,
+            learning_rate=0.05,
+            l2_regularization=0.35,
+            random_state=random_state,
+        )
+
+    def predict_goal_expectations(goal_model, rows: list[list[float]]) -> list[float]:
+        """Return expected goals from either a regressor or a goal-count classifier."""
+        if getattr(goal_model, "_estimator_type", "") == "classifier":
+            probabilities = goal_model.predict_proba(rows)
+            classes = [float(value) for value in goal_model.classes_]
+            return [
+                sum(probability * goal_count for probability, goal_count in zip(row, classes))
+                for row in probabilities
+            ]
+        return [float(value) for value in goal_model.predict(rows)]
+
     # accuracy 是胜/平/负判断正确率，不等同于任意球队的单场胜率。
-    model_name, selected_model, validation_accuracy = max(candidate_scores, key=lambda item: item[2])
     raw_validation_accuracy = validation_accuracy
-    baseline_accuracy = candidate_scores[0][2]
 
     # 仅用历史时间外验证集校准“额外判为平局”的阈值，本届淘汰赛答案不参与调参。
     selected_classes = [int(label) for label in selected_model.classes_]
@@ -1014,33 +1366,35 @@ def main() -> int:
         calibrated_validation_labels.append(
             1 if float(probabilities[draw_class_index]) >= draw_threshold else raw_label
         )
-    # 进球模型单独搜索时间衰减尺度。候选模型结构和训练样本完全相同，只改变历史样本权重；
-    # 选择过程只看本届开赛前的时间外验证集，不接触任何 2026 世界杯赛果。
-    score_recency_candidates: list[dict[str, float | int]] = []
-    score_recency_models: dict[float, tuple[object, object]] = {}
-    for half_life in score_recency_half_lives:
-        home_candidate = make_goal_model(42)
-        away_candidate = make_goal_model(43)
-        candidate_train_weights = score_sample_weights_by_half_life[half_life][
-            :len(x_train)
-        ]
-        home_candidate.fit(
-            x_train,
+    # 进球模型先在固定 1.5 年半衰期下选择特征组合，再独立搜索时间衰减。
+    # 两步都只查看开赛前历史留出集，避免把本届淘汰赛答案变成调参目标。
+    score_feature_candidates: list[dict[str, object]] = []
+    score_feature_selection_half_life = 1.5
+    score_feature_train_weights = score_sample_weights_by_half_life[
+        score_feature_selection_half_life
+    ][:len(x_train_all)]
+    for feature_set_name, feature_columns in FEATURE_SET_COLUMNS.items():
+        candidate_x_train = select_feature_rows(x_train_all, feature_columns)
+        candidate_x_test = select_feature_rows(x_test_all, feature_columns)
+        home_feature_candidate = make_goal_model(42)
+        away_feature_candidate = make_goal_model(43)
+        home_feature_candidate.fit(
+            candidate_x_train,
             [min(8, value) for value in home_goals_train],
-            sample_weight=candidate_train_weights,
+            sample_weight=score_feature_train_weights,
         )
-        away_candidate.fit(
-            x_train,
+        away_feature_candidate.fit(
+            candidate_x_train,
             [min(8, value) for value in away_goals_train],
-            sample_weight=candidate_train_weights,
+            sample_weight=score_feature_train_weights,
         )
         candidate_home_expected = [
             clamp(float(value), 0.15, 4.5)
-            for value in home_candidate.predict(x_test)
+            for value in home_feature_candidate.predict(candidate_x_test)
         ]
         candidate_away_expected = [
             clamp(float(value), 0.15, 4.5)
-            for value in away_candidate.predict(x_test)
+            for value in away_feature_candidate.predict(candidate_x_test)
         ]
         candidate_mae = (
             float(mean_absolute_error(home_goals_test, candidate_home_expected))
@@ -1050,31 +1404,125 @@ def main() -> int:
             float(mean_poisson_deviance(home_goals_test, candidate_home_expected))
             + float(mean_poisson_deviance(away_goals_test, candidate_away_expected))
         ) / 2
-        candidate_exact = 0
-        for expected_home, expected_away, outcome_label, actual_home, actual_away in zip(
-            candidate_home_expected,
-            candidate_away_expected,
-            calibrated_validation_labels,
-            home_goals_test,
-            away_goals_test,
-        ):
-            predicted_home, predicted_away = most_likely_scoreline(
-                expected_home,
-                expected_away,
-                outcome_label,
-            )
-            candidate_exact += int(
-                predicted_home == actual_home and predicted_away == actual_away
-            )
-        score_recency_candidates.append(
+        score_feature_candidates.append(
             {
-                "halfLifeYears": half_life,
+                "featureSet": feature_set_name,
+                "featureColumns": feature_columns,
                 "validationMae": candidate_mae,
                 "validationPoissonDeviance": candidate_deviance,
-                "validationExactCorrect": candidate_exact,
             }
         )
-        score_recency_models[half_life] = (home_candidate, away_candidate)
+
+    selected_score_feature_candidate = min(
+        score_feature_candidates,
+        key=lambda item: (
+            float(item["validationPoissonDeviance"]),
+            float(item["validationMae"]),
+            len(item["featureColumns"]),
+        ),
+    )
+    if args.score_feature_set is not None:
+        selected_score_feature_candidate = next(
+            item
+            for item in score_feature_candidates
+            if item["featureSet"] == args.score_feature_set
+        )
+    selected_score_feature_set = str(selected_score_feature_candidate["featureSet"])
+    selected_score_columns = selected_score_feature_candidate["featureColumns"]
+    x_train_score = select_feature_rows(x_train_all, selected_score_columns)
+    x_test_score = select_feature_rows(x_test_all, selected_score_columns)
+
+    # 进球模型单独搜索时间衰减尺度。候选模型结构和训练样本完全相同，只改变历史样本权重；
+    # 选择过程只看本届开赛前的时间外验证集，不接触任何 2026 世界杯赛果。
+    score_recency_candidates: list[dict[str, float | int | str]] = []
+    score_recency_models: dict[tuple[str, float], tuple[object, object]] = {}
+    score_model_factories = {
+        "poisson-hgb": make_goal_model,
+        "poisson-hgb-regularized": lambda random_state: make_goal_model(
+            random_state,
+            max_iter=280,
+            learning_rate=0.03,
+            l2_regularization=1.0,
+            max_leaf_nodes=15,
+            min_samples_leaf=35,
+        ),
+        "poisson-hgb-responsive": lambda random_state: make_goal_model(
+            random_state,
+            max_iter=260,
+            learning_rate=0.035,
+            l2_regularization=0.1,
+            max_leaf_nodes=31,
+            min_samples_leaf=12,
+        ),
+        "direct-goal-hgb": make_direct_goal_model,
+    }
+    for score_model_family, score_model_factory in score_model_factories.items():
+        family_half_lives = (
+            score_recency_half_lives
+            if score_model_family != "direct-goal-hgb"
+            else [1.5]
+        )
+        for half_life in family_half_lives:
+            home_candidate = score_model_factory(42)
+            away_candidate = score_model_factory(43)
+            candidate_train_weights = score_sample_weights_by_half_life[half_life][
+                :len(x_train_score)
+            ]
+            home_candidate.fit(
+                x_train_score,
+                [min(8, value) for value in home_goals_train],
+                sample_weight=candidate_train_weights,
+            )
+            away_candidate.fit(
+                x_train_score,
+                [min(8, value) for value in away_goals_train],
+                sample_weight=candidate_train_weights,
+            )
+            candidate_home_expected = [
+                clamp(float(value), 0.15, 4.5)
+                for value in predict_goal_expectations(home_candidate, x_test_score)
+            ]
+            candidate_away_expected = [
+                clamp(float(value), 0.15, 4.5)
+                for value in predict_goal_expectations(away_candidate, x_test_score)
+            ]
+            candidate_mae = (
+                float(mean_absolute_error(home_goals_test, candidate_home_expected))
+                + float(mean_absolute_error(away_goals_test, candidate_away_expected))
+            ) / 2
+            candidate_deviance = (
+                float(mean_poisson_deviance(home_goals_test, candidate_home_expected))
+                + float(mean_poisson_deviance(away_goals_test, candidate_away_expected))
+            ) / 2
+            candidate_exact = 0
+            for expected_home, expected_away, outcome_label, actual_home, actual_away in zip(
+                candidate_home_expected,
+                candidate_away_expected,
+                calibrated_validation_labels,
+                home_goals_test,
+                away_goals_test,
+            ):
+                predicted_home, predicted_away = most_likely_scoreline(
+                    expected_home,
+                    expected_away,
+                    outcome_label,
+                )
+                candidate_exact += int(
+                    predicted_home == actual_home and predicted_away == actual_away
+                )
+            score_recency_candidates.append(
+                {
+                    "modelFamily": score_model_family,
+                    "halfLifeYears": half_life,
+                    "validationMae": candidate_mae,
+                    "validationPoissonDeviance": candidate_deviance,
+                    "validationExactCorrect": candidate_exact,
+                }
+            )
+            score_recency_models[(score_model_family, half_life)] = (
+                home_candidate,
+                away_candidate,
+            )
 
     selected_score_recency = min(
         score_recency_candidates,
@@ -1086,7 +1534,10 @@ def main() -> int:
         ),
     )
     selected_score_half_life = float(selected_score_recency["halfLifeYears"])
-    home_goal_model, away_goal_model = score_recency_models[selected_score_half_life]
+    selected_score_model_family = str(selected_score_recency["modelFamily"])
+    home_goal_model, away_goal_model = score_recency_models[
+        (selected_score_model_family, selected_score_half_life)
+    ]
     historical_score_validation_mae = float(selected_score_recency["validationMae"])
     historical_score_validation_deviance = float(
         selected_score_recency["validationPoissonDeviance"]
@@ -1096,21 +1547,31 @@ def main() -> int:
 
     # 时间外验证只负责选模型和校准平局阈值。选型完成后，用全部“本届开赛前”历史样本
     # 重新拟合最终分类器，让最近一年比赛也真正参与当前预测，同时不接触本届赛果。
+    outcome_features = select_feature_rows(features, selected_outcome_columns)
+    score_features = select_feature_rows(features, selected_score_columns)
     if model_name == "Logistic Regression Baseline":
         selected_model.fit(
-            features,
+            outcome_features,
             labels,
-            logisticregression__sample_weight=sample_weights,
+            logisticregression__sample_weight=outcome_sample_weights_by_half_life[
+                selected_outcome_half_life
+            ],
         )
     else:
-        selected_model.fit(features, labels, sample_weight=sample_weights)
+        selected_model.fit(
+            outcome_features,
+            labels,
+            sample_weight=outcome_sample_weights_by_half_life[
+                selected_outcome_half_life
+            ],
+        )
     home_goal_model.fit(
-        features,
+        score_features,
         [min(8, value) for value in home_goal_targets],
         sample_weight=score_sample_weights_by_half_life[selected_score_half_life],
     )
     away_goal_model.fit(
-        features,
+        score_features,
         [min(8, value) for value in away_goal_targets],
         sample_weight=score_sample_weights_by_half_life[selected_score_half_life],
     )
@@ -1174,10 +1635,16 @@ def main() -> int:
                 current_competition_weight, current_result_weight,
                 elo, recent_points, recent_goal_diff, recent_goals_for, recent_goals_against,
                 recent_points_5, recent_points_20, recent_goal_diff_5, recent_goal_diff_20,
-                recent_opponent_elo, team_match_counts,
+                recent_opponent_elo, team_match_counts, recent_match_dates,
             )
-            group_predicted_label = int(selected_model.predict([group_match_features])[0])
-            group_probabilities = selected_model.predict_proba([group_match_features])[0]
+            group_outcome_features = select_feature_row(
+                group_match_features, selected_outcome_columns,
+            )
+            group_score_features = select_feature_row(
+                group_match_features, selected_score_columns,
+            )
+            group_predicted_label = int(selected_model.predict([group_outcome_features])[0])
+            group_probabilities = selected_model.predict_proba([group_outcome_features])[0]
             group_probability_by_label = {
                 int(label): float(probability)
                 for label, probability in zip(selected_model.classes_, group_probabilities)
@@ -1185,12 +1652,12 @@ def main() -> int:
             if group_probability_by_label.get(1, 0.0) >= draw_threshold:
                 group_predicted_label = 1
             group_expected_home_goals = clamp(
-                float(home_goal_model.predict([group_match_features])[0]),
+                float(predict_goal_expectations(home_goal_model, [group_score_features])[0]),
                 0.15,
                 4.5,
             )
             group_expected_away_goals = clamp(
-                float(away_goal_model.predict([group_match_features])[0]),
+                float(predict_goal_expectations(away_goal_model, [group_score_features])[0]),
                 0.15,
                 4.5,
             )
@@ -1279,10 +1746,16 @@ def main() -> int:
                 current_competition_weight, current_result_weight,
                 elo, recent_points, recent_goal_diff, recent_goals_for, recent_goals_against,
                 recent_points_5, recent_points_20, recent_goal_diff_5, recent_goal_diff_20,
-                recent_opponent_elo, team_match_counts,
+                recent_opponent_elo, team_match_counts, recent_match_dates,
             )
-            predicted_label = int(selected_model.predict([match_features])[0])
-            probabilities = selected_model.predict_proba([match_features])[0]
+            outcome_match_features = select_feature_row(
+                match_features, selected_outcome_columns,
+            )
+            score_match_features = select_feature_row(
+                match_features, selected_score_columns,
+            )
+            predicted_label = int(selected_model.predict([outcome_match_features])[0])
+            probabilities = selected_model.predict_proba([outcome_match_features])[0]
             probability_by_label = {
                 int(label): float(probability)
                 for label, probability in zip(selected_model.classes_, probabilities)
@@ -1290,12 +1763,12 @@ def main() -> int:
             if probability_by_label.get(1, 0.0) >= draw_threshold:
                 predicted_label = 1
             expected_home_goals = clamp(
-                float(home_goal_model.predict([match_features])[0]),
+                float(predict_goal_expectations(home_goal_model, [score_match_features])[0]),
                 0.15,
                 4.5,
             )
             expected_away_goals = clamp(
-                float(away_goal_model.predict([match_features])[0]),
+                float(predict_goal_expectations(away_goal_model, [score_match_features])[0]),
                 0.15,
                 4.5,
             )
@@ -1431,6 +1904,7 @@ def main() -> int:
             recent_points, recent_goal_diff, recent_goals_for, recent_goals_against,
             recent_points_5, recent_points_20, recent_goal_diff_5, recent_goal_diff_20,
             recent_opponent_elo, team_match_counts,
+            result_date, recent_match_dates,
         )
         previous_match_by_team[home_id] = match_context
         previous_match_by_team[away_id] = match_context
@@ -1661,6 +2135,42 @@ def main() -> int:
     # 历史进球模型、本届整体节奏、本届球队攻防、小组赛校准器、总进球缩放和环境准备度修正。
     # 若开发回放成绩相同，优先选择较低的小组赛校准权重，避免为小样本增加不必要复杂度。
     score_parameter_candidates: list[dict[str, float | int]] = []
+
+    def score_parameter_performance(parameters: dict[str, float]) -> tuple[int, float]:
+        """Evaluate one global score setup on the chronological development slice."""
+        exact_correct = 0
+        absolute_error = 0.0
+        for row in development_rows:
+            expected_home, expected_away = calibrated_expected_goals(row, parameters)
+            predicted_draw = row["predictedResult"] == "draw"
+            outcome_label = (
+                1 if predicted_draw
+                else 0 if row["predictedAdvancingTeamId"] == row["homeTeamId"]
+                else 2
+            )
+            prediction = build_knockout_score_prediction(
+                expected_home,
+                expected_away,
+                outcome_label,
+                float(row["homeEnvironmentReadiness"]),
+                float(row["awayEnvironmentReadiness"]),
+                (
+                    float(row["homeWinProbability"]),
+                    float(row["drawProbability"]),
+                    float(row["awayWinProbability"]),
+                ),
+                float(parameters.get("outcomeProbabilityWeight", -1.0)),
+            )
+            exact_correct += int(
+                int(prediction["finalTeamAScore"]) == int(row["actualHomeScore"])
+                and int(prediction["finalTeamBScore"]) == int(row["actualAwayScore"])
+            )
+            absolute_error += (
+                abs(int(prediction["finalTeamAScore"]) - int(row["actualHomeScore"]))
+                + abs(int(prediction["finalTeamBScore"]) - int(row["actualAwayScore"]))
+            ) / 2
+        return exact_correct, absolute_error / len(development_rows)
+
     for history_weight in [0.30, 0.40, 0.50, 0.60, 0.70]:
         for pace_weight in [0.05, 0.10, 0.15]:
             if history_weight + pace_weight >= 0.90:
@@ -1679,40 +2189,18 @@ def main() -> int:
                                     "environmentAdjustment": environment_adjustment,
                                     "groupCalibrationWeight": group_calibration_weight,
                                 }
-                                exact_correct = 0
-                                absolute_error = 0.0
-                                for row in development_rows:
-                                    expected_home, expected_away = calibrated_expected_goals(row, parameters)
-                                    predicted_draw = row["predictedResult"] == "draw"
-                                    outcome_label = (
-                                        1 if predicted_draw
-                                        else 0 if row["predictedAdvancingTeamId"] == row["homeTeamId"]
-                                        else 2
-                                    )
-                                    prediction = build_knockout_score_prediction(
-                                        expected_home,
-                                        expected_away,
-                                        outcome_label,
-                                        float(row["homeEnvironmentReadiness"]),
-                                        float(row["awayEnvironmentReadiness"]),
-                                    )
-                                    exact_correct += int(
-                                        int(prediction["finalTeamAScore"]) == int(row["actualHomeScore"])
-                                        and int(prediction["finalTeamBScore"]) == int(row["actualAwayScore"])
-                                    )
-                                    absolute_error += (
-                                        abs(int(prediction["finalTeamAScore"]) - int(row["actualHomeScore"]))
-                                        + abs(int(prediction["finalTeamBScore"]) - int(row["actualAwayScore"]))
-                                    ) / 2
+                                exact_correct, development_mae = score_parameter_performance(
+                                    parameters
+                                )
                                 score_parameter_candidates.append(
                                     {
                                         **parameters,
                                         "developmentExactCorrect": exact_correct,
-                                        "developmentMae": absolute_error / len(development_rows),
+                                        "developmentMae": development_mae,
                                     }
                                 )
 
-    selected_score_parameters = max(
+    selected_coarse_score_parameters = max(
         score_parameter_candidates,
         key=lambda item: (
             int(item["developmentExactCorrect"]),
@@ -1723,6 +2211,61 @@ def main() -> int:
             -abs(float(item["environmentAdjustment"]) - 0.0005),
         ),
     )
+    # Refine the coarse blend with symmetric pace and favorite-gap corrections. These
+    # parameters are global, selected only on R32/R16, and then audited on later rounds.
+    score_refinement_candidates: list[dict[str, float | int]] = []
+    coarse_parameters = {
+        key: float(selected_coarse_score_parameters[key])
+        for key in [
+            "history",
+            "pace",
+            "attackShare",
+            "recentMatchWeight",
+            "scale",
+            "environmentAdjustment",
+            "groupCalibrationWeight",
+        ]
+    }
+    for outcome_probability_weight in [-1.0, 0.0, 0.5, 1.0, 2.0, 4.0]:
+        for score_offset in [-0.20, -0.10, 0.0, 0.10, 0.20, 0.30]:
+            for favorite_goal_boost in [0.0, 0.15, 0.30, 0.45, 0.60]:
+                for underdog_goal_suppression in [0.0, 0.10, 0.20, 0.30]:
+                    parameters = {
+                        **coarse_parameters,
+                        "scoreOffset": score_offset,
+                        "favoriteGoalBoost": favorite_goal_boost,
+                        "underdogGoalSuppression": underdog_goal_suppression,
+                        "outcomeProbabilityWeight": outcome_probability_weight,
+                    }
+                    exact_correct, development_mae = score_parameter_performance(parameters)
+                    score_refinement_candidates.append(
+                        {
+                            **parameters,
+                            "developmentExactCorrect": exact_correct,
+                            "developmentMae": development_mae,
+                        }
+                    )
+    best_refinement_exact = max(
+        int(item["developmentExactCorrect"])
+        for item in score_refinement_candidates
+    )
+    score_exact_tolerance = 1
+    stable_refinement_candidates = [
+        item for item in score_refinement_candidates
+        if int(item["developmentExactCorrect"])
+        >= best_refinement_exact - score_exact_tolerance
+    ]
+    selected_score_parameters = min(
+        stable_refinement_candidates,
+        key=lambda item: (
+            float(item["developmentMae"]),
+            abs(float(item["scoreOffset"])),
+            float(item["favoriteGoalBoost"]),
+            float(item["underdogGoalSuppression"]),
+            abs(float(item["outcomeProbabilityWeight"]) + 1.0),
+        ),
+    )
+    score_parameter_candidates.extend(score_refinement_candidates)
     score_parameters = {
         key: float(selected_score_parameters[key])
         for key in [
@@ -1733,6 +2276,10 @@ def main() -> int:
             "scale",
             "environmentAdjustment",
             "groupCalibrationWeight",
+            "scoreOffset",
+            "favoriteGoalBoost",
+            "underdogGoalSuppression",
+            "outcomeProbabilityWeight",
         ]
     }
 
@@ -1750,6 +2297,12 @@ def main() -> int:
             score_outcome_label,
             float(row["homeEnvironmentReadiness"]),
             float(row["awayEnvironmentReadiness"]),
+            (
+                float(row["homeWinProbability"]),
+                float(row["drawProbability"]),
+                float(row["awayWinProbability"]),
+            ),
+            float(score_parameters["outcomeProbabilityWeight"]),
         )
         row.pop("_predictedOutcomeLabel")
         row["scorePrediction"] = score_prediction
@@ -1832,9 +2385,15 @@ def main() -> int:
             competition_weight, sample_weight,
             elo, recent_points, recent_goal_diff, recent_goals_for, recent_goals_against,
             recent_points_5, recent_points_20, recent_goal_diff_5, recent_goal_diff_20,
-            recent_opponent_elo, team_match_counts,
+            recent_opponent_elo, team_match_counts, recent_match_dates,
         )
-        probabilities = selected_model.predict_proba([scheduled_features])[0]
+        scheduled_outcome_features = select_feature_row(
+            scheduled_features, selected_outcome_columns,
+        )
+        scheduled_score_features = select_feature_row(
+            scheduled_features, selected_score_columns,
+        )
+        probabilities = selected_model.predict_proba([scheduled_outcome_features])[0]
         probability_by_label = {
             int(label): float(probability)
             for label, probability in zip(selected_model.classes_, probabilities)
@@ -1846,12 +2405,12 @@ def main() -> int:
         if probability_by_label.get(1, 0.0) >= draw_threshold:
             scheduled_predicted_label = 1
         expected_home_goals = clamp(
-            float(home_goal_model.predict([scheduled_features])[0]),
+            float(predict_goal_expectations(home_goal_model, [scheduled_score_features])[0]),
             0.15,
             4.5,
         )
         expected_away_goals = clamp(
-            float(away_goal_model.predict([scheduled_features])[0]),
+            float(predict_goal_expectations(away_goal_model, [scheduled_score_features])[0]),
             0.15,
             4.5,
         )
@@ -1926,6 +2485,21 @@ def main() -> int:
             "homeTournamentMatchCount": home_match_count,
             "awayTournamentMatchCount": away_match_count,
         }
+        scoring_record = {
+            "homePrior": home_prior,
+            "awayPrior": away_prior,
+            "homeTournamentForm": home_form,
+            "awayTournamentForm": away_form,
+            "homeClassifierAdvance": home_classifier_advance,
+            "awayClassifierAdvance": 100 - home_classifier_advance,
+            "homeEnvironmentReadiness": home_environment["score"],
+            "awayEnvironmentReadiness": away_environment["score"],
+        }
+        home_advancement_score, away_advancement_score = advancement_scores(
+            scoring_record, selected_weights,
+        )
+        scheduled_score_context["homeAdvancementScore"] = home_advancement_score
+        scheduled_score_context["awayAdvancementScore"] = away_advancement_score
         scheduled_calibration_features = tournament_score_calibration_features(
             scheduled_score_context,
         )
@@ -1943,19 +2517,6 @@ def main() -> int:
             scheduled_score_context,
             score_parameters,
         )
-        scoring_record = {
-            "homePrior": home_prior,
-            "awayPrior": away_prior,
-            "homeTournamentForm": home_form,
-            "awayTournamentForm": away_form,
-            "homeClassifierAdvance": home_classifier_advance,
-            "awayClassifierAdvance": 100 - home_classifier_advance,
-            "homeEnvironmentReadiness": home_environment["score"],
-            "awayEnvironmentReadiness": away_environment["score"],
-        }
-        home_advancement_score, away_advancement_score = advancement_scores(
-            scoring_record, selected_weights,
-        )
         home_advance_probability = clamp(
             1 / (1 + math.exp(-(home_advancement_score - away_advancement_score) / 10)),
             0.05,
@@ -1970,6 +2531,12 @@ def main() -> int:
             scheduled_predicted_label,
             float(home_environment["score"]),
             float(away_environment["score"]),
+            (
+                probability_by_label.get(0, 0.0),
+                probability_by_label.get(1, 0.0),
+                probability_by_label.get(2, 0.0),
+            ),
+            float(score_parameters["outcomeProbabilityWeight"]),
         )
         component_edges = [
             ("preTournamentPrior", abs(home_prior - away_prior) * selected_weights["prior"]),
@@ -2151,6 +2718,7 @@ def main() -> int:
             "Current tournament state snapshot (committed)",
             "Frozen pre-tournament team signals (committed)",
             "Recency-weighted international match history",
+            "Outcome-model half-life selected from five pre-tournament time-decay candidates",
             "Goal-model half-life selected from five pre-tournament time-decay candidates",
             "Current World Cup results through the stated cutoff",
             "Chronological 48-match fit / 24-match validation split inside the completed group stage",
@@ -2162,6 +2730,13 @@ def main() -> int:
         ],
         "validationAccuracy": round(validation_accuracy, 4),
         "rawValidationAccuracy": round(raw_validation_accuracy, 4),
+        "outcomeFeatureSet": selected_outcome_feature_set,
+        "outcomeFeatureCount": len(selected_outcome_columns),
+        "outcomeFeatureCandidatesTested": len(outcome_feature_candidates),
+        "outcomeFeatureSelectionTolerance": outcome_accuracy_tolerance,
+        "outcomeRecencyHalfLifeYears": selected_outcome_half_life,
+        "outcomeRecencyCandidatesTested": len(outcome_recency_candidates),
+        "outcomeRecencySelectionTolerance": outcome_recency_accuracy_tolerance,
         "drawCalibrationThreshold": draw_threshold,
         "knockoutValidationAccuracy": round(knockout_accuracy, 4) if knockout_accuracy is not None else None,
         "knockoutValidationMatches": len(knockout_backtest),
@@ -2192,7 +2767,13 @@ def main() -> int:
         "advancementFormWeight": round(selected_weights["form"], 4),
         "advancementClassifierWeight": round(selected_weights["classifier"], 4),
         "advancementEnvironmentWeight": round(selected_weights["environment"], 4),
-        "scoreModelName": "Recency-selected Dual Poisson HGB + tournament calibration",
+        "scoreModelName": (
+            f"Recency-selected {selected_score_model_family} + tournament calibration"
+        ),
+        "scoreModelFamily": selected_score_model_family,
+        "scoreFeatureSet": selected_score_feature_set,
+        "scoreFeatureCount": len(selected_score_columns),
+        "scoreFeatureCandidatesTested": len(score_feature_candidates),
         "scoreRecencyHalfLifeYears": selected_score_half_life,
         "scoreRecencyCandidatesTested": len(score_recency_candidates),
         "historicalScoreValidationMae": round(historical_score_validation_mae, 4),
@@ -2219,6 +2800,14 @@ def main() -> int:
         "scoreScale": round(score_parameters["scale"], 4),
         "scoreEnvironmentAdjustment": round(score_parameters["environmentAdjustment"], 6),
         "scoreGroupCalibrationWeight": round(score_parameters["groupCalibrationWeight"], 4),
+        "scoreOffset": round(score_parameters["scoreOffset"], 4),
+        "scoreFavoriteGoalBoost": round(score_parameters["favoriteGoalBoost"], 4),
+        "scoreUnderdogGoalSuppression": round(
+            score_parameters["underdogGoalSuppression"], 4,
+        ),
+        "scoreOutcomeProbabilityWeight": round(
+            score_parameters["outcomeProbabilityWeight"], 4,
+        ),
         "groupScoreCalibrationModelName": "Standardized Poisson regression",
         "groupScoreCalibrationRows": len(group_score_calibration_rows),
         "groupScoreCalibrationValidationRows": len(group_calibration_validation),
@@ -2249,9 +2838,12 @@ def main() -> int:
         "notes": (
             f"Classifier selected by time-ordered validation, then refit on {len(results)} pre-tournament historical "
             "matches with exponential time decay and final-tournament "
-            f"matches weighted highest. The match model now uses {len(features[0])} features, including multiple "
+            f"matches weighted highest. It selected {selected_outcome_feature_set} "
+            f"({len(selected_outcome_columns)} of {len(features[0])} available features) for outcomes and "
+            f"{selected_score_feature_set} ({len(selected_score_columns)} features) for scores, including multiple "
             f"recent-form windows, Elo level and expected score, opponent strength, team experience, match type, "
-            f"and recency weight. Candidate validation scores: {candidate_score_text}. Profiles blend current "
+            f"and recency weight. The outcome half-life is {selected_outcome_half_life:.1f} years. "
+            f"Candidate validation scores: {candidate_score_text}. Profiles blend current "
             f"tournament evidence, availability, tactical fit, cohesion, and coach adaptability. Baseline accuracy: "
             f"{baseline_accuracy:.3f}; raw selected accuracy: {raw_validation_accuracy:.3f}; draw-calibrated "
             f"accuracy: {validation_accuracy:.3f} at threshold {draw_threshold:.2f}. Sequential knockout "
@@ -2259,7 +2851,8 @@ def main() -> int:
             f"prior {selected_weights['prior']:.2f}, current form {selected_weights['form']:.2f}, historical "
             f"classifier {selected_weights['classifier']:.2f}, and pre-match environment "
             f"{selected_weights['environment']:.2f}. The later holdout contains only {len(holdout_rows)} matches, "
-            f"so its accuracy must be read with a small-sample caveat. The Poisson score models have historical "
+            f"so its accuracy must be read with a small-sample caveat. The {selected_score_model_family} "
+            "score models have historical "
             f"half-life {selected_score_half_life:.1f} years, per-team MAE "
             f"{historical_score_validation_mae:.3f}, and knockout exact-score accuracy "
             f"{knockout_exact_score_accuracy:.3f}. Score calibration blends historical expected goals "
@@ -2297,6 +2890,27 @@ export const modelScheduledMatchPredictions: ModelMatchupPrediction[] = {json_fo
                 "profiles": profiles,
                 "scheduledMatchPredictions": scheduled_match_predictions,
                 "advancementWeightCandidates": advancement_weight_candidates,
+                "outcomeFeatureCandidates": [
+                    {
+                        "modelName": str(item["modelName"]),
+                        "featureSet": str(item["featureSet"]),
+                        "featureCount": len(item["featureColumns"]),
+                        "accuracy": float(item["accuracy"]),
+                    }
+                    for item in outcome_feature_candidates
+                ],
+                "outcomeRecencyCandidates": outcome_recency_candidates,
+                "scoreFeatureCandidates": [
+                    {
+                        "featureSet": str(item["featureSet"]),
+                        "featureCount": len(item["featureColumns"]),
+                        "validationMae": float(item["validationMae"]),
+                        "validationPoissonDeviance": float(
+                            item["validationPoissonDeviance"]
+                        ),
+                    }
+                    for item in score_feature_candidates
+                ],
                 "scoreRecencyCandidates": score_recency_candidates,
                 "groupCalibrationCandidates": group_calibration_candidates,
                 "scoreParameterCandidates": score_parameter_candidates,
@@ -2313,11 +2927,25 @@ export const modelScheduledMatchPredictions: ModelMatchupPrediction[] = {json_fo
         f"Selected model: {model_name} ({raw_validation_accuracy:.3f} raw, "
         f"{validation_accuracy:.3f} draw-calibrated validation accuracy)"
     )
+    print(
+        f"Selected feature sets: outcomes={selected_outcome_feature_set} "
+        f"({len(selected_outcome_columns)}), scores={selected_score_feature_set} "
+        f"({len(selected_score_columns)})"
+    )
+    print(f"Outcome recency: {selected_outcome_half_life:.1f}-year half-life")
     print(f"Draw calibration threshold: {draw_threshold:.2f}")
     print(
         "Historical score recency: "
-        f"{selected_score_half_life:.1f}-year half-life, validation Poisson deviance "
+        f"{selected_score_model_family}, {selected_score_half_life:.1f}-year half-life, "
+        "validation Poisson deviance "
         f"{historical_score_validation_deviance:.3f}, MAE {historical_score_validation_mae:.3f}"
+    )
+    print(
+        "Score refinement: "
+        f"offset={score_parameters['scoreOffset']:+.2f}, favorite boost="
+        f"{score_parameters['favoriteGoalBoost']:.2f}, underdog suppression="
+        f"{score_parameters['underdogGoalSuppression']:.2f}, outcome probability="
+        f"{score_parameters['outcomeProbabilityWeight']:.2f}"
     )
     print(f"Current tournament results incorporated: {len(current_results)}")
     print(
