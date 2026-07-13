@@ -5,6 +5,7 @@ import { getTeamById } from "../utils/format";
 import { displayTeamName } from "../utils/localizedNames";
 import { getMatchupPrediction, getRecommendedWinnerId } from "../utils/modelPredictions";
 import { ExplanationCard } from "./ExplanationCard";
+import { PredictedScoreCard } from "./PredictedScoreCard";
 import { TeamFlag } from "./TeamFlag";
 
 interface BracketMatchProps {
@@ -145,6 +146,14 @@ export const BracketMatch = ({ match, matchState, teams, players, onSlotChange, 
           teams={teams}
         />
       </div>
+      {probabilities && teamA && teamB && (
+        <PredictedScoreCard
+          compact
+          score={probabilities.scorePrediction}
+          teamAName={displayTeamName(teamA, language)}
+          teamBName={displayTeamName(teamB, language)}
+        />
+      )}
       {probabilities && teamA && teamB && (
         <div className="mt-3 rounded-lg border border-sky-400/20 bg-sky-500/10 p-3">
           <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.16em] text-sky-200 light:text-sky-800">

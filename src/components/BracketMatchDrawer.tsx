@@ -9,6 +9,7 @@ import type {
 } from "../types/worldCup";
 import { displayTeamName } from "../utils/localizedNames";
 import { getRecommendedWinnerId, getScheduledMatchPrediction } from "../utils/modelPredictions";
+import { PredictedScoreCard } from "./PredictedScoreCard";
 import { TeamFlag } from "./TeamFlag";
 
 interface BracketMatchDrawerProps {
@@ -81,6 +82,14 @@ export const BracketMatchDrawer = ({
         <span className="pt-7 text-xs font-black text-slate-500">VS</span>
         <DrawerTeam team={teamB} />
       </div>
+
+      {prediction && teamA && teamB && (
+        <PredictedScoreCard
+          score={prediction.scorePrediction}
+          teamAName={displayTeamName(teamA, language)}
+          teamBName={displayTeamName(teamB, language)}
+        />
+      )}
 
       {environment && (
         <section className="mt-4 rounded-lg border border-cyan-400/20 bg-cyan-500/10 p-3">

@@ -34,7 +34,7 @@ export const ModelDataPanel = () => {
           value={
             predictionModelMeta.knockoutValidationAccuracy === null
               ? t("notAvailable")
-              : `${predictionModelMeta.knockoutValidationCorrect}/${predictionModelMeta.knockoutValidationMatches} · ${Math.round(predictionModelMeta.knockoutValidationAccuracy * 100)}%`
+              : `${predictionModelMeta.knockoutValidationCorrect}/${predictionModelMeta.knockoutValidationMatches} / ${Math.round(predictionModelMeta.knockoutValidationAccuracy * 100)}%`
           }
         />
         <Info
@@ -42,7 +42,7 @@ export const ModelDataPanel = () => {
           value={
             predictionModelMeta.knockoutOneXTwoAccuracy === null
               ? t("notAvailable")
-              : `${predictionModelMeta.knockoutOneXTwoCorrect}/${predictionModelMeta.knockoutValidationMatches} · ${Math.round(predictionModelMeta.knockoutOneXTwoAccuracy * 100)}%`
+              : `${predictionModelMeta.knockoutOneXTwoCorrect}/${predictionModelMeta.knockoutValidationMatches} / ${Math.round(predictionModelMeta.knockoutOneXTwoAccuracy * 100)}%`
           }
         />
         <Info
@@ -50,7 +50,7 @@ export const ModelDataPanel = () => {
           value={
             predictionModelMeta.knockoutDevelopmentAccuracy === null
               ? t("notAvailable")
-              : `${predictionModelMeta.knockoutDevelopmentCorrect}/${predictionModelMeta.knockoutDevelopmentMatches} · ${Math.round(predictionModelMeta.knockoutDevelopmentAccuracy * 100)}%`
+              : `${predictionModelMeta.knockoutDevelopmentCorrect}/${predictionModelMeta.knockoutDevelopmentMatches} / ${Math.round(predictionModelMeta.knockoutDevelopmentAccuracy * 100)}%`
           }
         />
         <Info
@@ -58,8 +58,24 @@ export const ModelDataPanel = () => {
           value={
             predictionModelMeta.knockoutHoldoutAccuracy === null
               ? t("notAvailable")
-              : `${predictionModelMeta.knockoutHoldoutCorrect}/${predictionModelMeta.knockoutHoldoutMatches} · ${Math.round(predictionModelMeta.knockoutHoldoutAccuracy * 100)}%`
-          }
+              : `${predictionModelMeta.knockoutHoldoutCorrect}/${predictionModelMeta.knockoutHoldoutMatches} / ${Math.round(predictionModelMeta.knockoutHoldoutAccuracy * 100)}%`
+            }
+        />
+        <Info
+          label={`${t("scoreModelAccuracy")} / ${t("exactScoreAccuracy")}`}
+          value={`${predictionModelMeta.knockoutExactScoreCorrect}/${predictionModelMeta.knockoutScoreMatches} / ${Math.round(predictionModelMeta.knockoutExactScoreAccuracy * 100)}%`}
+        />
+        <Info
+          label={t("scoreMeanAbsoluteError")}
+          value={`${predictionModelMeta.knockoutScoreMae.toFixed(2)} ${t("goalsUnit")}`}
+        />
+        <Info
+          label={t("scoreWithinOneGoal")}
+          value={`${predictionModelMeta.knockoutIndividualTeamWithinOneCorrect}/${predictionModelMeta.knockoutScoreMatches * 2} / ${Math.round(predictionModelMeta.knockoutIndividualTeamWithinOneAccuracy * 100)}%`}
+        />
+        <Info
+          label={t("scorelineWithinOneGoal")}
+          value={`${predictionModelMeta.knockoutBothTeamsWithinOneCorrect}/${predictionModelMeta.knockoutScoreMatches} / ${Math.round(predictionModelMeta.knockoutBothTeamsWithinOneAccuracy * 100)}%`}
         />
       </div>
 
@@ -79,6 +95,9 @@ export const ModelDataPanel = () => {
         <p className="mt-3 text-xs leading-5 text-slate-400 light:text-slate-600">{predictionModelMeta.notes}</p>
         <p className="mt-2 text-xs font-bold leading-5 text-amber-200 light:text-amber-700">
           {t("modelBacktestCaveat")}
+        </p>
+        <p className="mt-1 text-xs font-bold leading-5 text-sky-200 light:text-sky-700">
+          {t("scoreAccuracyCaveat")}
         </p>
       </div>
     </section>

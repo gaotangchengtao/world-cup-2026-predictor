@@ -233,6 +233,21 @@ export interface ModelPredictionProfile {
   explanation: string;
 }
 
+export type ScoreDecision = "regulation" | "extra-time" | "penalties";
+
+export interface MatchScorePrediction {
+  expectedTeamAGoals90: number;
+  expectedTeamBGoals90: number;
+  regulationTeamAScore: number;
+  regulationTeamBScore: number;
+  extraTimeTeamAScore: number;
+  extraTimeTeamBScore: number;
+  finalTeamAScore: number;
+  finalTeamBScore: number;
+  extraTimePlayed: boolean;
+  decidedBy: ScoreDecision;
+}
+
 export interface MatchupPrediction {
   teamAId: string;
   teamBId: string;
@@ -244,6 +259,7 @@ export interface MatchupPrediction {
   topFactors: string[];
   confidenceScore: number;
   upsetRisk: PredictionRisk;
+  scorePrediction: MatchScorePrediction;
 }
 
 export interface ModelMatchupPrediction extends MatchupPrediction {
@@ -290,6 +306,28 @@ export interface PredictionModelMeta {
   advancementFormWeight: number;
   advancementClassifierWeight: number;
   advancementEnvironmentWeight: number;
+  scoreModelName: string;
+  historicalScoreValidationMae: number;
+  historicalExactScoreAccuracy: number;
+  knockoutScoreMatches: number;
+  knockoutScoreMae: number;
+  knockoutExactScoreCorrect: number;
+  knockoutExactScoreAccuracy: number;
+  scoreDevelopmentExactCorrect: number;
+  scoreDevelopmentExactAccuracy: number;
+  scoreHoldoutExactCorrect: number;
+  scoreHoldoutExactAccuracy: number;
+  knockoutIndividualTeamWithinOneCorrect: number;
+  knockoutIndividualTeamWithinOneAccuracy: number;
+  knockoutBothTeamsWithinOneCorrect: number;
+  knockoutBothTeamsWithinOneAccuracy: number;
+  scoreHistoryWeight: number;
+  scorePaceWeight: number;
+  scoreAttackShare: number;
+  scoreRecentMatchWeight: number;
+  scoreScale: number;
+  scoreEnvironmentAdjustment: number;
+  scoreDrawAdvanceGap: number;
   notes: string;
 }
 

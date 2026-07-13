@@ -103,6 +103,117 @@ def main() -> int:
     require(meta["historicalSourceRowsOnOrAfterStart"] >= 0, "历史 CSV 边界计数无效")
     require(meta["scoredHistoricalRowsOnOrAfterStart"] >= 0, "历史 CSV 赛果边界计数无效")
 
+    score_errors = []
+    exact_score_correct = 0
+    individual_team_within_one = 0
+    both_teams_within_one = 0
+    for row in backtest:
+        score = row["scorePrediction"]
+        require(
+            score["finalTeamAScore"]
+            == score["regulationTeamAScore"] + score["extraTimeTeamAScore"],
+            f"M{row['matchNumber']} 主队最终比分与常规时间/加时不一致",
+        )
+        require(
+            score["finalTeamBScore"]
+            == score["regulationTeamBScore"] + score["extraTimeTeamBScore"],
+            f"M{row['matchNumber']} 客队最终比分与常规时间/加时不一致",
+        )
+        if score["decidedBy"] == "penalties":
+            require(
+                score["finalTeamAScore"] == score["finalTeamBScore"],
+                f"M{row['matchNumber']} 标记点球决胜时，120 分钟比分必须相同",
+            )
+        if not score["extraTimePlayed"]:
+            require(
+                score["extraTimeTeamAScore"] == score["extraTimeTeamBScore"] == 0,
+                f"M{row['matchNumber']} 未进入加时却记录了加时进球",
+            )
+        error = (
+            abs(score["finalTeamAScore"] - row["actualHomeScore"])
+            + abs(score["finalTeamBScore"] - row["actualAwayScore"])
+        ) / 2
+        score_errors.append(error)
+        exact_score_correct += int(
+            score["finalTeamAScore"] == row["actualHomeScore"]
+            and score["finalTeamBScore"] == row["actualAwayScore"]
+        )
+        home_within_one = abs(score["finalTeamAScore"] - row["actualHomeScore"]) <= 1
+        away_within_one = abs(score["finalTeamBScore"] - row["actualAwayScore"]) <= 1
+        individual_team_within_one += int(home_within_one) + int(away_within_one)
+        both_teams_within_one += int(home_within_one and away_within_one)
+    require(meta["knockoutScoreMatches"] == len(backtest), "比分回测场数不一致")
+    require(meta["knockoutExactScoreCorrect"] == exact_score_correct, "精确比分命中数不一致")
+    require(
+        math.isclose(meta["knockoutScoreMae"], sum(score_errors) / len(score_errors), abs_tol=1e-4),
+        "比分平均绝对误差不一致",
+    )
+    require(
+        math.isclose(
+            meta["knockoutExactScoreAccuracy"],
+            exact_score_correct / len(backtest),
+            abs_tol=1e-4,
+        ),
+        "精确比分准确率不一致",
+    )
+    require(
+        meta["scoreDevelopmentExactCorrect"]
+        == sum(bool(row["exactScoreCorrect"]) for row in backtest[:24]),
+        "比分开发回放命中数不一致",
+    )
+    require(
+        meta["scoreHoldoutExactCorrect"]
+        == sum(bool(row["exactScoreCorrect"]) for row in backtest[24:]),
+        "比分留出测试命中数不一致",
+    )
+    require(
+        meta["knockoutIndividualTeamWithinOneCorrect"] == individual_team_within_one,
+        "单队误差不超过 1 球的计数不一致",
+    )
+    require(
+        meta["knockoutBothTeamsWithinOneCorrect"] == both_teams_within_one,
+        "完整比分误差不超过 1 球的计数不一致",
+    )
+    require(
+        math.isclose(
+            meta["knockoutIndividualTeamWithinOneAccuracy"],
+            individual_team_within_one / (len(backtest) * 2),
+            abs_tol=1e-4,
+        ),
+        "单队误差不超过 1 球的比例不一致",
+    )
+    require(
+        math.isclose(
+            meta["knockoutBothTeamsWithinOneAccuracy"],
+            both_teams_within_one / len(backtest),
+            abs_tol=1e-4,
+        ),
+        "完整比分误差不超过 1 球的比例不一致",
+    )
+    require(0 <= meta["scoreRecentMatchWeight"] <= 1, "最近 3 场比分权重超出 0-100%")
+    require(
+        meta["scoreHistoryWeight"] + meta["scorePaceWeight"] < 0.9,
+        "历史比分与赛事节奏权重之和过高",
+    )
+
+    for scheduled in output.get("scheduledMatchPredictions", []):
+        score = scheduled["scorePrediction"]
+        require(
+            score["finalTeamAScore"]
+            == score["regulationTeamAScore"] + score["extraTimeTeamAScore"],
+            f"待赛 M{scheduled['matchNumber']} 主队比分结构不一致",
+        )
+        require(
+            score["finalTeamBScore"]
+            == score["regulationTeamBScore"] + score["extraTimeTeamBScore"],
+            f"待赛 M{scheduled['matchNumber']} 客队比分结构不一致",
+        )
+        if score["decidedBy"] == "penalties":
+            require(
+                score["finalTeamAScore"] == score["finalTeamBScore"],
+                f"待赛 M{scheduled['matchNumber']} 点球标记必须对应 120 分钟平局",
+            )
+
     print("数据与模型完整性检查通过")
     print(f"- 已结束比赛：{len(matches)}")
     print(f"- 晋级者顺序回放：{advance_correct}/28 = {advance_correct / 28:.1%}")
@@ -126,6 +237,18 @@ def main() -> int:
         f"本届状态 {meta['advancementFormWeight']:.0%} / "
         f"分类器 {meta['advancementClassifierWeight']:.0%} / "
         f"环境 {meta['advancementEnvironmentWeight']:.0%}"
+    )
+    print(
+        f"- 精确比分：{exact_score_correct}/{len(backtest)} = "
+        f"{exact_score_correct / len(backtest):.1%}；每队平均误差 {meta['knockoutScoreMae']:.2f} 球"
+    )
+    print(
+        f"- 单队误差不超过 1 球：{individual_team_within_one}/{len(backtest) * 2} = "
+        f"{individual_team_within_one / (len(backtest) * 2):.1%}"
+    )
+    print(
+        f"- 双方均误差不超过 1 球：{both_teams_within_one}/{len(backtest)} = "
+        f"{both_teams_within_one / len(backtest):.1%}"
     )
     return 0
 

@@ -229,6 +229,154 @@ def advancement_scores(record: dict, weights: dict[str, float]) -> tuple[float, 
     return home_score, away_score
 
 
+def poisson_probability(expected_goals: float, goals: int) -> float:
+    """计算泊松进球概率；expected_goals 是模型给出的平均进球数。"""
+    expected_goals = max(0.01, float(expected_goals))
+    return math.exp(-expected_goals) * math.pow(expected_goals, goals) / math.factorial(goals)
+
+
+def most_likely_scoreline(
+    expected_home_goals: float,
+    expected_away_goals: float,
+    outcome_label: int | None = None,
+    max_goals: int = 7,
+) -> tuple[int, int]:
+    """从泊松比分矩阵中选择概率最高的比分，并可要求它符合胜/平/负方向。"""
+    best_score = (0, 0)
+    best_probability = -1.0
+    for home_goals in range(max_goals + 1):
+        for away_goals in range(max_goals + 1):
+            label = 0 if home_goals > away_goals else 1 if home_goals == away_goals else 2
+            if outcome_label is not None and label != outcome_label:
+                continue
+            probability = (
+                poisson_probability(expected_home_goals, home_goals)
+                * poisson_probability(expected_away_goals, away_goals)
+            )
+            if probability > best_probability:
+                best_score = (home_goals, away_goals)
+                best_probability = probability
+    return best_score
+
+
+def build_knockout_score_prediction(
+    expected_home_goals: float,
+    expected_away_goals: float,
+    regulation_outcome_label: int,
+    home_environment_readiness: float = 65.0,
+    away_environment_readiness: float = 65.0,
+) -> dict[str, object]:
+    """生成 90 分钟和加时后的比分；点球大战永远不写进比分。
+
+    先用胜/平/负分类方向约束 90 分钟泊松比分。若预测为平局，再把 30 分钟加时
+    按较低比赛节奏和双方赛前环境准备度单独建模。加时后仍平局时，只标记为
+    penalties，最终比分保持 120 分钟结束时的平局。
+    """
+    expected_home_goals = clamp(float(expected_home_goals), 0.15, 4.5)
+    expected_away_goals = clamp(float(expected_away_goals), 0.15, 4.5)
+    regulation_home, regulation_away = most_likely_scoreline(
+        expected_home_goals,
+        expected_away_goals,
+        regulation_outcome_label,
+    )
+    extra_home = 0
+    extra_away = 0
+    extra_time_played = regulation_home == regulation_away
+    decided_by = "regulation"
+
+    if extra_time_played:
+        # 加时只有常规时间的三分之一，且总体节奏通常更低；准备度只做小幅修正。
+        home_readiness_factor = clamp(0.78 + home_environment_readiness / 350, 0.84, 1.05)
+        away_readiness_factor = clamp(0.78 + away_environment_readiness / 350, 0.84, 1.05)
+        extra_home_expected = expected_home_goals / 3 * 0.78 * home_readiness_factor
+        extra_away_expected = expected_away_goals / 3 * 0.78 * away_readiness_factor
+        extra_home, extra_away = most_likely_scoreline(
+            extra_home_expected,
+            extra_away_expected,
+            outcome_label=None,
+            max_goals=3,
+        )
+        decided_by = "extra-time" if extra_home != extra_away else "penalties"
+
+    final_home = regulation_home + extra_home
+    final_away = regulation_away + extra_away
+    return {
+        "expectedTeamAGoals90": round(expected_home_goals, 2),
+        "expectedTeamBGoals90": round(expected_away_goals, 2),
+        "regulationTeamAScore": regulation_home,
+        "regulationTeamBScore": regulation_away,
+        "extraTimeTeamAScore": extra_home,
+        "extraTimeTeamBScore": extra_away,
+        "finalTeamAScore": final_home,
+        "finalTeamBScore": final_away,
+        "extraTimePlayed": extra_time_played,
+        "decidedBy": decided_by,
+    }
+
+
+def calibrated_expected_goals(
+    record: dict,
+    parameters: dict[str, float],
+) -> tuple[float, float]:
+    """用一套全局参数融合历史进球模型与本届赛事实时攻防数据。"""
+    history_weight = parameters["history"]
+    pace_weight = parameters["pace"]
+    current_weight = 1 - history_weight - pace_weight
+    attack_share = parameters["attackShare"]
+    recent_match_weight = parameters.get("recentMatchWeight", 0.0)
+    scale = parameters["scale"]
+    environment_adjustment = parameters["environmentAdjustment"]
+
+    home_full_tournament_signal = (
+        float(record["homeTournamentAttackRate"]) * attack_share
+        + float(record["awayTournamentDefenseRate"]) * (1 - attack_share)
+    )
+    away_full_tournament_signal = (
+        float(record["awayTournamentAttackRate"]) * attack_share
+        + float(record["homeTournamentDefenseRate"]) * (1 - attack_share)
+    )
+    home_recent_signal = (
+        float(record.get("homeRecentAttackRate", record["homeTournamentAttackRate"])) * attack_share
+        + float(record.get("awayRecentDefenseRate", record["awayTournamentDefenseRate"]))
+        * (1 - attack_share)
+    )
+    away_recent_signal = (
+        float(record.get("awayRecentAttackRate", record["awayTournamentAttackRate"])) * attack_share
+        + float(record.get("homeRecentDefenseRate", record["homeTournamentDefenseRate"]))
+        * (1 - attack_share)
+    )
+    home_current_signal = (
+        home_full_tournament_signal * (1 - recent_match_weight)
+        + home_recent_signal * recent_match_weight
+    )
+    away_current_signal = (
+        away_full_tournament_signal * (1 - recent_match_weight)
+        + away_recent_signal * recent_match_weight
+    )
+    pace = float(record["tournamentPaceGoalsPerTeam"])
+    home_environment_factor = clamp(
+        1 + (float(record["homeEnvironmentReadiness"]) - 65) * environment_adjustment,
+        0.90,
+        1.06,
+    )
+    away_environment_factor = clamp(
+        1 + (float(record["awayEnvironmentReadiness"]) - 65) * environment_adjustment,
+        0.90,
+        1.06,
+    )
+    home_expected = (
+        float(record["baseExpectedHomeGoals"]) * history_weight
+        + home_current_signal * current_weight
+        + pace * pace_weight
+    ) * scale * home_environment_factor
+    away_expected = (
+        float(record["baseExpectedAwayGoals"]) * history_weight
+        + away_current_signal * current_weight
+        + pace * pace_weight
+    ) * scale * away_environment_factor
+    return clamp(home_expected, 0.15, 4.5), clamp(away_expected, 0.15, 4.5)
+
+
 def validate_current_tournament_data(
     results_snapshot: dict,
     venue_snapshot: dict,
@@ -552,9 +700,14 @@ def main() -> int:
     try:
         import joblib
         import pandas as pd
-        from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier, VotingClassifier
+        from sklearn.ensemble import (
+            HistGradientBoostingClassifier,
+            HistGradientBoostingRegressor,
+            RandomForestClassifier,
+            VotingClassifier,
+        )
         from sklearn.linear_model import LogisticRegression
-        from sklearn.metrics import accuracy_score
+        from sklearn.metrics import accuracy_score, mean_absolute_error
         from sklearn.model_selection import train_test_split
         from sklearn.pipeline import make_pipeline
         from sklearn.preprocessing import StandardScaler
@@ -668,6 +821,8 @@ def main() -> int:
     recent_opponent_elo: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=10))
     features: list[list[float]] = []
     labels: list[int] = []
+    home_goal_targets: list[int] = []
+    away_goal_targets: list[int] = []
     sample_weights: list[float] = []
 
     # 每一行特征都只能使用该场比赛之前的信息，避免把赛果泄漏到训练输入中。
@@ -692,6 +847,8 @@ def main() -> int:
         )
         # 三分类标签：0=主队胜，1=平局，2=客队胜。
         labels.append(0 if home_score > away_score else 1 if home_score == away_score else 2)
+        home_goal_targets.append(home_score)
+        away_goal_targets.append(away_score)
         sample_weights.append(weight)
 
         append_result(
@@ -718,9 +875,22 @@ def main() -> int:
         return 1
 
     # 按时间顺序保留最后 20% 比赛做验证，不随机打乱，更接近“用过去预测未来”。
-    x_train, x_test, y_train, y_test, w_train, w_test = train_test_split(
+    (
+        x_train,
+        x_test,
+        y_train,
+        y_test,
+        home_goals_train,
+        home_goals_test,
+        away_goals_train,
+        away_goals_test,
+        w_train,
+        w_test,
+    ) = train_test_split(
         features,
         labels,
+        home_goal_targets,
+        away_goal_targets,
         sample_weights,
         test_size=0.2,
         shuffle=False,
@@ -755,10 +925,36 @@ def main() -> int:
         voting="soft",
     )
     baseline = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
+    # 两个泊松梯度提升模型分别估计双方预期进球。训练目标封顶 8 球，降低极端友谊赛
+    # 或历史大比分对普通世界杯比赛的干扰；验证仍对照原始比分。
+    home_goal_model = HistGradientBoostingRegressor(
+        loss="poisson",
+        max_iter=220,
+        learning_rate=0.04,
+        l2_regularization=0.2,
+        random_state=42,
+    )
+    away_goal_model = HistGradientBoostingRegressor(
+        loss="poisson",
+        max_iter=220,
+        learning_rate=0.04,
+        l2_regularization=0.2,
+        random_state=43,
+    )
     model.fit(x_train, y_train, sample_weight=w_train)
     forest.fit(x_train, y_train, sample_weight=w_train)
     ensemble.fit(x_train, y_train, sample_weight=w_train)
     baseline.fit(x_train, y_train, logisticregression__sample_weight=w_train)
+    home_goal_model.fit(
+        x_train,
+        [min(8, value) for value in home_goals_train],
+        sample_weight=w_train,
+    )
+    away_goal_model.fit(
+        x_train,
+        [min(8, value) for value in away_goals_train],
+        sample_weight=w_train,
+    )
     candidate_scores = [
         ("Logistic Regression Baseline", baseline, float(accuracy_score(y_test, baseline.predict(x_test)))),
         ("HistGradientBoostingClassifier", model, float(accuracy_score(y_test, model.predict(x_test)))),
@@ -787,6 +983,36 @@ def main() -> int:
             validation_accuracy = candidate_accuracy
             draw_threshold = candidate_threshold
 
+    calibrated_validation_labels: list[int] = []
+    for probabilities in validation_probabilities:
+        raw_label = selected_classes[max(range(len(probabilities)), key=lambda index: probabilities[index])]
+        calibrated_validation_labels.append(
+            1 if float(probabilities[draw_class_index]) >= draw_threshold else raw_label
+        )
+    validation_home_expected = [clamp(float(value), 0.15, 4.5) for value in home_goal_model.predict(x_test)]
+    validation_away_expected = [clamp(float(value), 0.15, 4.5) for value in away_goal_model.predict(x_test)]
+    historical_score_validation_mae = (
+        float(mean_absolute_error(home_goals_test, validation_home_expected))
+        + float(mean_absolute_error(away_goals_test, validation_away_expected))
+    ) / 2
+    historical_exact_score_correct = 0
+    for expected_home, expected_away, outcome_label, actual_home, actual_away in zip(
+        validation_home_expected,
+        validation_away_expected,
+        calibrated_validation_labels,
+        home_goals_test,
+        away_goals_test,
+    ):
+        predicted_home, predicted_away = most_likely_scoreline(
+            expected_home,
+            expected_away,
+            outcome_label,
+        )
+        historical_exact_score_correct += int(
+            predicted_home == actual_home and predicted_away == actual_away
+        )
+    historical_exact_score_accuracy = historical_exact_score_correct / len(home_goals_test)
+
     # 时间外验证只负责选模型和校准平局阈值。选型完成后，用全部“本届开赛前”历史样本
     # 重新拟合最终分类器，让最近一年比赛也真正参与当前预测，同时不接触本届赛果。
     if model_name == "Logistic Regression Baseline":
@@ -797,15 +1023,39 @@ def main() -> int:
         )
     else:
         selected_model.fit(features, labels, sample_weight=sample_weights)
+    home_goal_model.fit(
+        features,
+        [min(8, value) for value in home_goal_targets],
+        sample_weight=sample_weights,
+    )
+    away_goal_model.fit(
+        features,
+        [min(8, value) for value in away_goal_targets],
+        sample_weight=sample_weights,
+    )
 
     args.model_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump(selected_model, args.model_dir / "world_cup_prediction_model.joblib")
+    joblib.dump(
+        {"homeGoalModel": home_goal_model, "awayGoalModel": away_goal_model},
+        args.model_dir / "world_cup_score_models.joblib",
+    )
 
     # 历史模型训练完成后，再按真实时间顺序叠加本届世界杯赛果。
     # 淘汰赛回测会先保存赛前特征，再写入本场结果，保证没有未来信息。
     tournament_stats = defaultdict(
-        lambda: {"matches": 0, "points": 0, "goalsFor": 0, "goalsAgainst": 0, "opponentEloTotal": 0.0}
+        lambda: {
+            "matches": 0,
+            "points": 0,
+            "goalsFor": 0,
+            "goalsAgainst": 0,
+            "opponentEloTotal": 0.0,
+            "recentGoalsFor": deque(maxlen=3),
+            "recentGoalsAgainst": deque(maxlen=3),
+        }
     )
+    tournament_matches_completed = 0
+    tournament_total_goals = 0
     current_results = current_results_snapshot.get("matches", [])
     knockout_start_date = pd.Timestamp(current_state.get("knockoutStageStartDate", "2026-06-28"))
     advancement_holdout_start = pd.Timestamp(
@@ -851,6 +1101,16 @@ def main() -> int:
             }
             if probability_by_label.get(1, 0.0) >= draw_threshold:
                 predicted_label = 1
+            expected_home_goals = clamp(
+                float(home_goal_model.predict([match_features])[0]),
+                0.15,
+                4.5,
+            )
+            expected_away_goals = clamp(
+                float(away_goal_model.predict([match_features])[0]),
+                0.15,
+                4.5,
+            )
             actual_label = 0 if home_score > away_score else 1 if home_score == away_score else 2
             actual_advancing_team_id = str(
                 result.get(
@@ -875,9 +1135,51 @@ def main() -> int:
             away_prior = pre_tournament_prior_score(teams_by_id[away_id])
             home_form = pre_match_tournament_form(tournament_stats[home_id], home_prior)
             away_form = pre_match_tournament_form(tournament_stats[away_id], away_prior)
-            home_classifier_advance = (
+            home_match_count = int(tournament_stats[home_id]["matches"])
+            away_match_count = int(tournament_stats[away_id]["matches"])
+            home_attack_rate = (
+                float(tournament_stats[home_id]["goalsFor"]) / home_match_count
+                if home_match_count else expected_home_goals
+            )
+            home_defense_rate = (
+                float(tournament_stats[home_id]["goalsAgainst"]) / home_match_count
+                if home_match_count else expected_away_goals
+            )
+            away_attack_rate = (
+                float(tournament_stats[away_id]["goalsFor"]) / away_match_count
+                if away_match_count else expected_away_goals
+            )
+            away_defense_rate = (
+                float(tournament_stats[away_id]["goalsAgainst"]) / away_match_count
+                if away_match_count else expected_home_goals
+            )
+            home_recent_attack_rate = (
+                sum(tournament_stats[home_id]["recentGoalsFor"])
+                / len(tournament_stats[home_id]["recentGoalsFor"])
+                if tournament_stats[home_id]["recentGoalsFor"] else home_attack_rate
+            )
+            home_recent_defense_rate = (
+                sum(tournament_stats[home_id]["recentGoalsAgainst"])
+                / len(tournament_stats[home_id]["recentGoalsAgainst"])
+                if tournament_stats[home_id]["recentGoalsAgainst"] else home_defense_rate
+            )
+            away_recent_attack_rate = (
+                sum(tournament_stats[away_id]["recentGoalsFor"])
+                / len(tournament_stats[away_id]["recentGoalsFor"])
+                if tournament_stats[away_id]["recentGoalsFor"] else away_attack_rate
+            )
+            away_recent_defense_rate = (
+                sum(tournament_stats[away_id]["recentGoalsAgainst"])
+                / len(tournament_stats[away_id]["recentGoalsAgainst"])
+                if tournament_stats[away_id]["recentGoalsAgainst"] else away_defense_rate
+            )
+            tournament_pace = (
+                tournament_total_goals / (2 * tournament_matches_completed)
+                if tournament_matches_completed else 1.25
+            )
+            home_classifier_advance = round((
                 probability_by_label.get(0, 0.0) + probability_by_label.get(1, 0.0) * 0.5
-            ) * 100
+            ) * 100, 12)
             knockout_backtest.append(
                 {
                     "matchNumber": int(result.get("matchNumber", 0)),
@@ -903,6 +1205,20 @@ def main() -> int:
                     "awayEnvironmentReadiness": away_environment["score"],
                     "homeEnvironment": home_environment,
                     "awayEnvironment": away_environment,
+                    "_predictedOutcomeLabel": predicted_label,
+                    "baseExpectedHomeGoals": expected_home_goals,
+                    "baseExpectedAwayGoals": expected_away_goals,
+                    "homeTournamentAttackRate": home_attack_rate,
+                    "homeTournamentDefenseRate": home_defense_rate,
+                    "awayTournamentAttackRate": away_attack_rate,
+                    "awayTournamentDefenseRate": away_defense_rate,
+                    "homeRecentAttackRate": home_recent_attack_rate,
+                    "homeRecentDefenseRate": home_recent_defense_rate,
+                    "awayRecentAttackRate": away_recent_attack_rate,
+                    "awayRecentDefenseRate": away_recent_defense_rate,
+                    "tournamentPaceGoalsPerTeam": tournament_pace,
+                    "actualHomeScore": home_score,
+                    "actualAwayScore": away_score,
                 }
             )
 
@@ -917,6 +1233,8 @@ def main() -> int:
             tournament_stats[team_id]["goalsFor"] += goals_for
             tournament_stats[team_id]["goalsAgainst"] += goals_against
             tournament_stats[team_id]["opponentEloTotal"] += elo[opponent]
+            tournament_stats[team_id]["recentGoalsFor"].append(goals_for)
+            tournament_stats[team_id]["recentGoalsAgainst"].append(goals_against)
         # 当前世界杯赛果同时享受最高赛事权重和最近一年加成，确保其最能推动最新 Elo。
         append_result(
             home, away, home_score, away_score, current_result_weight, elo,
@@ -926,6 +1244,8 @@ def main() -> int:
         )
         previous_match_by_team[home_id] = match_context
         previous_match_by_team[away_id] = match_context
+        tournament_matches_completed += 1
+        tournament_total_goals += home_score + away_score
 
     # 用 32 强和 16 强作为开发回放，只搜索一小组通用全局权重；
     # 四分之一决赛及以后留作时间上更晚的测试，不参与选参。
@@ -994,6 +1314,119 @@ def main() -> int:
         row["advanceCorrect"] = predicted_team_id == row["actualAdvancingTeamId"]
         row["correct"] = row["advanceCorrect"]
 
+    # 比分模型只在 32 强和 16 强开发回放上选择一组通用参数。候选项分别控制：
+    # 历史进球模型、本届整体节奏、本届球队攻防、总进球缩放和环境准备度修正。
+    score_parameter_candidates: list[dict[str, float | int]] = []
+    for history_weight in [0.30, 0.40, 0.50, 0.60, 0.70]:
+        for pace_weight in [0.05, 0.10, 0.15]:
+            if history_weight + pace_weight >= 0.90:
+                continue
+            for attack_share in [0.40, 0.50, 0.60]:
+                for recent_match_weight in [0.0, 0.25, 0.50, 0.75]:
+                    for scale in [0.90, 1.00, 1.10, 1.20, 1.30]:
+                        for environment_adjustment in [0.0, 0.0005, 0.001]:
+                            for draw_advance_gap in [0.0, 0.05, 0.10, 0.15]:
+                                parameters = {
+                                    "history": history_weight,
+                                    "pace": pace_weight,
+                                    "attackShare": attack_share,
+                                    "recentMatchWeight": recent_match_weight,
+                                    "scale": scale,
+                                    "environmentAdjustment": environment_adjustment,
+                                    "drawAdvanceGap": draw_advance_gap,
+                                }
+                                exact_correct = 0
+                                absolute_error = 0.0
+                                for row in development_rows:
+                                    expected_home, expected_away = calibrated_expected_goals(row, parameters)
+                                    predicted_draw = (
+                                        row["predictedResult"] == "draw"
+                                        or abs(float(row["homeAdvanceProbability"]) - 0.5) <= draw_advance_gap
+                                    )
+                                    outcome_label = (
+                                        1 if predicted_draw
+                                        else 0 if row["predictedAdvancingTeamId"] == row["homeTeamId"]
+                                        else 2
+                                    )
+                                    prediction = build_knockout_score_prediction(
+                                        expected_home,
+                                        expected_away,
+                                        outcome_label,
+                                        float(row["homeEnvironmentReadiness"]),
+                                        float(row["awayEnvironmentReadiness"]),
+                                    )
+                                    exact_correct += int(
+                                        int(prediction["finalTeamAScore"]) == int(row["actualHomeScore"])
+                                        and int(prediction["finalTeamBScore"]) == int(row["actualAwayScore"])
+                                    )
+                                    absolute_error += (
+                                        abs(int(prediction["finalTeamAScore"]) - int(row["actualHomeScore"]))
+                                        + abs(int(prediction["finalTeamBScore"]) - int(row["actualAwayScore"]))
+                                    ) / 2
+                                score_parameter_candidates.append(
+                                    {
+                                        **parameters,
+                                        "developmentExactCorrect": exact_correct,
+                                        "developmentMae": absolute_error / len(development_rows),
+                                    }
+                                )
+
+    selected_score_parameters = max(
+        score_parameter_candidates,
+        key=lambda item: (
+            int(item["developmentExactCorrect"]),
+            -float(item["developmentMae"]),
+            -abs(float(item["history"]) - 0.50),
+            -abs(float(item["scale"]) - 1.00),
+            -abs(float(item["environmentAdjustment"]) - 0.0005),
+        ),
+    )
+    score_parameters = {
+        key: float(selected_score_parameters[key])
+        for key in [
+            "history",
+            "pace",
+            "attackShare",
+            "recentMatchWeight",
+            "scale",
+            "environmentAdjustment",
+            "drawAdvanceGap",
+        ]
+    }
+
+    for row in knockout_backtest:
+        expected_home, expected_away = calibrated_expected_goals(row, score_parameters)
+        predicted_draw = (
+            row["predictedResult"] == "draw"
+            or abs(float(row["homeAdvanceProbability"]) - 0.5) <= score_parameters["drawAdvanceGap"]
+        )
+        score_outcome_label = (
+            1 if predicted_draw
+            else 0 if row["predictedAdvancingTeamId"] == row["homeTeamId"]
+            else 2
+        )
+        score_prediction = build_knockout_score_prediction(
+            expected_home,
+            expected_away,
+            score_outcome_label,
+            float(row["homeEnvironmentReadiness"]),
+            float(row["awayEnvironmentReadiness"]),
+        )
+        row.pop("_predictedOutcomeLabel")
+        row["scorePrediction"] = score_prediction
+        row["scoreAbsoluteError"] = round(
+            (
+                abs(int(score_prediction["finalTeamAScore"]) - int(row["actualHomeScore"]))
+                + abs(int(score_prediction["finalTeamBScore"]) - int(row["actualAwayScore"]))
+            )
+            / 2,
+            3,
+        )
+        row["exactScoreCorrect"] = (
+            int(score_prediction["finalTeamAScore"]) == int(row["actualHomeScore"])
+            and int(score_prediction["finalTeamBScore"]) == int(row["actualAwayScore"])
+        )
+
     knockout_one_x_two_correct = sum(1 for row in knockout_backtest if row["oneXTwoCorrect"])
     knockout_one_x_two_accuracy = (
         knockout_one_x_two_correct / len(knockout_backtest) if knockout_backtest else None
@@ -1004,6 +1437,41 @@ def main() -> int:
     development_accuracy = development_correct / len(development_rows) if development_rows else None
     holdout_correct = sum(1 for row in holdout_rows if row["advanceCorrect"])
     holdout_accuracy = holdout_correct / len(holdout_rows) if holdout_rows else None
+    knockout_exact_score_correct = sum(1 for row in knockout_backtest if row["exactScoreCorrect"])
+    knockout_exact_score_accuracy = (
+        knockout_exact_score_correct / len(knockout_backtest) if knockout_backtest else None
+    )
+    knockout_score_mae = (
+        sum(float(row["scoreAbsoluteError"]) for row in knockout_backtest) / len(knockout_backtest)
+        if knockout_backtest else None
+    )
+    score_development_exact_correct = sum(1 for row in development_rows if row["exactScoreCorrect"])
+    score_holdout_exact_correct = sum(1 for row in holdout_rows if row["exactScoreCorrect"])
+    score_development_exact_accuracy = (
+        score_development_exact_correct / len(development_rows) if development_rows else None
+    )
+    score_holdout_exact_accuracy = (
+        score_holdout_exact_correct / len(holdout_rows) if holdout_rows else None
+    )
+    individual_team_predictions_within_one = sum(
+        int(abs(int(row["scorePrediction"]["finalTeamAScore"]) - int(row["actualHomeScore"])) <= 1)
+        + int(abs(int(row["scorePrediction"]["finalTeamBScore"]) - int(row["actualAwayScore"])) <= 1)
+        for row in knockout_backtest
+    )
+    both_teams_within_one = sum(
+        int(
+            abs(int(row["scorePrediction"]["finalTeamAScore"]) - int(row["actualHomeScore"])) <= 1
+            and abs(int(row["scorePrediction"]["finalTeamBScore"]) - int(row["actualAwayScore"])) <= 1
+        )
+        for row in knockout_backtest
+    )
+    individual_team_within_one_accuracy = (
+        individual_team_predictions_within_one / (len(knockout_backtest) * 2)
+        if knockout_backtest else None
+    )
+    both_teams_within_one_accuracy = (
+        both_teams_within_one / len(knockout_backtest) if knockout_backtest else None
+    )
 
     # 为尚未开赛、双方已经确定的比赛生成赛前预测。
     # 球队战术、伤停和角色适配继续通过球队画像进入网页端综合模型；
@@ -1032,9 +1500,25 @@ def main() -> int:
             int(label): float(probability)
             for label, probability in zip(selected_model.classes_, probabilities)
         }
-        home_classifier_advance = (
+        scheduled_predicted_label = int(selected_model.classes_[max(
+            range(len(probabilities)),
+            key=lambda index: probabilities[index],
+        )])
+        if probability_by_label.get(1, 0.0) >= draw_threshold:
+            scheduled_predicted_label = 1
+        expected_home_goals = clamp(
+            float(home_goal_model.predict([scheduled_features])[0]),
+            0.15,
+            4.5,
+        )
+        expected_away_goals = clamp(
+            float(away_goal_model.predict([scheduled_features])[0]),
+            0.15,
+            4.5,
+        )
+        home_classifier_advance = round((
             probability_by_label.get(0, 0.0) + probability_by_label.get(1, 0.0) * 0.5
-        ) * 100
+        ) * 100, 12)
         home_prior = pre_tournament_prior_score(teams_by_id[home_id])
         away_prior = pre_tournament_prior_score(teams_by_id[away_id])
         home_form = pre_match_tournament_form(tournament_stats[home_id], home_prior)
@@ -1044,6 +1528,62 @@ def main() -> int:
         )
         away_environment = pre_match_environment_readiness(
             away_id, scheduled_context, previous_match_by_team, venues_by_id,
+        )
+        home_match_count = int(tournament_stats[home_id]["matches"])
+        away_match_count = int(tournament_stats[away_id]["matches"])
+        scheduled_score_context = {
+            "baseExpectedHomeGoals": expected_home_goals,
+            "baseExpectedAwayGoals": expected_away_goals,
+            "homeTournamentAttackRate": (
+                float(tournament_stats[home_id]["goalsFor"]) / home_match_count
+                if home_match_count else expected_home_goals
+            ),
+            "homeTournamentDefenseRate": (
+                float(tournament_stats[home_id]["goalsAgainst"]) / home_match_count
+                if home_match_count else expected_away_goals
+            ),
+            "awayTournamentAttackRate": (
+                float(tournament_stats[away_id]["goalsFor"]) / away_match_count
+                if away_match_count else expected_away_goals
+            ),
+            "awayTournamentDefenseRate": (
+                float(tournament_stats[away_id]["goalsAgainst"]) / away_match_count
+                if away_match_count else expected_home_goals
+            ),
+            "homeRecentAttackRate": (
+                sum(tournament_stats[home_id]["recentGoalsFor"])
+                / len(tournament_stats[home_id]["recentGoalsFor"])
+                if tournament_stats[home_id]["recentGoalsFor"]
+                else expected_home_goals
+            ),
+            "homeRecentDefenseRate": (
+                sum(tournament_stats[home_id]["recentGoalsAgainst"])
+                / len(tournament_stats[home_id]["recentGoalsAgainst"])
+                if tournament_stats[home_id]["recentGoalsAgainst"]
+                else expected_away_goals
+            ),
+            "awayRecentAttackRate": (
+                sum(tournament_stats[away_id]["recentGoalsFor"])
+                / len(tournament_stats[away_id]["recentGoalsFor"])
+                if tournament_stats[away_id]["recentGoalsFor"]
+                else expected_away_goals
+            ),
+            "awayRecentDefenseRate": (
+                sum(tournament_stats[away_id]["recentGoalsAgainst"])
+                / len(tournament_stats[away_id]["recentGoalsAgainst"])
+                if tournament_stats[away_id]["recentGoalsAgainst"]
+                else expected_home_goals
+            ),
+            "tournamentPaceGoalsPerTeam": (
+                tournament_total_goals / (2 * tournament_matches_completed)
+                if tournament_matches_completed else 1.25
+            ),
+            "homeEnvironmentReadiness": home_environment["score"],
+            "awayEnvironmentReadiness": away_environment["score"],
+        }
+        expected_home_goals, expected_away_goals = calibrated_expected_goals(
+            scheduled_score_context,
+            score_parameters,
         )
         scoring_record = {
             "homePrior": home_prior,
@@ -1064,6 +1604,20 @@ def main() -> int:
             0.95,
         )
         advance_gap = abs(home_advance_probability - (1 - home_advance_probability))
+        if (
+            scheduled_predicted_label == 1
+            or abs(home_advance_probability - 0.5) <= score_parameters["drawAdvanceGap"]
+        ):
+            scheduled_predicted_label = 1
+        else:
+            scheduled_predicted_label = 0 if home_advance_probability >= 0.5 else 2
+        score_prediction = build_knockout_score_prediction(
+            expected_home_goals,
+            expected_away_goals,
+            scheduled_predicted_label,
+            float(home_environment["score"]),
+            float(away_environment["score"]),
+        )
         component_edges = [
             ("preTournamentPrior", abs(home_prior - away_prior) * selected_weights["prior"]),
             ("currentTournamentForm", abs(home_form - away_form) * selected_weights["form"]),
@@ -1094,6 +1648,7 @@ def main() -> int:
                 "topFactors": top_factors,
                 "confidenceScore": round(clamp(52 + advance_gap * 55, 38, 96)),
                 "upsetRisk": "low" if advance_gap >= 0.28 else "medium" if advance_gap >= 0.14 else "high",
+                "scorePrediction": score_prediction,
                 "venueId": str(scheduled_match.get("venueId", "")),
                 "temperatureC": round(float(home_environment["temperatureC"]), 1),
                 "humidityPct": round(float(home_environment["humidityPct"]), 1),
@@ -1282,6 +1837,28 @@ def main() -> int:
         "advancementFormWeight": round(selected_weights["form"], 4),
         "advancementClassifierWeight": round(selected_weights["classifier"], 4),
         "advancementEnvironmentWeight": round(selected_weights["environment"], 4),
+        "scoreModelName": "Dual Poisson HGB + current-tournament calibration",
+        "historicalScoreValidationMae": round(historical_score_validation_mae, 4),
+        "historicalExactScoreAccuracy": round(historical_exact_score_accuracy, 4),
+        "knockoutScoreMatches": len(knockout_backtest),
+        "knockoutScoreMae": round(float(knockout_score_mae), 4),
+        "knockoutExactScoreCorrect": knockout_exact_score_correct,
+        "knockoutExactScoreAccuracy": round(float(knockout_exact_score_accuracy), 4),
+        "scoreDevelopmentExactCorrect": score_development_exact_correct,
+        "scoreDevelopmentExactAccuracy": round(float(score_development_exact_accuracy), 4),
+        "scoreHoldoutExactCorrect": score_holdout_exact_correct,
+        "scoreHoldoutExactAccuracy": round(float(score_holdout_exact_accuracy), 4),
+        "knockoutIndividualTeamWithinOneCorrect": individual_team_predictions_within_one,
+        "knockoutIndividualTeamWithinOneAccuracy": round(float(individual_team_within_one_accuracy), 4),
+        "knockoutBothTeamsWithinOneCorrect": both_teams_within_one,
+        "knockoutBothTeamsWithinOneAccuracy": round(float(both_teams_within_one_accuracy), 4),
+        "scoreHistoryWeight": round(score_parameters["history"], 4),
+        "scorePaceWeight": round(score_parameters["pace"], 4),
+        "scoreAttackShare": round(score_parameters["attackShare"], 4),
+        "scoreRecentMatchWeight": round(score_parameters["recentMatchWeight"], 4),
+        "scoreScale": round(score_parameters["scale"], 4),
+        "scoreEnvironmentAdjustment": round(score_parameters["environmentAdjustment"], 6),
+        "scoreDrawAdvanceGap": round(score_parameters["drawAdvanceGap"], 4),
         "notes": (
             f"Classifier selected by time-ordered validation, then refit on {len(results)} pre-tournament historical "
             "matches with exponential time decay and final-tournament "
@@ -1295,7 +1872,15 @@ def main() -> int:
             f"prior {selected_weights['prior']:.2f}, current form {selected_weights['form']:.2f}, historical "
             f"classifier {selected_weights['classifier']:.2f}, and pre-match environment "
             f"{selected_weights['environment']:.2f}. The later holdout contains only {len(holdout_rows)} matches, "
-            "so its accuracy must be read with a small-sample caveat. Context scores are analyst estimates and "
+            f"so its accuracy must be read with a small-sample caveat. The Poisson score models have historical "
+            f"per-team MAE {historical_score_validation_mae:.3f} and knockout exact-score accuracy "
+            f"{knockout_exact_score_accuracy:.3f}. Score calibration blends historical expected goals "
+            f"({score_parameters['history']:.0%}), current-tournament attack/defence "
+            f"({1 - score_parameters['history'] - score_parameters['pace']:.0%}), and tournament pace "
+            f"({score_parameters['pace']:.0%}); the current signal gives "
+            f"{score_parameters['recentMatchWeight']:.0%} to the latest three matches. Penalty-shootout goals "
+            "are never included. "
+            "Context scores are analyst estimates and "
             "should be refreshed as news changes."
         ),
     }
@@ -1319,6 +1904,7 @@ export const modelScheduledMatchPredictions: ModelMatchupPrediction[] = {json_fo
                 "profiles": profiles,
                 "scheduledMatchPredictions": scheduled_match_predictions,
                 "advancementWeightCandidates": advancement_weight_candidates,
+                "scoreParameterCandidates": score_parameter_candidates,
                 "knockoutBacktest": knockout_backtest,
             },
             ensure_ascii=False,
@@ -1347,6 +1933,18 @@ export const modelScheduledMatchPredictions: ModelMatchupPrediction[] = {json_fo
         print(
             f"  1X2 replay: {knockout_one_x_two_correct}/{len(knockout_backtest)} "
             f"({knockout_one_x_two_accuracy:.3f})"
+        )
+        print(
+            f"  Exact score: {knockout_exact_score_correct}/{len(knockout_backtest)} "
+            f"({knockout_exact_score_accuracy:.3f}); per-team MAE {knockout_score_mae:.3f}"
+        )
+        print(
+            f"  Exact score development: {score_development_exact_correct}/{len(development_rows)}; "
+            f"later holdout: {score_holdout_exact_correct}/{len(holdout_rows)}"
+        )
+        print(
+            f"  Within one goal: {individual_team_predictions_within_one}/{len(knockout_backtest) * 2} "
+            f"individual team scores; {both_teams_within_one}/{len(knockout_backtest)} complete scorelines"
         )
     return 0
 

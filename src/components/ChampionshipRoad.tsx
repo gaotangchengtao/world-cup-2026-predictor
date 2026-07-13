@@ -380,7 +380,11 @@ const RoadMatchNode = ({
       <div className="flex items-center justify-between px-2 pt-1.5 text-[9px] font-black uppercase tracking-[0.12em] text-slate-500">
         <span>M{match.matchNumber}</span>
         {prediction && (
-          <span>{Math.round(Math.max(prediction.teamAAdvanceProbability, prediction.teamBAdvanceProbability) * 100)}%</span>
+          <span title={t("predictedScore")}>
+            {prediction.scorePrediction.finalTeamAScore}-{prediction.scorePrediction.finalTeamBScore}
+            <span className="mx-1 text-slate-700">·</span>
+            {Math.round(Math.max(prediction.teamAAdvanceProbability, prediction.teamBAdvanceProbability) * 100)}%
+          </span>
         )}
       </div>
       <div className="mt-1 grid gap-1 px-1.5 pb-1.5">

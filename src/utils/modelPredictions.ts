@@ -5,6 +5,7 @@ import {
 } from "../data/modelPredictions";
 import type {
   BracketPredictionState,
+  MatchScorePrediction,
   MatchupPrediction,
   ModelPredictionProfile,
   Player,
@@ -20,6 +21,99 @@ export { predictionModelMeta };
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 // sigmoid 把可以为任意大小的综合优势值压缩到 0-1 概率区间。
 const sigmoid = (value: number) => 1 / (1 + Math.exp(-value));
+
+const factorial = (value: number) => {
+  let result = 1;
+  for (let index = 2; index <= value; index += 1) result *= index;
+  return result;
+};
+
+const poissonProbability = (expectedGoals: number, goals: number) => {
+  const safeExpectedGoals = Math.max(0.01, expectedGoals);
+  return (Math.exp(-safeExpectedGoals) * safeExpectedGoals ** goals) / factorial(goals);
+};
+
+type OutcomeLabel = 0 | 1 | 2;
+
+const mostLikelyScoreline = (
+  expectedTeamAGoals: number,
+  expectedTeamBGoals: number,
+  outcomeLabel?: OutcomeLabel,
+  maxGoals = 7,
+) => {
+  let best = { teamAScore: 0, teamBScore: 0, probability: -1 };
+  for (let teamAScore = 0; teamAScore <= maxGoals; teamAScore += 1) {
+    for (let teamBScore = 0; teamBScore <= maxGoals; teamBScore += 1) {
+      const label: OutcomeLabel = teamAScore > teamBScore ? 0 : teamAScore === teamBScore ? 1 : 2;
+      if (outcomeLabel !== undefined && label !== outcomeLabel) continue;
+      const probability =
+        poissonProbability(expectedTeamAGoals, teamAScore)
+        * poissonProbability(expectedTeamBGoals, teamBScore);
+      if (probability > best.probability) best = { teamAScore, teamBScore, probability };
+    }
+  }
+  return best;
+};
+
+const buildScorePrediction = (
+  expectedTeamAGoals90: number,
+  expectedTeamBGoals90: number,
+  regulationOutcome: OutcomeLabel,
+  teamAEnvironmentReadiness = 65,
+  teamBEnvironmentReadiness = 65,
+): MatchScorePrediction => {
+  const expectedA = clamp(expectedTeamAGoals90, 0.15, 4.5);
+  const expectedB = clamp(expectedTeamBGoals90, 0.15, 4.5);
+  const regulation = mostLikelyScoreline(expectedA, expectedB, regulationOutcome);
+  const extraTimePlayed = regulation.teamAScore === regulation.teamBScore;
+  let extraTimeTeamAScore = 0;
+  let extraTimeTeamBScore = 0;
+
+  if (extraTimePlayed) {
+    const teamAFactor = clamp(0.78 + teamAEnvironmentReadiness / 350, 0.84, 1.05);
+    const teamBFactor = clamp(0.78 + teamBEnvironmentReadiness / 350, 0.84, 1.05);
+    const extraTime = mostLikelyScoreline(
+      (expectedA / 3) * 0.78 * teamAFactor,
+      (expectedB / 3) * 0.78 * teamBFactor,
+      undefined,
+      3,
+    );
+    extraTimeTeamAScore = extraTime.teamAScore;
+    extraTimeTeamBScore = extraTime.teamBScore;
+  }
+
+  const finalTeamAScore = regulation.teamAScore + extraTimeTeamAScore;
+  const finalTeamBScore = regulation.teamBScore + extraTimeTeamBScore;
+  return {
+    expectedTeamAGoals90: Math.round(expectedA * 100) / 100,
+    expectedTeamBGoals90: Math.round(expectedB * 100) / 100,
+    regulationTeamAScore: regulation.teamAScore,
+    regulationTeamBScore: regulation.teamBScore,
+    extraTimeTeamAScore,
+    extraTimeTeamBScore,
+    finalTeamAScore,
+    finalTeamBScore,
+    extraTimePlayed,
+    decidedBy: !extraTimePlayed
+      ? "regulation"
+      : finalTeamAScore === finalTeamBScore
+        ? "penalties"
+        : "extra-time",
+  };
+};
+
+const reverseScorePrediction = (score: MatchScorePrediction): MatchScorePrediction => ({
+  expectedTeamAGoals90: score.expectedTeamBGoals90,
+  expectedTeamBGoals90: score.expectedTeamAGoals90,
+  regulationTeamAScore: score.regulationTeamBScore,
+  regulationTeamBScore: score.regulationTeamAScore,
+  extraTimeTeamAScore: score.extraTimeTeamBScore,
+  extraTimeTeamBScore: score.extraTimeTeamAScore,
+  finalTeamAScore: score.finalTeamBScore,
+  finalTeamBScore: score.finalTeamAScore,
+  extraTimePlayed: score.extraTimePlayed,
+  decidedBy: score.decidedBy,
+});
 // 使用 Map 可以按 teamId 快速取得离线训练生成的球队画像。
 const profileByTeamId = new Map(modelPredictionProfiles.map((profile) => [profile.teamId, profile]));
 const scheduledPredictionByMatchNumber = new Map(
@@ -135,6 +229,11 @@ export const getMatchupPrediction = (
     : scheduledMatchesReversed
       ? scheduledPrediction.teamBAdvanceProbability
       : undefined;
+  const scheduledScorePrediction = scheduledMatchesDirectly
+    ? scheduledPrediction.scorePrediction
+    : scheduledMatchesReversed
+      ? reverseScorePrediction(scheduledPrediction.scorePrediction)
+      : undefined;
   // 已确定赛程的半决赛同时使用 Python 的逐场回测路线和网页球探画像。
   // 路线模型包含赛前实力、本届状态、历史分类器、温湿度、场馆、休息和旅行；
   // 球探画像保留伤停、战术适配、角色适配、默契和教练调整能力。
@@ -168,6 +267,59 @@ export const getMatchupPrediction = (
       ? []
       : scheduledPrediction?.topFactors ?? [];
   const topFactors = [...new Set([...routeFactors, ...factors])].slice(0, 3);
+  const expectedTeamAGoals90 = clamp(
+    1.15
+      + (profileA.attackTrend - 65) * 0.017
+      - (profileB.defenseTrend - 65) * 0.013
+      + tournamentFormEdge * 0.004
+      + availabilityEdge * 0.002,
+    0.2,
+    4.2,
+  );
+  const expectedTeamBGoals90 = clamp(
+    1.15
+      + (profileB.attackTrend - 65) * 0.017
+      - (profileA.defenseTrend - 65) * 0.013
+      - tournamentFormEdge * 0.004
+      - availabilityEdge * 0.002,
+    0.2,
+    4.2,
+  );
+  const profileSuggestsDraw =
+    Math.abs(teamAAdvanceProbability - 0.5) <= predictionModelMeta.scoreDrawAdvanceGap
+    || (
+      drawProbability >= 0.22
+      && Math.abs(teamAWinProbability - teamBWinProbability) < 0.12
+    );
+  const desiredOutcome: OutcomeLabel = profileSuggestsDraw
+    ? 1
+    : teamAAdvanceProbability >= teamBAdvanceProbability
+      ? 0
+      : 2;
+  const scheduledScoreWinner = scheduledScorePrediction
+    ? Math.sign(scheduledScorePrediction.finalTeamAScore - scheduledScorePrediction.finalTeamBScore)
+    : 0;
+  const scheduledScoreMatchesRecommendation =
+    scheduledScoreWinner === 0
+    || (scheduledScoreWinner > 0 && desiredOutcome === 0)
+    || (scheduledScoreWinner < 0 && desiredOutcome === 2);
+  const scorePrediction =
+    scheduledScorePrediction && scheduledScoreMatchesRecommendation
+      ? scheduledScorePrediction
+      : buildScorePrediction(
+          scheduledScorePrediction?.expectedTeamAGoals90 ?? expectedTeamAGoals90,
+          scheduledScorePrediction?.expectedTeamBGoals90 ?? expectedTeamBGoals90,
+          scheduledScorePrediction
+            && scheduledScorePrediction.regulationTeamAScore === scheduledScorePrediction.regulationTeamBScore
+            ? 1
+            : desiredOutcome,
+          scheduledMatchesDirectly
+            ? scheduledPrediction?.teamAEnvironmentReadiness
+            : scheduledPrediction?.teamBEnvironmentReadiness,
+          scheduledMatchesDirectly
+            ? scheduledPrediction?.teamBEnvironmentReadiness
+            : scheduledPrediction?.teamAEnvironmentReadiness,
+        );
 
   return {
     teamAId: teamA.id,
@@ -180,6 +332,7 @@ export const getMatchupPrediction = (
     topFactors,
     confidenceScore,
     upsetRisk: riskFromProbabilityGap(gap),
+    scorePrediction,
   };
 };
 
