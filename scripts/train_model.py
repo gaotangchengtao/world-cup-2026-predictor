@@ -857,6 +857,10 @@ def main() -> int:
     home_goal_targets: list[int] = []
     away_goal_targets: list[int] = []
     sample_weights: list[float] = []
+    score_recency_half_lives = [1.0, 1.5, 2.0, 3.0, 5.0]
+    score_sample_weights_by_half_life: dict[float, list[float]] = {
+        half_life: [] for half_life in score_recency_half_lives
+    }
 
     # 每一行特征都只能使用该场比赛之前的信息，避免把赛果泄漏到训练输入中。
     for row in results.itertuples(index=False):
@@ -883,6 +887,10 @@ def main() -> int:
         home_goal_targets.append(home_score)
         away_goal_targets.append(away_score)
         sample_weights.append(weight)
+        for half_life in score_recency_half_lives:
+            score_sample_weights_by_half_life[half_life].append(
+                competition_weight * recency_weight(row.date, reference_date, half_life)
+            )
 
         append_result(
             home,
@@ -958,36 +966,20 @@ def main() -> int:
         voting="soft",
     )
     baseline = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
-    # 两个泊松梯度提升模型分别估计双方预期进球。训练目标封顶 8 球，降低极端友谊赛
-    # 或历史大比分对普通世界杯比赛的干扰；验证仍对照原始比分。
-    home_goal_model = HistGradientBoostingRegressor(
-        loss="poisson",
-        max_iter=220,
-        learning_rate=0.04,
-        l2_regularization=0.2,
-        random_state=42,
-    )
-    away_goal_model = HistGradientBoostingRegressor(
-        loss="poisson",
-        max_iter=220,
-        learning_rate=0.04,
-        l2_regularization=0.2,
-        random_state=43,
-    )
+    def make_goal_model(random_state: int):
+        """创建进球回归器；候选时间尺度必须使用完全相同的模型结构。"""
+        return HistGradientBoostingRegressor(
+            loss="poisson",
+            max_iter=220,
+            learning_rate=0.04,
+            l2_regularization=0.2,
+            random_state=random_state,
+        )
+
     model.fit(x_train, y_train, sample_weight=w_train)
     forest.fit(x_train, y_train, sample_weight=w_train)
     ensemble.fit(x_train, y_train, sample_weight=w_train)
     baseline.fit(x_train, y_train, logisticregression__sample_weight=w_train)
-    home_goal_model.fit(
-        x_train,
-        [min(8, value) for value in home_goals_train],
-        sample_weight=w_train,
-    )
-    away_goal_model.fit(
-        x_train,
-        [min(8, value) for value in away_goals_train],
-        sample_weight=w_train,
-    )
     candidate_scores = [
         ("Logistic Regression Baseline", baseline, float(accuracy_score(y_test, baseline.predict(x_test)))),
         ("HistGradientBoostingClassifier", model, float(accuracy_score(y_test, model.predict(x_test)))),
@@ -1022,28 +1014,84 @@ def main() -> int:
         calibrated_validation_labels.append(
             1 if float(probabilities[draw_class_index]) >= draw_threshold else raw_label
         )
-    validation_home_expected = [clamp(float(value), 0.15, 4.5) for value in home_goal_model.predict(x_test)]
-    validation_away_expected = [clamp(float(value), 0.15, 4.5) for value in away_goal_model.predict(x_test)]
-    historical_score_validation_mae = (
-        float(mean_absolute_error(home_goals_test, validation_home_expected))
-        + float(mean_absolute_error(away_goals_test, validation_away_expected))
-    ) / 2
-    historical_exact_score_correct = 0
-    for expected_home, expected_away, outcome_label, actual_home, actual_away in zip(
-        validation_home_expected,
-        validation_away_expected,
-        calibrated_validation_labels,
-        home_goals_test,
-        away_goals_test,
-    ):
-        predicted_home, predicted_away = most_likely_scoreline(
-            expected_home,
-            expected_away,
-            outcome_label,
+    # 进球模型单独搜索时间衰减尺度。候选模型结构和训练样本完全相同，只改变历史样本权重；
+    # 选择过程只看本届开赛前的时间外验证集，不接触任何 2026 世界杯赛果。
+    score_recency_candidates: list[dict[str, float | int]] = []
+    score_recency_models: dict[float, tuple[object, object]] = {}
+    for half_life in score_recency_half_lives:
+        home_candidate = make_goal_model(42)
+        away_candidate = make_goal_model(43)
+        candidate_train_weights = score_sample_weights_by_half_life[half_life][
+            :len(x_train)
+        ]
+        home_candidate.fit(
+            x_train,
+            [min(8, value) for value in home_goals_train],
+            sample_weight=candidate_train_weights,
         )
-        historical_exact_score_correct += int(
-            predicted_home == actual_home and predicted_away == actual_away
+        away_candidate.fit(
+            x_train,
+            [min(8, value) for value in away_goals_train],
+            sample_weight=candidate_train_weights,
         )
+        candidate_home_expected = [
+            clamp(float(value), 0.15, 4.5)
+            for value in home_candidate.predict(x_test)
+        ]
+        candidate_away_expected = [
+            clamp(float(value), 0.15, 4.5)
+            for value in away_candidate.predict(x_test)
+        ]
+        candidate_mae = (
+            float(mean_absolute_error(home_goals_test, candidate_home_expected))
+            + float(mean_absolute_error(away_goals_test, candidate_away_expected))
+        ) / 2
+        candidate_deviance = (
+            float(mean_poisson_deviance(home_goals_test, candidate_home_expected))
+            + float(mean_poisson_deviance(away_goals_test, candidate_away_expected))
+        ) / 2
+        candidate_exact = 0
+        for expected_home, expected_away, outcome_label, actual_home, actual_away in zip(
+            candidate_home_expected,
+            candidate_away_expected,
+            calibrated_validation_labels,
+            home_goals_test,
+            away_goals_test,
+        ):
+            predicted_home, predicted_away = most_likely_scoreline(
+                expected_home,
+                expected_away,
+                outcome_label,
+            )
+            candidate_exact += int(
+                predicted_home == actual_home and predicted_away == actual_away
+            )
+        score_recency_candidates.append(
+            {
+                "halfLifeYears": half_life,
+                "validationMae": candidate_mae,
+                "validationPoissonDeviance": candidate_deviance,
+                "validationExactCorrect": candidate_exact,
+            }
+        )
+        score_recency_models[half_life] = (home_candidate, away_candidate)
+
+    selected_score_recency = min(
+        score_recency_candidates,
+        key=lambda item: (
+            float(item["validationPoissonDeviance"]),
+            float(item["validationMae"]),
+            -int(item["validationExactCorrect"]),
+            abs(float(item["halfLifeYears"]) - 2.0),
+        ),
+    )
+    selected_score_half_life = float(selected_score_recency["halfLifeYears"])
+    home_goal_model, away_goal_model = score_recency_models[selected_score_half_life]
+    historical_score_validation_mae = float(selected_score_recency["validationMae"])
+    historical_score_validation_deviance = float(
+        selected_score_recency["validationPoissonDeviance"]
+    )
+    historical_exact_score_correct = int(selected_score_recency["validationExactCorrect"])
     historical_exact_score_accuracy = historical_exact_score_correct / len(home_goals_test)
 
     # 时间外验证只负责选模型和校准平局阈值。选型完成后，用全部“本届开赛前”历史样本
@@ -1059,12 +1107,12 @@ def main() -> int:
     home_goal_model.fit(
         features,
         [min(8, value) for value in home_goal_targets],
-        sample_weight=sample_weights,
+        sample_weight=score_sample_weights_by_half_life[selected_score_half_life],
     )
     away_goal_model.fit(
         features,
         [min(8, value) for value in away_goal_targets],
-        sample_weight=sample_weights,
+        sample_weight=score_sample_weights_by_half_life[selected_score_half_life],
     )
 
     args.model_dir.mkdir(parents=True, exist_ok=True)
@@ -2103,6 +2151,7 @@ def main() -> int:
             "Current tournament state snapshot (committed)",
             "Frozen pre-tournament team signals (committed)",
             "Recency-weighted international match history",
+            "Goal-model half-life selected from five pre-tournament time-decay candidates",
             "Current World Cup results through the stated cutoff",
             "Chronological 48-match fit / 24-match validation split inside the completed group stage",
             "Schedule-known venue, altitude, roof, July climate baseline, rest, and travel context",
@@ -2143,8 +2192,13 @@ def main() -> int:
         "advancementFormWeight": round(selected_weights["form"], 4),
         "advancementClassifierWeight": round(selected_weights["classifier"], 4),
         "advancementEnvironmentWeight": round(selected_weights["environment"], 4),
-        "scoreModelName": "Dual Poisson HGB + current-tournament calibration",
+        "scoreModelName": "Recency-selected Dual Poisson HGB + tournament calibration",
+        "scoreRecencyHalfLifeYears": selected_score_half_life,
+        "scoreRecencyCandidatesTested": len(score_recency_candidates),
         "historicalScoreValidationMae": round(historical_score_validation_mae, 4),
+        "historicalScoreValidationPoissonDeviance": round(
+            historical_score_validation_deviance, 4,
+        ),
         "historicalExactScoreAccuracy": round(historical_exact_score_accuracy, 4),
         "knockoutScoreMatches": len(knockout_backtest),
         "knockoutScoreMae": round(float(knockout_score_mae), 4),
@@ -2206,14 +2260,18 @@ def main() -> int:
             f"classifier {selected_weights['classifier']:.2f}, and pre-match environment "
             f"{selected_weights['environment']:.2f}. The later holdout contains only {len(holdout_rows)} matches, "
             f"so its accuracy must be read with a small-sample caveat. The Poisson score models have historical "
-            f"per-team MAE {historical_score_validation_mae:.3f} and knockout exact-score accuracy "
+            f"half-life {selected_score_half_life:.1f} years, per-team MAE "
+            f"{historical_score_validation_mae:.3f}, and knockout exact-score accuracy "
             f"{knockout_exact_score_accuracy:.3f}. Score calibration blends historical expected goals "
             f"({score_parameters['history']:.0%}), current-tournament attack/defence "
             f"({1 - score_parameters['history'] - score_parameters['pace']:.0%}), and tournament pace "
             f"({score_parameters['pace']:.0%}); the current signal gives "
             f"{score_parameters['recentMatchWeight']:.0%} to the latest three matches. A Poisson calibrator "
             f"selected on a chronological 48/24 group-stage split contributes "
-            f"{score_parameters['groupCalibrationWeight']:.0%}. Penalty-shootout goals "
+            f"{score_parameters['groupCalibrationWeight']:.0%}. Its standalone group validation MAE is "
+            f"{float(selected_group_calibration['validationMae']):.3f}, versus "
+            f"{group_baseline_validation_mae:.3f} for the refreshed historical baseline, so it is treated "
+            "as a tournament-context blend rather than an independent score predictor. Penalty-shootout goals "
             "are never included. "
             "Context scores are analyst estimates and "
             "should be refreshed as news changes."
@@ -2239,6 +2297,7 @@ export const modelScheduledMatchPredictions: ModelMatchupPrediction[] = {json_fo
                 "profiles": profiles,
                 "scheduledMatchPredictions": scheduled_match_predictions,
                 "advancementWeightCandidates": advancement_weight_candidates,
+                "scoreRecencyCandidates": score_recency_candidates,
                 "groupCalibrationCandidates": group_calibration_candidates,
                 "scoreParameterCandidates": score_parameter_candidates,
                 "knockoutBacktest": knockout_backtest,
@@ -2255,6 +2314,11 @@ export const modelScheduledMatchPredictions: ModelMatchupPrediction[] = {json_fo
         f"{validation_accuracy:.3f} draw-calibrated validation accuracy)"
     )
     print(f"Draw calibration threshold: {draw_threshold:.2f}")
+    print(
+        "Historical score recency: "
+        f"{selected_score_half_life:.1f}-year half-life, validation Poisson deviance "
+        f"{historical_score_validation_deviance:.3f}, MAE {historical_score_validation_mae:.3f}"
+    )
     print(f"Current tournament results incorporated: {len(current_results)}")
     print(
         "Group-stage goal calibrator: "

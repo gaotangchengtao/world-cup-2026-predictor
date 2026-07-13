@@ -406,6 +406,8 @@ export const en = {
   scoreModelAccuracy: "Score model",
   exactScoreAccuracy: "Exact-score hits",
   groupScoreCalibration: "Group-stage calibration (all / validation / error)",
+  scoreRecencyHalfLife: "Historical goal-data half-life",
+  yearsUnit: "years",
   scoreMeanAbsoluteError: "Mean error per team",
   scoreWithinOneGoal: "Individual team score within one goal",
   scorelineWithinOneGoal: "Both team scores within one goal",

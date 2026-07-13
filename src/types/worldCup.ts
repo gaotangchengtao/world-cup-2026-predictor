@@ -307,7 +307,10 @@ export interface PredictionModelMeta {
   advancementClassifierWeight: number;
   advancementEnvironmentWeight: number;
   scoreModelName: string;
+  scoreRecencyHalfLifeYears: number;
+  scoreRecencyCandidatesTested: number;
   historicalScoreValidationMae: number;
+  historicalScoreValidationPoissonDeviance: number;
   historicalExactScoreAccuracy: number;
   knockoutScoreMatches: number;
   knockoutScoreMae: number;

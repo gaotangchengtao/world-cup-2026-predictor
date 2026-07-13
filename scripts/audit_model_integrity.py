@@ -219,6 +219,32 @@ def main() -> int:
         == int(selected_group_candidate["validationExactCorrect"]),
         "小组赛校准器精确比分计数不一致",
     )
+    require(meta["scoreRecencyCandidatesTested"] == 5, "历史进球时间尺度候选数应为 5")
+    selected_recency_candidate = min(
+        output["scoreRecencyCandidates"],
+        key=lambda item: (
+            float(item["validationPoissonDeviance"]),
+            float(item["validationMae"]),
+            -int(item["validationExactCorrect"]),
+            abs(float(item["halfLifeYears"]) - 2.0),
+        ),
+    )
+    require(
+        math.isclose(
+            meta["scoreRecencyHalfLifeYears"],
+            float(selected_recency_candidate["halfLifeYears"]),
+            abs_tol=1e-9,
+        ),
+        "历史进球时间衰减参数与候选验证结果不一致",
+    )
+    require(
+        math.isclose(
+            meta["historicalScoreValidationPoissonDeviance"],
+            float(selected_recency_candidate["validationPoissonDeviance"]),
+            abs_tol=1e-4,
+        ),
+        "历史进球泊松偏差与候选验证结果不一致",
+    )
 
     for scheduled in output.get("scheduledMatchPredictions", []):
         score = scheduled["scorePrediction"]
@@ -276,9 +302,13 @@ def main() -> int:
     )
     print(
         "- 小组赛时效校准："
-        f"历史基线 MAE {meta['groupScoreBaselineValidationMae']:.2f} -> "
+        f"历史基线 MAE {meta['groupScoreBaselineValidationMae']:.2f} / "
         f"校准器 {meta['groupScoreCalibrationValidationMae']:.2f}；"
         f"淘汰赛融合权重 {meta['scoreGroupCalibrationWeight']:.0%}"
+    )
+    print(
+        f"- 历史进球时间衰减：{meta['scoreRecencyHalfLifeYears']:.1f} 年半衰期；"
+        f"时间外泊松偏差 {meta['historicalScoreValidationPoissonDeviance']:.3f}"
     )
     return 0
 

@@ -404,6 +404,8 @@ export const zh: Record<keyof typeof en, string> = {
   scoreModelAccuracy: "比分模型",
   exactScoreAccuracy: "精确比分命中",
   groupScoreCalibration: "小组赛时效校准（总样本 / 时间验证 / 误差）",
+  scoreRecencyHalfLife: "历史进球数据半衰期",
+  yearsUnit: "年",
   scoreMeanAbsoluteError: "每队平均误差",
   scoreWithinOneGoal: "单队误差不超过 1 球",
   scorelineWithinOneGoal: "双方均误差不超过 1 球",
