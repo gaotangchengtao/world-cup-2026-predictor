@@ -53,10 +53,10 @@ export const BracketView = ({
       (scrollContainer.scrollWidth - scrollContainer.clientWidth) / 2;
   }, []);
 
-  const modelWinnerPicker: WinnerPicker = (slotA, slotB, availableTeams) => {
+  const modelWinnerPicker: WinnerPicker = (slotA, slotB, availableTeams, match) => {
     const teamA = getTeamById(availableTeams, slotA);
     const teamB = getTeamById(availableTeams, slotB);
-    return getRecommendedWinnerId(teamA, teamB, players);
+    return getRecommendedWinnerId(teamA, teamB, players, match?.matchNumber);
   };
 
   const selectedMatch = selectedMatchId ? findMatch(selectedMatchId) : undefined;
@@ -66,6 +66,7 @@ export const BracketView = ({
         getTeamById(teams, selectedMatchState.slotA),
         getTeamById(teams, selectedMatchState.slotB),
         players,
+        selectedMatch?.matchNumber,
       )
     : null;
 

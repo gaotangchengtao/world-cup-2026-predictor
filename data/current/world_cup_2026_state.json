@@ -1,9 +1,9 @@
 {
-  "snapshotAt": "2026-07-10T11:03:00+08:00",
-  "competitionDateCutoff": "2026-07-10",
+  "snapshotAt": "2026-07-13T15:25:09+08:00",
+  "competitionDateCutoff": "2026-07-13",
   "knockoutStageStartDate": "2026-06-28",
   "status": "in-tournament",
-  "notes": "Analyst snapshot refreshed on July 10, 2026 after France beat Morocco 2-0 in the first quarter-final. France are the first confirmed semi-finalist, Kylian Mbappe and Lionel Messi are level on eight tournament goals, and FIFA player statistics have been refreshed after Match 97.",
+  "notes": "Analyst snapshot refreshed on July 13, 2026 after all four quarter-finals. France, Spain, England and Argentina are the confirmed semi-finalists. Verified match results now live in world_cup_2026_results.json so the model can replay all 72 group matches and 28 completed knockout matches in chronological order.",
   "sourceUrls": [
     "https://www.sbnation.com/soccer/1117513/world-cup-schedule-2026-how-to-watch-every-match-scores-and-more",
     "https://www.theguardian.com/football/live/2026/jun/21/new-zealand-v-egypt-world-cup-2026-live",
@@ -31,7 +31,10 @@
     "https://www.theguardian.com/football/2026/jul/07/fifa-accuses-uefa-hypocrisy-folarin-balogun-world-cup-decision-red-card",
     "https://www.aljazeera.com/sports/2026/7/6/neymar-quits-international-football-after-brazils-world-cup-knockout-loss",
     "https://www.aljazeera.com/sports/2026/7/6/which-teams-are-in-the-world-cup-quarterfinals-and-whats-the-schedule",
-    "https://elpais.com/deportes/mundial-futbol/2026-07-09/francia-saca-el-rodillo-y-el-pincel-ante-marruecos-y-ya-esta-en-semifinales-del-mundial.html"
+    "https://elpais.com/deportes/mundial-futbol/2026-07-09/francia-saca-el-rodillo-y-el-pincel-ante-marruecos-y-ya-esta-en-semifinales-del-mundial.html",
+    "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/spain-belgium-match-report-highlights",
+    "https://apnews.com/article/world-cup-norway-england-score-f246f138c3a8563cb5a0e3f4037e930a",
+    "https://www.skysports.com/football/news/12098/13481245/world-cup-2026-fixture-schedule-and-uk-kick-off-times-day-by-day-breakdown-of-all-104-matches-including-england-scotland"
   ],
   "defaultFactors": {
     "availabilityScore": 90,
@@ -99,16 +102,18 @@
       "coachAdaptabilityScore": 68
     },
     "switzerland": {
-      "availabilityScore": 91,
+      "availabilityScore": 90,
       "tacticalFitScore": 90,
       "cohesionScore": 92,
       "coachAdaptabilityScore": 88,
       "tacticalNotes": [
-        "Switzerland held Colombia to 0-0 and advanced 4-3 on penalties, reinforcing defensive structure and penalty resilience before the Argentina quarter-final."
+        "Switzerland are eliminated after a 3-1 quarter-final loss to Argentina. Their compact structure carried them deep into the tournament, but Argentina created more decisive moments."
       ],
       "tacticalNotesZh": [
-        "瑞士 0-0 战平哥伦比亚并通过点球 4-3 晋级，在对阵阿根廷前进一步验证了防守结构和点球抗压能力。"
-      ]
+        "瑞士在四分之一决赛 1-3 负于阿根廷后出局。紧凑防守帮助他们走得很远，但阿根廷创造出了更多决定性机会。"
+      ],
+      "keyAbsences": [],
+      "keyAbsencesZh": []
     },
     "brazil": {
       "availabilityScore": 82,
@@ -261,17 +266,17 @@
       "coachAdaptabilityScore": 70
     },
     "belgium": {
-      "availabilityScore": 91,
-      "tacticalFitScore": 89,
-      "cohesionScore": 87,
-      "coachAdaptabilityScore": 85,
+      "availabilityScore": 89,
+      "tacticalFitScore": 90,
+      "cohesionScore": 88,
+      "coachAdaptabilityScore": 86,
       "keyAbsences": [],
       "tacticalNotes": [
-        "Belgium's 4-1 win over the USA resets its tournament signal upward after an uneven group phase and confirms chance conversion has improved."
+        "Belgium are eliminated after a 2-1 quarter-final loss to Spain. Their improved knockout attack was not enough to overcome Spain's control."
       ],
       "keyAbsencesZh": [],
       "tacticalNotesZh": [
-        "比利时 4-1 淘汰美国后，显著修正了小组赛阶段的不稳定信号，终结效率和比赛掌控力都被上调。"
+        "比利时在四分之一决赛 1-2 负于西班牙后出局。淘汰赛进攻有所回升，但仍不足以破解西班牙的控球体系。"
       ]
     },
     "egypt": {
@@ -300,15 +305,17 @@
     },
     "spain": {
       "availabilityScore": 94,
-      "tacticalFitScore": 96,
-      "cohesionScore": 94,
-      "coachAdaptabilityScore": 93,
+      "tacticalFitScore": 97,
+      "cohesionScore": 95,
+      "coachAdaptabilityScore": 94,
       "tacticalNotes": [
-        "Spain eliminated Portugal 1-0 with late control and now face Belgium; the clean-sheet trend keeps their defensive stability score high."
+        "Spain edged Belgium 2-1 and will face France. Their possession structure and counter-pressing are stable, although France's transition pace is the clearest matchup danger."
       ],
       "tacticalNotesZh": [
-        "西班牙 1-0 淘汰葡萄牙后将对阵比利时；连续零封趋势让防守稳定性评分继续保持高位。"
-      ]
+        "西班牙 2-1 淘汰比利时，将在半决赛对阵法国。球队的控球结构和丢球后反抢依旧稳定，但法国的快速转换是最明显的对位风险。"
+      ],
+      "keyAbsences": [],
+      "keyAbsencesZh": []
     },
     "cape-verde": {
       "availabilityScore": 94,
@@ -341,21 +348,21 @@
       ]
     },
     "france": {
-      "availabilityScore": 92,
+      "availabilityScore": 91,
       "tacticalFitScore": 96,
       "cohesionScore": 95,
       "coachAdaptabilityScore": 95,
       "keyAbsences": [
-        "Kylian Mbappe - right-ankle discomfort after the Morocco match; availability currently expected"
+        "Kylian Mbappe - right-ankle discomfort remains under monitoring before the semi-final"
       ],
       "keyAbsencesZh": [
-        "基利安·姆巴佩 - 对摩洛哥赛后右脚踝不适，目前预计仍可出战"
+        "基利安·姆巴佩 - 半决赛前右脚踝不适仍在观察中"
       ],
       "tacticalNotes": [
-        "France beat Morocco 2-0 to become the first confirmed semi-finalist. Mbappe and Dembele scored, the team kept another knockout clean sheet, and France will face the winner of Spain versus Belgium."
+        "France beat Morocco 2-0 and will face Spain. Their knockout defence and transition threat remain elite, while one fewer recovery day is now part of the semi-final risk."
       ],
       "tacticalNotesZh": [
-        "法国 2-0 淘汰摩洛哥，成为首支晋级四强的球队。姆巴佩和登贝莱进球，球队再次在淘汰赛保持零封，半决赛将对阵西班牙与比利时之间的胜者。"
+        "法国 2-0 淘汰摩洛哥，将在半决赛对阵西班牙。淘汰赛防守和转换威胁仍属顶级，但比对手少一天恢复时间是半决赛风险之一。"
       ]
     },
     "senegal": {
@@ -377,33 +384,39 @@
       "coachAdaptabilityScore": 70
     },
     "norway": {
-      "availabilityScore": 94,
+      "availabilityScore": 86,
       "tacticalFitScore": 95,
       "cohesionScore": 94,
       "coachAdaptabilityScore": 92,
       "tacticalNotes": [
-        "Norway beating Brazil 2-1 is the strongest current-tournament signal in the model and raises both attacking trend and belief under pressure."
+        "Norway are eliminated after a 2-1 extra-time loss to England. Their transition game remained dangerous, but accumulated fatigue reduced their late-match threat."
       ],
       "tacticalNotesZh": [
-        "挪威 2-1 淘汰巴西是当前模型里最强的赛事信号之一，进攻趋势和高压局信心都被上调。"
+        "挪威加时 1-2 负于英格兰后出局。快速转换依然有威胁，但累积疲劳削弱了比赛后段的进攻。"
+      ],
+      "keyAbsences": [
+        "Erling Haaland - dead leg and severe fatigue reported during the quarter-final"
+      ],
+      "keyAbsencesZh": [
+        "埃尔林·哈兰德 - 四分之一决赛期间出现大腿撞伤并报告严重疲劳"
       ]
     },
     "argentina": {
-      "availabilityScore": 89,
+      "availabilityScore": 90,
       "tacticalFitScore": 96,
       "cohesionScore": 96,
       "coachAdaptabilityScore": 95,
       "keyAbsences": [
-        "Cristian Romero - right-knee status still monitored"
+        "Cristian Romero - right-knee status remains under monitoring"
       ],
       "keyAbsencesZh": [
-        "克里斯蒂安·罗梅罗 - 右膝状态仍需观察"
+        "克里斯蒂安·罗梅罗 - 右膝状态仍在观察中"
       ],
       "tacticalNotes": [
-        "Argentina came from behind to beat Egypt 3-2 and now face Switzerland. Messi's playmaking and late-game control keep them among the title favorites, but the concession profile keeps defensive control under review."
+        "Argentina beat Switzerland 3-1 and will face England. Their late-game control and attacking combinations remain strong, with one fewer recovery day than England before the semi-final."
       ],
       "tacticalNotesZh": [
-        "阿根廷 3-2 逆转埃及后将对阵瑞士。梅西的组织和收官阶段控制力让他们继续保持冠军热门身份，但连续丢球信号也让防守控制力需要继续观察。"
+        "阿根廷 3-1 淘汰瑞士，将在半决赛对阵英格兰。比赛后段控制和进攻配合依然突出，但赛前比英格兰少一天恢复时间。"
       ]
     },
     "algeria": {
@@ -461,21 +474,23 @@
       ]
     },
     "england": {
-      "availabilityScore": 88,
-      "tacticalFitScore": 91,
-      "cohesionScore": 89,
-      "coachAdaptabilityScore": 91,
+      "availabilityScore": 87,
+      "tacticalFitScore": 92,
+      "cohesionScore": 91,
+      "coachAdaptabilityScore": 94,
       "keyAbsences": [
-        "Jordan Henderson - wrist injury, reported ruled out of the tournament"
+        "Jordan Henderson - wrist injury, reported ruled out",
+        "Quarter-final extra-time fatigue is being monitored"
       ],
       "tacticalNotes": [
-        "England edged Mexico 3-2 and now face Norway; the model rewards resilience but keeps a small availability and discipline risk."
+        "England beat Norway 2-1 after extra time and will face Argentina. Their bench depth and in-game adaptation improved, while recovery after a hot, humid quarter-final remains a risk."
       ],
       "keyAbsencesZh": [
-        "乔丹·亨德森 - 手腕伤势，据报道已经无缘本届赛事剩余比赛"
+        "乔丹·亨德森 - 手腕受伤，据报道已无缘余下比赛",
+        "四分之一决赛经历加时后的疲劳状态仍在观察"
       ],
       "tacticalNotesZh": [
-        "英格兰 3-2 险胜墨西哥后将对阵挪威；模型奖励逆境韧性，但保留少量人员可用性与纪律风险。"
+        "英格兰加时 2-1 淘汰挪威，将在半决赛对阵阿根廷。阵容深度和临场调整得到上调，但在高温高湿环境下经历加时后的恢复是风险。"
       ]
     },
     "croatia": {
@@ -497,482 +512,5 @@
       "coachAdaptabilityScore": 80
     }
   },
-  "actualResults": [
-    {
-      "date": "2026-06-11",
-      "homeTeamId": "mexico",
-      "awayTeamId": "south-africa",
-      "homeScore": 2,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-11",
-      "homeTeamId": "south-korea",
-      "awayTeamId": "czechia",
-      "homeScore": 2,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-12",
-      "homeTeamId": "canada",
-      "awayTeamId": "bosnia-herzegovina",
-      "homeScore": 1,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-12",
-      "homeTeamId": "qatar",
-      "awayTeamId": "switzerland",
-      "homeScore": 1,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-13",
-      "homeTeamId": "brazil",
-      "awayTeamId": "morocco",
-      "homeScore": 1,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-13",
-      "homeTeamId": "haiti",
-      "awayTeamId": "scotland",
-      "homeScore": 0,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-13",
-      "homeTeamId": "usa",
-      "awayTeamId": "paraguay",
-      "homeScore": 4,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-14",
-      "homeTeamId": "australia",
-      "awayTeamId": "turkiye",
-      "homeScore": 2,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-14",
-      "homeTeamId": "cote-divoire",
-      "awayTeamId": "ecuador",
-      "homeScore": 1,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-14",
-      "homeTeamId": "germany",
-      "awayTeamId": "curacao",
-      "homeScore": 7,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-14",
-      "homeTeamId": "netherlands",
-      "awayTeamId": "japan",
-      "homeScore": 2,
-      "awayScore": 2
-    },
-    {
-      "date": "2026-06-14",
-      "homeTeamId": "sweden",
-      "awayTeamId": "tunisia",
-      "homeScore": 5,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-15",
-      "homeTeamId": "belgium",
-      "awayTeamId": "egypt",
-      "homeScore": 1,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-15",
-      "homeTeamId": "iran",
-      "awayTeamId": "new-zealand",
-      "homeScore": 2,
-      "awayScore": 2
-    },
-    {
-      "date": "2026-06-15",
-      "homeTeamId": "saudi-arabia",
-      "awayTeamId": "uruguay",
-      "homeScore": 1,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-15",
-      "homeTeamId": "spain",
-      "awayTeamId": "cape-verde",
-      "homeScore": 0,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-16",
-      "homeTeamId": "argentina",
-      "awayTeamId": "algeria",
-      "homeScore": 3,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-16",
-      "homeTeamId": "france",
-      "awayTeamId": "senegal",
-      "homeScore": 3,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-16",
-      "homeTeamId": "iraq",
-      "awayTeamId": "norway",
-      "homeScore": 1,
-      "awayScore": 4
-    },
-    {
-      "date": "2026-06-17",
-      "homeTeamId": "austria",
-      "awayTeamId": "jordan",
-      "homeScore": 3,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-17",
-      "homeTeamId": "england",
-      "awayTeamId": "croatia",
-      "homeScore": 4,
-      "awayScore": 2
-    },
-    {
-      "date": "2026-06-17",
-      "homeTeamId": "ghana",
-      "awayTeamId": "panama",
-      "homeScore": 1,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-17",
-      "homeTeamId": "portugal",
-      "awayTeamId": "dr-congo",
-      "homeScore": 1,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-17",
-      "homeTeamId": "uzbekistan",
-      "awayTeamId": "colombia",
-      "homeScore": 1,
-      "awayScore": 3
-    },
-    {
-      "date": "2026-06-18",
-      "homeTeamId": "canada",
-      "awayTeamId": "qatar",
-      "homeScore": 6,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-18",
-      "homeTeamId": "czechia",
-      "awayTeamId": "south-africa",
-      "homeScore": 1,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-18",
-      "homeTeamId": "mexico",
-      "awayTeamId": "south-korea",
-      "homeScore": 1,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-18",
-      "homeTeamId": "switzerland",
-      "awayTeamId": "bosnia-herzegovina",
-      "homeScore": 4,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-19",
-      "homeTeamId": "brazil",
-      "awayTeamId": "haiti",
-      "homeScore": 3,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-19",
-      "homeTeamId": "morocco",
-      "awayTeamId": "scotland",
-      "homeScore": 1,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-19",
-      "homeTeamId": "paraguay",
-      "awayTeamId": "turkiye",
-      "homeScore": 1,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-19",
-      "homeTeamId": "usa",
-      "awayTeamId": "australia",
-      "homeScore": 2,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-20",
-      "homeTeamId": "ecuador",
-      "awayTeamId": "curacao",
-      "homeScore": 0,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-20",
-      "homeTeamId": "germany",
-      "awayTeamId": "cote-divoire",
-      "homeScore": 2,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-20",
-      "homeTeamId": "japan",
-      "awayTeamId": "tunisia",
-      "homeScore": 4,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-20",
-      "homeTeamId": "netherlands",
-      "awayTeamId": "sweden",
-      "homeScore": 5,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-21",
-      "homeTeamId": "belgium",
-      "awayTeamId": "iran",
-      "homeScore": 0,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-21",
-      "homeTeamId": "egypt",
-      "awayTeamId": "new-zealand",
-      "homeScore": 3,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-21",
-      "homeTeamId": "spain",
-      "awayTeamId": "saudi-arabia",
-      "homeScore": 4,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-21",
-      "homeTeamId": "uruguay",
-      "awayTeamId": "cape-verde",
-      "homeScore": 2,
-      "awayScore": 2
-    },
-    {
-      "date": "2026-06-22",
-      "homeTeamId": "argentina",
-      "awayTeamId": "austria",
-      "homeScore": 2,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-22",
-      "homeTeamId": "france",
-      "awayTeamId": "iraq",
-      "homeScore": 3,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-22",
-      "homeTeamId": "norway",
-      "awayTeamId": "senegal",
-      "homeScore": 3,
-      "awayScore": 2
-    },
-    {
-      "date": "2026-06-28",
-      "homeTeamId": "south-africa",
-      "awayTeamId": "canada",
-      "homeScore": 0,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-29",
-      "homeTeamId": "brazil",
-      "awayTeamId": "japan",
-      "homeScore": 2,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-29",
-      "homeTeamId": "germany",
-      "awayTeamId": "paraguay",
-      "homeScore": 1,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-06-30",
-      "homeTeamId": "cote-divoire",
-      "awayTeamId": "norway",
-      "homeScore": 1,
-      "awayScore": 2
-    },
-    {
-      "date": "2026-06-30",
-      "homeTeamId": "france",
-      "awayTeamId": "sweden",
-      "homeScore": 3,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-06-30",
-      "homeTeamId": "netherlands",
-      "awayTeamId": "morocco",
-      "homeScore": 1,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-07-01",
-      "homeTeamId": "belgium",
-      "awayTeamId": "senegal",
-      "homeScore": 3,
-      "awayScore": 2
-    },
-    {
-      "date": "2026-07-01",
-      "homeTeamId": "england",
-      "awayTeamId": "dr-congo",
-      "homeScore": 2,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-07-01",
-      "homeTeamId": "mexico",
-      "awayTeamId": "ecuador",
-      "homeScore": 2,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-07-01",
-      "homeTeamId": "usa",
-      "awayTeamId": "bosnia-herzegovina",
-      "homeScore": 2,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-07-02",
-      "homeTeamId": "portugal",
-      "awayTeamId": "croatia",
-      "homeScore": 2,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-07-02",
-      "homeTeamId": "spain",
-      "awayTeamId": "austria",
-      "homeScore": 3,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-07-02",
-      "homeTeamId": "switzerland",
-      "awayTeamId": "algeria",
-      "homeScore": 2,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-07-03",
-      "homeTeamId": "argentina",
-      "awayTeamId": "cape-verde",
-      "homeScore": 3,
-      "awayScore": 2
-    },
-    {
-      "date": "2026-07-03",
-      "homeTeamId": "australia",
-      "awayTeamId": "egypt",
-      "homeScore": 1,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-07-03",
-      "homeTeamId": "colombia",
-      "awayTeamId": "ghana",
-      "homeScore": 1,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-07-04",
-      "homeTeamId": "canada",
-      "awayTeamId": "morocco",
-      "homeScore": 0,
-      "awayScore": 3
-    },
-    {
-      "date": "2026-07-04",
-      "homeTeamId": "paraguay",
-      "awayTeamId": "france",
-      "homeScore": 0,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-07-05",
-      "homeTeamId": "brazil",
-      "awayTeamId": "norway",
-      "homeScore": 1,
-      "awayScore": 2
-    },
-    {
-      "date": "2026-07-05",
-      "homeTeamId": "mexico",
-      "awayTeamId": "england",
-      "homeScore": 2,
-      "awayScore": 3
-    },
-    {
-      "date": "2026-07-06",
-      "homeTeamId": "portugal",
-      "awayTeamId": "spain",
-      "homeScore": 0,
-      "awayScore": 1
-    },
-    {
-      "date": "2026-07-06",
-      "homeTeamId": "usa",
-      "awayTeamId": "belgium",
-      "homeScore": 1,
-      "awayScore": 4
-    },
-    {
-      "date": "2026-07-07",
-      "homeTeamId": "argentina",
-      "awayTeamId": "egypt",
-      "homeScore": 3,
-      "awayScore": 2
-    },
-    {
-      "date": "2026-07-07",
-      "homeTeamId": "switzerland",
-      "awayTeamId": "colombia",
-      "homeScore": 0,
-      "awayScore": 0
-    },
-    {
-      "date": "2026-07-09",
-      "homeTeamId": "morocco",
-      "awayTeamId": "france",
-      "homeScore": 0,
-      "awayScore": 2
-    }
-  ]
+  "resultsFile": "data/current/world_cup_2026_results.json"
 }

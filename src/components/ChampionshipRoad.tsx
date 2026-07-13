@@ -362,7 +362,7 @@ const RoadMatchNode = ({
   const matchState = bracketState[match.id] ?? {};
   const teamA = getTeamById(teams, matchState.slotA);
   const teamB = getTeamById(teams, matchState.slotB);
-  const prediction = getMatchupPrediction(teamA, teamB, players);
+  const prediction = getMatchupPrediction(teamA, teamB, players, match.matchNumber);
 
   return (
     <article

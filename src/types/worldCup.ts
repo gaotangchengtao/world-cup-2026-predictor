@@ -246,10 +246,28 @@ export interface MatchupPrediction {
   upsetRisk: PredictionRisk;
 }
 
+export interface ModelMatchupPrediction extends MatchupPrediction {
+  matchNumber: number;
+  venueId: string;
+  temperatureC: number;
+  humidityPct: number;
+  altitudeM: number;
+  teamAEnvironmentReadiness: number;
+  teamBEnvironmentReadiness: number;
+  teamARestDays: number;
+  teamBRestDays: number;
+  teamATravelDistanceKm: number;
+  teamBTravelDistanceKm: number;
+}
+
 export interface PredictionModelMeta {
   modelName: string;
   trainedAt: string;
   trainingDataCutoff: string;
+  historicalTrainingDataCutoff?: string;
+  currentTournamentStartDate?: string;
+  historicalSourceRowsOnOrAfterStart?: number;
+  scoredHistoricalRowsOnOrAfterStart?: number;
   dataSources: string[];
   validationAccuracy: number | null;
   rawValidationAccuracy: number | null;
@@ -259,6 +277,19 @@ export interface PredictionModelMeta {
   knockoutValidationCorrect: number;
   knockoutValidationStartDate: string;
   knockoutValidationMethod: string;
+  knockoutOneXTwoAccuracy: number | null;
+  knockoutOneXTwoCorrect: number;
+  knockoutDevelopmentAccuracy: number | null;
+  knockoutDevelopmentMatches: number;
+  knockoutDevelopmentCorrect: number;
+  knockoutHoldoutAccuracy: number | null;
+  knockoutHoldoutMatches: number;
+  knockoutHoldoutCorrect: number;
+  knockoutHoldoutStartDate: string;
+  advancementPriorWeight: number;
+  advancementFormWeight: number;
+  advancementClassifierWeight: number;
+  advancementEnvironmentWeight: number;
   notes: string;
 }
 

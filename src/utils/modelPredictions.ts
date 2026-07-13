@@ -1,4 +1,8 @@
-import { modelPredictionProfiles, predictionModelMeta } from "../data/modelPredictions";
+import {
+  modelPredictionProfiles,
+  modelScheduledMatchPredictions,
+  predictionModelMeta,
+} from "../data/modelPredictions";
 import type {
   BracketPredictionState,
   MatchupPrediction,
@@ -18,6 +22,12 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 const sigmoid = (value: number) => 1 / (1 + Math.exp(-value));
 // 使用 Map 可以按 teamId 快速取得离线训练生成的球队画像。
 const profileByTeamId = new Map(modelPredictionProfiles.map((profile) => [profile.teamId, profile]));
+const scheduledPredictionByMatchNumber = new Map(
+  modelScheduledMatchPredictions.map((prediction) => [prediction.matchNumber, prediction]),
+);
+
+export const getScheduledMatchPrediction = (matchNumber: number) =>
+  scheduledPredictionByMatchNumber.get(matchNumber);
 
 const riskWeight: Record<PredictionRisk, number> = {
   low: 0,
@@ -70,6 +80,7 @@ export const getMatchupPrediction = (
   teamA: Team | undefined,
   teamB: Team | undefined,
   players: Player[],
+  matchNumber?: number,
 ): MatchupPrediction | null => {
   if (!teamA || !teamB) return null;
 
@@ -107,11 +118,30 @@ export const getMatchupPrediction = (
   const extraTimeContext =
     ((profileA.squadCohesionScore ?? 80) - (profileB.squadCohesionScore ?? 80)) * 0.001
     + ((profileA.coachAdaptabilityScore ?? 80) - (profileB.coachAdaptabilityScore ?? 80)) * 0.001;
-  const teamAAdvanceProbability = clamp(
+  const profileTeamAAdvanceProbability = clamp(
     teamAWinProbability + drawProbability * 0.5 + extraTimeContext,
     0.05,
     0.95,
   );
+  const scheduledPrediction = matchNumber
+    ? scheduledPredictionByMatchNumber.get(matchNumber)
+    : undefined;
+  const scheduledMatchesDirectly =
+    scheduledPrediction?.teamAId === teamA.id && scheduledPrediction.teamBId === teamB.id;
+  const scheduledMatchesReversed =
+    scheduledPrediction?.teamAId === teamB.id && scheduledPrediction.teamBId === teamA.id;
+  const routeTeamAAdvanceProbability = scheduledMatchesDirectly
+    ? scheduledPrediction.teamAAdvanceProbability
+    : scheduledMatchesReversed
+      ? scheduledPrediction.teamBAdvanceProbability
+      : undefined;
+  // 已确定赛程的半决赛同时使用 Python 的逐场回测路线和网页球探画像。
+  // 路线模型包含赛前实力、本届状态、历史分类器、温湿度、场馆、休息和旅行；
+  // 球探画像保留伤停、战术适配、角色适配、默契和教练调整能力。
+  const teamAAdvanceProbability =
+    routeTeamAAdvanceProbability === undefined
+      ? profileTeamAAdvanceProbability
+      : clamp(profileTeamAAdvanceProbability * 0.45 + routeTeamAAdvanceProbability * 0.55, 0.05, 0.95);
   const teamBAdvanceProbability = clamp(1 - teamAAdvanceProbability, 0.05, 0.95);
   const gap = Math.abs(teamAAdvanceProbability - teamBAdvanceProbability);
   // 两队晋级概率差越大、球队画像本身越可靠，单场预测置信度越高。
@@ -132,8 +162,12 @@ export const getMatchupPrediction = (
     { key: "coachAdaptability", value: Math.abs(coachEdge * 0.03) },
   ]
     .sort((a, b) => b.value - a.value)
-    .slice(0, 3)
     .map((factor) => factor.key);
+  const routeFactors =
+    routeTeamAAdvanceProbability === undefined
+      ? []
+      : scheduledPrediction?.topFactors ?? [];
+  const topFactors = [...new Set([...routeFactors, ...factors])].slice(0, 3);
 
   return {
     teamAId: teamA.id,
@@ -143,17 +177,22 @@ export const getMatchupPrediction = (
     teamBWinProbability,
     teamAAdvanceProbability,
     teamBAdvanceProbability,
-    topFactors: factors,
+    topFactors,
     confidenceScore,
     upsetRisk: riskFromProbabilityGap(gap),
   };
 };
 
 /** 根据晋级概率推荐胜者；概率差小于 8% 时，用综合实力和画像置信度依次破同分。 */
-export const getRecommendedWinnerId = (teamA: Team | undefined, teamB: Team | undefined, players: Player[]) => {
+export const getRecommendedWinnerId = (
+  teamA: Team | undefined,
+  teamB: Team | undefined,
+  players: Player[],
+  matchNumber?: number,
+) => {
   if (!teamA) return teamB?.id;
   if (!teamB) return teamA.id;
-  const prediction = getMatchupPrediction(teamA, teamB, players);
+  const prediction = getMatchupPrediction(teamA, teamB, players, matchNumber);
   if (!prediction) return teamA.strengthRank <= teamB.strengthRank ? teamA.id : teamB.id;
 
   const probabilityGap = Math.abs(prediction.teamAAdvanceProbability - prediction.teamBAdvanceProbability);
@@ -248,7 +287,7 @@ export const getBracketChampionProbabilities = (
 
         const teamA = teams.find((team) => team.id === teamAId);
         const teamB = teams.find((team) => team.id === teamBId);
-        const prediction = getMatchupPrediction(teamA, teamB, players);
+        const prediction = getMatchupPrediction(teamA, teamB, players, match.matchNumber);
         if (!prediction) continue;
 
         addProbability(output, teamAId, matchupPathProbability * prediction.teamAAdvanceProbability);
@@ -289,7 +328,7 @@ export const getUpsetWatchMatchups = (
       const state = bracketState[match.id];
       const teamA = teams.find((team) => team.id === state?.slotA);
       const teamB = teams.find((team) => team.id === state?.slotB);
-      const prediction = getMatchupPrediction(teamA, teamB, players);
+      const prediction = getMatchupPrediction(teamA, teamB, players, match.matchNumber);
       if (!teamA || !teamB || !prediction) return null;
       const teamAFavored = prediction.teamAAdvanceProbability >= prediction.teamBAdvanceProbability;
       const favorite = teamAFavored ? teamA : teamB;

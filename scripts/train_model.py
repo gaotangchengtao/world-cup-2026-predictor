@@ -19,6 +19,7 @@ import re
 import sys
 import unicodedata
 from collections import defaultdict, deque
+from datetime import date
 from pathlib import Path
 
 
@@ -26,6 +27,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT = ROOT / "data" / "raw" / "results.csv"
 DEFAULT_CURRENT_STATE = ROOT / "data" / "current" / "world_cup_2026_state.json"
+DEFAULT_CURRENT_RESULTS = ROOT / "data" / "current" / "world_cup_2026_results.json"
+DEFAULT_VENUES = ROOT / "data" / "current" / "world_cup_2026_venues.json"
 DEFAULT_BASELINE_SIGNALS = ROOT / "data" / "current" / "team_baseline_signals.json"
 DEFAULT_MARKET_VALUES = ROOT / "src" / "data" / "marketValues.json"
 DEFAULT_OUTPUT = ROOT / "src" / "data" / "modelPredictions.ts"
@@ -93,6 +96,198 @@ def current_tournament_weight(match_count: int) -> float:
     if match_count == 4:
         return 0.56
     return 0.60
+
+
+def pre_tournament_prior_score(team: dict[str, object]) -> float:
+    """用赛前已冻结的实力、排名和阵容身价构造稳定先验，不读取本届赛果。"""
+    rank_score = clamp(102 - float(team["strengthRank"]) * 1.35, 25, 98)
+    # 回测必须读取赛前冻结身价；当前身价可能已受本届比赛表现影响，只用于最新页面资料。
+    squad_value = float(team.get("preTournamentSquadValueEurM", team["squadValueEurM"]))
+    value_score = math.log10(max(1, squad_value)) / math.log10(1300) * 100
+    return (
+        float(team["strengthScore"]) * 0.55
+        + rank_score * 0.25
+        + value_score * 0.20
+    )
+
+
+def pre_match_tournament_form(stats: dict[str, float], fallback: float) -> float:
+    """只用当前比赛之前已经结束的本届赛事，计算球队即时状态。"""
+    match_count = int(stats["matches"])
+    if match_count <= 0:
+        return fallback
+    points_per_game = float(stats["points"]) / match_count
+    goals_for_per_game = float(stats["goalsFor"]) / match_count
+    goals_against_per_game = float(stats["goalsAgainst"]) / match_count
+    goal_difference_per_game = goals_for_per_game - goals_against_per_game
+    attack_score = clamp(28 + goals_for_per_game * 22, 20, 98)
+    defense_score = clamp(96 - goals_against_per_game * 28, 20, 98)
+    return clamp(
+        (points_per_game / 3 * 100) * 0.42
+        + clamp(50 + goal_difference_per_game * 16, 15, 98) * 0.28
+        + attack_score * 0.15
+        + defense_score * 0.15,
+        20,
+        98,
+    )
+
+
+def haversine_distance_km(venue_a: dict, venue_b: dict) -> float:
+    """按两个场馆经纬度估算球队换城市后的直线旅行距离。"""
+    latitude_a = math.radians(float(venue_a["latitude"]))
+    latitude_b = math.radians(float(venue_b["latitude"]))
+    latitude_delta = math.radians(float(venue_b["latitude"]) - float(venue_a["latitude"]))
+    longitude_delta = math.radians(float(venue_b["longitude"]) - float(venue_a["longitude"]))
+    haversine = (
+        math.sin(latitude_delta / 2) ** 2
+        + math.cos(latitude_a) * math.cos(latitude_b) * math.sin(longitude_delta / 2) ** 2
+    )
+    return 6371 * 2 * math.asin(math.sqrt(haversine))
+
+
+def pre_match_environment_readiness(
+    team_id: str,
+    match: dict,
+    previous_match_by_team: dict[str, dict],
+    venues_by_id: dict[str, dict],
+) -> dict[str, float]:
+    """估算赛前环境与疲劳准备度；只使用赛程、场馆常量和此前比赛路径。
+
+    温湿度采用七月气候基线，而非赛后观测值。由于这类估算噪声较大，
+    它在最终晋级评分中只占 1%，主要用于小幅修正概率和风险提示。
+    """
+    current_venue = venues_by_id.get(str(match.get("venueId", "")))
+    previous_match = previous_match_by_team.get(team_id)
+    if not current_venue or not previous_match:
+        return {
+            "score": 65.0,
+            "restDays": 4.0,
+            "travelDistanceKm": 0.0,
+            "climateTransition": 0.0,
+            "temperatureC": float(current_venue.get("julyDaytimeTemperatureC", 26)) if current_venue else 26.0,
+            "humidityPct": float(current_venue.get("julyRelativeHumidityPct", 55)) if current_venue else 55.0,
+            "altitudeM": float(current_venue.get("altitudeM", 0)) if current_venue else 0.0,
+        }
+
+    previous_venue = venues_by_id.get(str(previous_match.get("venueId", "")))
+    if not previous_venue:
+        previous_venue = current_venue
+    current_date = match["parsedDate"]
+    rest_days = max(1, int((current_date - previous_match["parsedDate"]).days))
+    travel_distance = haversine_distance_km(previous_venue, current_venue)
+    climate_transition = (
+        abs(float(current_venue["julyDaytimeTemperatureC"]) - float(previous_venue["julyDaytimeTemperatureC"])) * 3
+        + abs(float(current_venue["julyRelativeHumidityPct"]) - float(previous_venue["julyRelativeHumidityPct"])) * 0.35
+        + abs(float(current_venue["altitudeM"]) - float(previous_venue["altitudeM"])) / 45
+    )
+    climate_protection = {
+        "open": 0.0,
+        "open-canopy": 0.20,
+        "fixed-canopy": 0.55,
+        "retractable": 0.55,
+    }.get(str(current_venue.get("roofType", "open")), 0.0)
+    effective_temperature = 22 + (
+        float(current_venue["julyDaytimeTemperatureC"]) - 22
+    ) * (1 - climate_protection)
+    effective_humidity = 50 + (
+        float(current_venue["julyRelativeHumidityPct"]) - 50
+    ) * (1 - climate_protection)
+    heat_load = max(0, effective_temperature - 27) * 4 + max(0, effective_humidity - 62) * 0.45
+    readiness = clamp(
+        clamp(50 + (rest_days - 3.5) * 10, 20, 90) * 0.42
+        + clamp(100 - travel_distance / 25, 20, 100) * 0.25
+        + clamp(100 - climate_transition, 20, 100) * 0.23
+        + clamp(100 - heat_load, 35, 100) * 0.10,
+        20,
+        98,
+    )
+    return {
+        "score": readiness,
+        "restDays": float(rest_days),
+        "travelDistanceKm": travel_distance,
+        "climateTransition": climate_transition,
+        "temperatureC": float(current_venue["julyDaytimeTemperatureC"]),
+        "humidityPct": float(current_venue["julyRelativeHumidityPct"]),
+        "altitudeM": float(current_venue["altitudeM"]),
+    }
+
+
+def advancement_scores(record: dict, weights: dict[str, float]) -> tuple[float, float]:
+    """用同一组全局权重计算双方晋级评分，不包含任何球队或单场特例。"""
+    home_score = (
+        float(record["homePrior"]) * weights["prior"]
+        + float(record["homeTournamentForm"]) * weights["form"]
+        + float(record["homeClassifierAdvance"]) * weights["classifier"]
+        + float(record["homeEnvironmentReadiness"]) * weights["environment"]
+    )
+    away_score = (
+        float(record["awayPrior"]) * weights["prior"]
+        + float(record["awayTournamentForm"]) * weights["form"]
+        + float(record["awayClassifierAdvance"]) * weights["classifier"]
+        + float(record["awayEnvironmentReadiness"]) * weights["environment"]
+    )
+    return home_score, away_score
+
+
+def validate_current_tournament_data(
+    results_snapshot: dict,
+    venue_snapshot: dict,
+    valid_team_ids: set[str],
+) -> list[str]:
+    """训练前检查实时赛果的完整性、一致性和时间边界。"""
+    errors: list[str] = []
+    matches = results_snapshot.get("matches", [])
+    scheduled_matches = results_snapshot.get("scheduledMatches", [])
+    cutoff = date.fromisoformat(str(results_snapshot["competitionDateCutoff"]))
+    venue_ids = {str(venue["id"]) for venue in venue_snapshot.get("venues", [])}
+    seen_match_numbers: set[int] = set()
+
+    if int(results_snapshot.get("matchCount", -1)) != len(matches):
+        errors.append(
+            f"matchCount={results_snapshot.get('matchCount')} but matches contains {len(matches)} rows"
+        )
+
+    for match in matches:
+        match_number = int(match.get("matchNumber", 0))
+        if match_number in seen_match_numbers:
+            errors.append(f"duplicate completed matchNumber: {match_number}")
+        seen_match_numbers.add(match_number)
+        home_id = str(match.get("homeTeamId", ""))
+        away_id = str(match.get("awayTeamId", ""))
+        if home_id not in valid_team_ids or away_id not in valid_team_ids:
+            errors.append(f"match {match_number} contains an unknown team: {home_id} vs {away_id}")
+        if str(match.get("venueId", "")) not in venue_ids:
+            errors.append(f"match {match_number} contains an unknown venueId: {match.get('venueId')}")
+        match_date = date.fromisoformat(str(match["date"]))
+        if match_date > cutoff:
+            errors.append(f"match {match_number} is dated after the competition cutoff")
+        home_score = int(match["homeScore"])
+        away_score = int(match["awayScore"])
+        if home_score < 0 or away_score < 0:
+            errors.append(f"match {match_number} contains a negative score")
+        stage = str(match.get("stage", ""))
+        if stage != "group-stage":
+            winner_id = str(match.get("winnerTeamId", ""))
+            if winner_id not in {home_id, away_id}:
+                errors.append(f"knockout match {match_number} is missing a legal winnerTeamId")
+            if home_score > away_score and winner_id != home_id:
+                errors.append(f"match {match_number} score and winnerTeamId disagree")
+            if away_score > home_score and winner_id != away_id:
+                errors.append(f"match {match_number} score and winnerTeamId disagree")
+
+    for match in scheduled_matches:
+        match_number = int(match.get("matchNumber", 0))
+        if match_number in seen_match_numbers:
+            errors.append(f"scheduled matchNumber {match_number} duplicates a completed match")
+        seen_match_numbers.add(match_number)
+        if "homeScore" in match or "awayScore" in match or "winnerTeamId" in match:
+            errors.append(f"scheduled match {match_number} already contains a result")
+        if date.fromisoformat(str(match["date"])) <= cutoff:
+            errors.append(f"scheduled match {match_number} is not later than the result cutoff")
+        if str(match.get("venueId", "")) not in venue_ids:
+            errors.append(f"scheduled match {match_number} contains an unknown venueId")
+
+    return errors
 
 
 def parse_project_teams(path: Path) -> list[dict[str, object]]:
@@ -316,6 +511,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Train the offline World Cup prediction model.")
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT, help="Historical results CSV path.")
     parser.add_argument("--current-state", type=Path, default=DEFAULT_CURRENT_STATE, help="Current tournament state JSON.")
+    parser.add_argument("--current-results", type=Path, default=DEFAULT_CURRENT_RESULTS, help="Verified 2026 tournament results JSON.")
+    parser.add_argument("--venues", type=Path, default=DEFAULT_VENUES, help="Schedule-known venue and climate baseline JSON.")
     parser.add_argument("--baseline-signals", type=Path, default=DEFAULT_BASELINE_SIGNALS, help="Frozen pre-tournament team signals JSON.")
     parser.add_argument("--market-values", type=Path, default=DEFAULT_MARKET_VALUES, help="Current squad and player market-value snapshot.")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="TypeScript output path.")
@@ -337,6 +534,12 @@ def main() -> int:
 
     if not args.current_state.exists():
         print(f"Missing current tournament state: {args.current_state}")
+        return 1
+    if not args.current_results.exists():
+        print(f"Missing current tournament results: {args.current_results}")
+        return 1
+    if not args.venues.exists():
+        print(f"Missing venue context: {args.venues}")
         return 1
     if not args.baseline_signals.exists():
         print(f"Missing frozen baseline signals: {args.baseline_signals}")
@@ -374,8 +577,13 @@ def main() -> int:
         if baseline:
             team["strengthRank"] = float(baseline["strengthRank"])
             team["strengthScore"] = float(baseline["strengthScore"])
-            team["squadValueEurM"] = float(baseline.get("squadValueEurM", team["squadValueEurM"]))
+            team["preTournamentSquadValueEurM"] = float(
+                baseline.get("squadValueEurM", team["squadValueEurM"])
+            )
+        else:
+            team["preTournamentSquadValueEurM"] = float(team["squadValueEurM"])
         if str(team["id"]) in current_team_values:
+            # 最新身价保留给当前球队画像；赛前先验仍读取上面的冻结字段。
             team["squadValueEurM"] = float(current_team_values[str(team["id"])])
     teams_by_id = {str(team["id"]): team for team in teams}
     unavailable_players = {
@@ -387,6 +595,18 @@ def main() -> int:
         unavailable_players,
     )
     current_state = json.loads(args.current_state.read_text(encoding="utf-8"))
+    current_results_snapshot = json.loads(args.current_results.read_text(encoding="utf-8"))
+    venue_snapshot = json.loads(args.venues.read_text(encoding="utf-8"))
+    current_data_errors = validate_current_tournament_data(
+        current_results_snapshot,
+        venue_snapshot,
+        set(teams_by_id),
+    )
+    if current_data_errors:
+        print("Current tournament data validation failed:")
+        for error in current_data_errors:
+            print(f"- {error}")
+        return 1
 
     # 清洗历史赛果：没有比分的未来赛程、无效日期和缺少球队名的行不会进入训练。
     results = pd.read_csv(args.input)
@@ -396,17 +616,45 @@ def main() -> int:
         print(f"Historical CSV is missing required columns: {', '.join(sorted(missing))}")
         return 1
 
+    current_tournament_dates = [
+        pd.Timestamp(match["date"])
+        for match in current_results_snapshot.get("matches", [])
+    ]
+    if not current_tournament_dates:
+        print("Current tournament results contain no completed matches.")
+        return 1
+    current_tournament_start = min(current_tournament_dates)
+    results["date"] = pd.to_datetime(results["date"], errors="coerce")
+    source_rows_on_or_after_start = int(
+        (results["date"] >= current_tournament_start).sum()
+    )
     results = results.dropna(subset=["date", "home_team", "away_team", "home_score", "away_score"])
     if args.world_cup_only:
         results = results[results["tournament"].eq("FIFA World Cup")]
-    results["date"] = pd.to_datetime(results["date"], errors="coerce")
     results = results.dropna(subset=["date"]).sort_values("date")
+    scored_rows_on_or_after_start = int(
+        (results["date"] >= current_tournament_start).sum()
+    )
+    # 实时赛果文件负责完整回放本届世界杯。历史 CSV 在开赛日前截断，避免同一场比赛
+    # 同时从 CSV 和实时快照进入状态，造成近期表现、Elo 与进球数据被重复累计。
+    results = results[results["date"] < current_tournament_start].copy()
     if results.empty:
         print("No scored matches were available after filtering.")
         return 1
+    if source_rows_on_or_after_start:
+        print(
+            f"Historical CSV contains {source_rows_on_or_after_start} row(s) on/after "
+            f"{current_tournament_start.date()}; {scored_rows_on_or_after_start} had scores. "
+            "All were excluded from historical training."
+        )
 
     # 维护 5/10/20 场三个时间窗口，让模型同时看到短期状态和较稳定的中期趋势。
-    reference_date = pd.Timestamp(current_state.get("competitionDateCutoff", results["date"].max()))
+    reference_date = pd.Timestamp(
+        current_results_snapshot.get(
+            "competitionDateCutoff",
+            current_state.get("competitionDateCutoff", results["date"].max()),
+        )
+    )
     elo = defaultdict(lambda: 1500.0)
     team_match_counts: dict[str, int] = defaultdict(int)
     recent_points_5: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=5))
@@ -539,17 +787,37 @@ def main() -> int:
             validation_accuracy = candidate_accuracy
             draw_threshold = candidate_threshold
 
+    # 时间外验证只负责选模型和校准平局阈值。选型完成后，用全部“本届开赛前”历史样本
+    # 重新拟合最终分类器，让最近一年比赛也真正参与当前预测，同时不接触本届赛果。
+    if model_name == "Logistic Regression Baseline":
+        selected_model.fit(
+            features,
+            labels,
+            logisticregression__sample_weight=sample_weights,
+        )
+    else:
+        selected_model.fit(features, labels, sample_weight=sample_weights)
+
     args.model_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump(selected_model, args.model_dir / "world_cup_prediction_model.joblib")
 
-    # 历史模型训练完成后，再叠加本届世界杯真实赛果，形成“当前赛事状态”。
+    # 历史模型训练完成后，再按真实时间顺序叠加本届世界杯赛果。
+    # 淘汰赛回测会先保存赛前特征，再写入本场结果，保证没有未来信息。
     tournament_stats = defaultdict(
         lambda: {"matches": 0, "points": 0, "goalsFor": 0, "goalsAgainst": 0, "opponentEloTotal": 0.0}
     )
-    current_results = current_state.get("actualResults", [])
+    current_results = current_results_snapshot.get("matches", [])
     knockout_start_date = pd.Timestamp(current_state.get("knockoutStageStartDate", "2026-06-28"))
+    advancement_holdout_start = pd.Timestamp(
+        current_results_snapshot.get("advancementHoldoutStartDate", "2026-07-09")
+    )
+    venues_by_id = {
+        str(venue["id"]): venue
+        for venue in venue_snapshot.get("venues", [])
+    }
+    previous_match_by_team: dict[str, dict] = {}
     knockout_backtest: list[dict[str, object]] = []
-    for result in sorted(current_results, key=lambda item: item["date"]):
+    for result in sorted(current_results, key=lambda item: (item["date"], int(item.get("matchNumber", 0)))):
         home_id = str(result["homeTeamId"])
         away_id = str(result["awayTeamId"])
         if home_id not in teams_by_id or away_id not in teams_by_id:
@@ -560,11 +828,14 @@ def main() -> int:
         home_score = int(result["homeScore"])
         away_score = int(result["awayScore"])
         result_date = pd.Timestamp(result["date"])
+        match_context = {**result, "parsedDate": result_date}
         current_competition_weight = tournament_weight("FIFA World Cup")
         current_result_weight = current_competition_weight * recency_weight(result_date, reference_date)
 
-        # 淘汰赛逐场回测必须在写入本场结果之前预测，确保模型看不到答案。
-        if result_date >= knockout_start_date:
+        stage = str(result.get("stage", ""))
+        is_knockout = stage in {"round-of-32", "round-of-16", "quarter-finals", "semi-finals", "final"}
+        # 只把真正的淘汰赛纳入回测；同一天结束的小组赛不会误算为淘汰赛。
+        if is_knockout and result_date >= knockout_start_date:
             match_features = build_match_features(
                 home, away, result_date, "FIFA World Cup", 1,
                 current_competition_weight, current_result_weight,
@@ -581,19 +852,57 @@ def main() -> int:
             if probability_by_label.get(1, 0.0) >= draw_threshold:
                 predicted_label = 1
             actual_label = 0 if home_score > away_score else 1 if home_score == away_score else 2
+            actual_advancing_team_id = str(
+                result.get(
+                    "winnerTeamId",
+                    home_id if home_score > away_score else away_id if away_score > home_score else "",
+                )
+            )
+            if not actual_advancing_team_id:
+                print(
+                    f"Knockout draw is missing winnerTeamId: match {result.get('matchNumber')} "
+                    f"{home_id} vs {away_id}"
+                )
+                return 1
             label_names = {0: "home-win", 1: "draw", 2: "away-win"}
+            home_environment = pre_match_environment_readiness(
+                home_id, match_context, previous_match_by_team, venues_by_id,
+            )
+            away_environment = pre_match_environment_readiness(
+                away_id, match_context, previous_match_by_team, venues_by_id,
+            )
+            home_prior = pre_tournament_prior_score(teams_by_id[home_id])
+            away_prior = pre_tournament_prior_score(teams_by_id[away_id])
+            home_form = pre_match_tournament_form(tournament_stats[home_id], home_prior)
+            away_form = pre_match_tournament_form(tournament_stats[away_id], away_prior)
+            home_classifier_advance = (
+                probability_by_label.get(0, 0.0) + probability_by_label.get(1, 0.0) * 0.5
+            ) * 100
             knockout_backtest.append(
                 {
+                    "matchNumber": int(result.get("matchNumber", 0)),
+                    "stage": stage,
                     "date": str(result["date"]),
                     "homeTeamId": home_id,
                     "awayTeamId": away_id,
                     "predictedResult": label_names[predicted_label],
                     "actualResult": label_names[actual_label],
-                    "correct": predicted_label == actual_label,
+                    "oneXTwoCorrect": predicted_label == actual_label,
                     "confidence": round(float(max(probabilities)), 4),
                     "homeWinProbability": round(probability_by_label.get(0, 0.0), 4),
                     "drawProbability": round(probability_by_label.get(1, 0.0), 4),
                     "awayWinProbability": round(probability_by_label.get(2, 0.0), 4),
+                    "actualAdvancingTeamId": actual_advancing_team_id,
+                    "homePrior": home_prior,
+                    "awayPrior": away_prior,
+                    "homeTournamentForm": home_form,
+                    "awayTournamentForm": away_form,
+                    "homeClassifierAdvance": home_classifier_advance,
+                    "awayClassifierAdvance": 100 - home_classifier_advance,
+                    "homeEnvironmentReadiness": home_environment["score"],
+                    "awayEnvironmentReadiness": away_environment["score"],
+                    "homeEnvironment": home_environment,
+                    "awayEnvironment": away_environment,
                 }
             )
 
@@ -615,9 +924,188 @@ def main() -> int:
             recent_points_5, recent_points_20, recent_goal_diff_5, recent_goal_diff_20,
             recent_opponent_elo, team_match_counts,
         )
+        previous_match_by_team[home_id] = match_context
+        previous_match_by_team[away_id] = match_context
 
-    knockout_correct = sum(1 for row in knockout_backtest if row["correct"])
+    # 用 32 强和 16 强作为开发回放，只搜索一小组通用全局权重；
+    # 四分之一决赛及以后留作时间上更晚的测试，不参与选参。
+    development_rows = [
+        row for row in knockout_backtest
+        if pd.Timestamp(str(row["date"])) < advancement_holdout_start
+    ]
+    holdout_rows = [
+        row for row in knockout_backtest
+        if pd.Timestamp(str(row["date"])) >= advancement_holdout_start
+    ]
+    environment_weight = 0.01
+    advancement_weight_candidates: list[dict[str, float | int]] = []
+    for prior_weight in [0.40, 0.45, 0.50, 0.55, 0.60]:
+        for classifier_weight in [0.05, 0.10, 0.15, 0.20]:
+            form_weight = 1 - prior_weight - classifier_weight - environment_weight
+            if form_weight <= 0:
+                continue
+            weights = {
+                "prior": prior_weight,
+                "form": form_weight,
+                "classifier": classifier_weight,
+                "environment": environment_weight,
+            }
+            correct = 0
+            for row in development_rows:
+                home_advancement_score, away_advancement_score = advancement_scores(row, weights)
+                predicted_team_id = (
+                    str(row["homeTeamId"])
+                    if home_advancement_score >= away_advancement_score
+                    else str(row["awayTeamId"])
+                )
+                correct += int(predicted_team_id == row["actualAdvancingTeamId"])
+            advancement_weight_candidates.append({**weights, "developmentCorrect": correct})
+
+    # 同分时选择靠近“赛前与本届状态近似均衡、分类器小幅校准”的中心点，
+    # 不根据某一场比赛建立特殊规则。
+    selected_advancement_weights = max(
+        advancement_weight_candidates,
+        key=lambda item: (
+            int(item["developmentCorrect"]),
+            -abs(float(item["prior"]) - 0.45) - abs(float(item["classifier"]) - 0.10),
+        ),
+    )
+    selected_weights = {
+        key: float(selected_advancement_weights[key])
+        for key in ["prior", "form", "classifier", "environment"]
+    }
+    for row in knockout_backtest:
+        home_advancement_score, away_advancement_score = advancement_scores(row, selected_weights)
+        predicted_team_id = (
+            str(row["homeTeamId"])
+            if home_advancement_score >= away_advancement_score
+            else str(row["awayTeamId"])
+        )
+        home_advance_probability = clamp(
+            1 / (1 + math.exp(-(home_advancement_score - away_advancement_score) / 10)),
+            0.05,
+            0.95,
+        )
+        row["homeAdvancementScore"] = round(home_advancement_score, 3)
+        row["awayAdvancementScore"] = round(away_advancement_score, 3)
+        row["homeAdvanceProbability"] = round(home_advance_probability, 4)
+        row["awayAdvanceProbability"] = round(1 - home_advance_probability, 4)
+        row["predictedAdvancingTeamId"] = predicted_team_id
+        row["advanceCorrect"] = predicted_team_id == row["actualAdvancingTeamId"]
+        row["correct"] = row["advanceCorrect"]
+
+    knockout_one_x_two_correct = sum(1 for row in knockout_backtest if row["oneXTwoCorrect"])
+    knockout_one_x_two_accuracy = (
+        knockout_one_x_two_correct / len(knockout_backtest) if knockout_backtest else None
+    )
+    knockout_correct = sum(1 for row in knockout_backtest if row["advanceCorrect"])
     knockout_accuracy = knockout_correct / len(knockout_backtest) if knockout_backtest else None
+    development_correct = sum(1 for row in development_rows if row["advanceCorrect"])
+    development_accuracy = development_correct / len(development_rows) if development_rows else None
+    holdout_correct = sum(1 for row in holdout_rows if row["advanceCorrect"])
+    holdout_accuracy = holdout_correct / len(holdout_rows) if holdout_rows else None
+
+    # 为尚未开赛、双方已经确定的比赛生成赛前预测。
+    # 球队战术、伤停和角色适配继续通过球队画像进入网页端综合模型；
+    # 这里额外提供经过回测的赛前实力/状态/环境路线。
+    scheduled_match_predictions: list[dict[str, object]] = []
+    for scheduled_match in current_results_snapshot.get("scheduledMatches", []):
+        home_id = str(scheduled_match["homeTeamId"])
+        away_id = str(scheduled_match["awayTeamId"])
+        if home_id not in teams_by_id or away_id not in teams_by_id:
+            continue
+        home = str(teams_by_id[home_id]["normalized"])
+        away = str(teams_by_id[away_id]["normalized"])
+        scheduled_date = pd.Timestamp(scheduled_match["date"])
+        scheduled_context = {**scheduled_match, "parsedDate": scheduled_date}
+        competition_weight = tournament_weight("FIFA World Cup")
+        sample_weight = competition_weight * recency_weight(scheduled_date, reference_date)
+        scheduled_features = build_match_features(
+            home, away, scheduled_date, "FIFA World Cup", 1,
+            competition_weight, sample_weight,
+            elo, recent_points, recent_goal_diff, recent_goals_for, recent_goals_against,
+            recent_points_5, recent_points_20, recent_goal_diff_5, recent_goal_diff_20,
+            recent_opponent_elo, team_match_counts,
+        )
+        probabilities = selected_model.predict_proba([scheduled_features])[0]
+        probability_by_label = {
+            int(label): float(probability)
+            for label, probability in zip(selected_model.classes_, probabilities)
+        }
+        home_classifier_advance = (
+            probability_by_label.get(0, 0.0) + probability_by_label.get(1, 0.0) * 0.5
+        ) * 100
+        home_prior = pre_tournament_prior_score(teams_by_id[home_id])
+        away_prior = pre_tournament_prior_score(teams_by_id[away_id])
+        home_form = pre_match_tournament_form(tournament_stats[home_id], home_prior)
+        away_form = pre_match_tournament_form(tournament_stats[away_id], away_prior)
+        home_environment = pre_match_environment_readiness(
+            home_id, scheduled_context, previous_match_by_team, venues_by_id,
+        )
+        away_environment = pre_match_environment_readiness(
+            away_id, scheduled_context, previous_match_by_team, venues_by_id,
+        )
+        scoring_record = {
+            "homePrior": home_prior,
+            "awayPrior": away_prior,
+            "homeTournamentForm": home_form,
+            "awayTournamentForm": away_form,
+            "homeClassifierAdvance": home_classifier_advance,
+            "awayClassifierAdvance": 100 - home_classifier_advance,
+            "homeEnvironmentReadiness": home_environment["score"],
+            "awayEnvironmentReadiness": away_environment["score"],
+        }
+        home_advancement_score, away_advancement_score = advancement_scores(
+            scoring_record, selected_weights,
+        )
+        home_advance_probability = clamp(
+            1 / (1 + math.exp(-(home_advancement_score - away_advancement_score) / 10)),
+            0.05,
+            0.95,
+        )
+        advance_gap = abs(home_advance_probability - (1 - home_advance_probability))
+        component_edges = [
+            ("preTournamentPrior", abs(home_prior - away_prior) * selected_weights["prior"]),
+            ("currentTournamentForm", abs(home_form - away_form) * selected_weights["form"]),
+            (
+                "historicalClassifier",
+                abs(home_classifier_advance - (100 - home_classifier_advance))
+                * selected_weights["classifier"],
+            ),
+            (
+                "environmentReadiness",
+                abs(home_environment["score"] - away_environment["score"])
+                * selected_weights["environment"],
+            ),
+        ]
+        top_factors = [
+            key for key, _ in sorted(component_edges, key=lambda item: item[1], reverse=True)[:3]
+        ]
+        scheduled_match_predictions.append(
+            {
+                "matchNumber": int(scheduled_match["matchNumber"]),
+                "teamAId": home_id,
+                "teamBId": away_id,
+                "teamAWinProbability": round(probability_by_label.get(0, 0.0), 4),
+                "drawProbability": round(probability_by_label.get(1, 0.0), 4),
+                "teamBWinProbability": round(probability_by_label.get(2, 0.0), 4),
+                "teamAAdvanceProbability": round(home_advance_probability, 4),
+                "teamBAdvanceProbability": round(1 - home_advance_probability, 4),
+                "topFactors": top_factors,
+                "confidenceScore": round(clamp(52 + advance_gap * 55, 38, 96)),
+                "upsetRisk": "low" if advance_gap >= 0.28 else "medium" if advance_gap >= 0.14 else "high",
+                "venueId": str(scheduled_match.get("venueId", "")),
+                "temperatureC": round(float(home_environment["temperatureC"]), 1),
+                "humidityPct": round(float(home_environment["humidityPct"]), 1),
+                "altitudeM": round(float(home_environment["altitudeM"])),
+                "teamAEnvironmentReadiness": round(float(home_environment["score"]), 1),
+                "teamBEnvironmentReadiness": round(float(away_environment["score"]), 1),
+                "teamARestDays": round(float(home_environment["restDays"])),
+                "teamBRestDays": round(float(away_environment["restDays"])),
+                "teamATravelDistanceKm": round(float(home_environment["travelDistanceKm"])),
+                "teamBTravelDistanceKm": round(float(away_environment["travelDistanceKm"])),
+            }
+        )
 
     project_elos = [elo[str(team["normalized"])] for team in teams]
     min_elo, max_elo = min(project_elos), max(project_elos)
@@ -719,7 +1207,7 @@ def main() -> int:
                 "keyAbsencesZh": context["keyAbsencesZh"],
                 "tacticalNotes": context["tacticalNotes"],
                 "tacticalNotesZh": context["tacticalNotesZh"],
-                "updatedAt": current_state["snapshotAt"],
+                "updatedAt": current_results_snapshot["updatedAt"],
                 "explanation": (
                     f"Hybrid estimate using recency-weighted international history, {match_count} current World Cup "
                     "match(es), current squad structure, availability, player-role fit, tactical fit, cohesion, and coach adaptability."
@@ -730,20 +1218,33 @@ def main() -> int:
     profiles.sort(key=lambda item: (-item["mlStrengthScore"], -item["confidenceScore"], item["teamId"]))
     candidate_score_text = ", ".join(f"{name}: {score:.3f}" for name, _, score in candidate_scores)
     knockout_summary = (
-        f"{knockout_correct}/{len(knockout_backtest)} correct ({knockout_accuracy:.3f})"
+        f"{knockout_correct}/{len(knockout_backtest)} advancing teams correct ({knockout_accuracy:.3f})"
         if knockout_accuracy is not None
+        else "not available"
+    )
+    one_x_two_summary = (
+        f"{knockout_one_x_two_correct}/{len(knockout_backtest)} correct ({knockout_one_x_two_accuracy:.3f})"
+        if knockout_one_x_two_accuracy is not None
         else "not available"
     )
     meta = {
         "modelName": f"Current-State Hybrid ({model_name})",
-        "trainedAt": current_state["snapshotAt"],
-        "trainingDataCutoff": current_state.get("competitionDateCutoff", str(results["date"].max().date())),
+        "trainedAt": current_results_snapshot["updatedAt"],
+        "trainingDataCutoff": current_results_snapshot.get(
+            "competitionDateCutoff", str(results["date"].max().date())
+        ),
+        "historicalTrainingDataCutoff": str(results["date"].max().date()),
+        "currentTournamentStartDate": str(current_tournament_start.date()),
+        "historicalSourceRowsOnOrAfterStart": source_rows_on_or_after_start,
+        "scoredHistoricalRowsOnOrAfterStart": scored_rows_on_or_after_start,
         "dataSources": [
             "Historical international results CSV (local)",
+            "Historical CSV strictly truncated before the 2026 World Cup opening match",
             "Current tournament state snapshot (committed)",
             "Frozen pre-tournament team signals (committed)",
             "Recency-weighted international match history",
             "Current World Cup results through the stated cutoff",
+            "Schedule-known venue, altitude, roof, July climate baseline, rest, and travel context",
             "Expanded Elo, form-window, opponent-strength, experience, and match-type features",
             "Manually maintained squad availability and tactical context",
             "Projected current-squad structure and role fields",
@@ -756,32 +1257,70 @@ def main() -> int:
         "knockoutValidationMatches": len(knockout_backtest),
         "knockoutValidationCorrect": knockout_correct,
         "knockoutValidationStartDate": str(knockout_start_date.date()),
-        "knockoutValidationMethod": "Sequential pre-match 1X2 holdout; each result is appended only after its prediction.",
+        "knockoutValidationMethod": (
+            "Sequential pre-match advancement replay. Round of 32 and Round of 16 select one global "
+            "weight set; quarter-finals are a later untouched holdout. Every result is appended only "
+            "after its prediction."
+        ),
+        "knockoutOneXTwoAccuracy": (
+            round(knockout_one_x_two_accuracy, 4)
+            if knockout_one_x_two_accuracy is not None else None
+        ),
+        "knockoutOneXTwoCorrect": knockout_one_x_two_correct,
+        "knockoutDevelopmentAccuracy": (
+            round(development_accuracy, 4) if development_accuracy is not None else None
+        ),
+        "knockoutDevelopmentMatches": len(development_rows),
+        "knockoutDevelopmentCorrect": development_correct,
+        "knockoutHoldoutAccuracy": (
+            round(holdout_accuracy, 4) if holdout_accuracy is not None else None
+        ),
+        "knockoutHoldoutMatches": len(holdout_rows),
+        "knockoutHoldoutCorrect": holdout_correct,
+        "knockoutHoldoutStartDate": str(advancement_holdout_start.date()),
+        "advancementPriorWeight": round(selected_weights["prior"], 4),
+        "advancementFormWeight": round(selected_weights["form"], 4),
+        "advancementClassifierWeight": round(selected_weights["classifier"], 4),
+        "advancementEnvironmentWeight": round(selected_weights["environment"], 4),
         "notes": (
-            f"Classifier trained on {len(results)} historical matches with exponential time decay and final-tournament "
+            f"Classifier selected by time-ordered validation, then refit on {len(results)} pre-tournament historical "
+            "matches with exponential time decay and final-tournament "
             f"matches weighted highest. The match model now uses {len(features[0])} features, including multiple "
             f"recent-form windows, Elo level and expected score, opponent strength, team experience, match type, "
             f"and recency weight. Candidate validation scores: {candidate_score_text}. Profiles blend current "
             f"tournament evidence, availability, tactical fit, cohesion, and coach adaptability. Baseline accuracy: "
             f"{baseline_accuracy:.3f}; raw selected accuracy: {raw_validation_accuracy:.3f}; draw-calibrated "
-            f"accuracy: {validation_accuracy:.3f} at threshold {draw_threshold:.2f}. Strict current-knockout "
-            f"backtest: {knockout_summary}. Context scores are analyst estimates and should be refreshed as news changes."
+            f"accuracy: {validation_accuracy:.3f} at threshold {draw_threshold:.2f}. Sequential knockout "
+            f"advancement replay: {knockout_summary}; 1X2 replay: {one_x_two_summary}. Advancement weights are "
+            f"prior {selected_weights['prior']:.2f}, current form {selected_weights['form']:.2f}, historical "
+            f"classifier {selected_weights['classifier']:.2f}, and pre-match environment "
+            f"{selected_weights['environment']:.2f}. The later holdout contains only {len(holdout_rows)} matches, "
+            "so its accuracy must be read with a small-sample caveat. Context scores are analyst estimates and "
+            "should be refreshed as news changes."
         ),
     }
 
     # modelPredictions.ts 是自动生成文件，不应手改；改完权重后重新运行本脚本即可覆盖。
-    output = f'''import type {{ ModelPredictionProfile, PredictionModelMeta }} from "../types/worldCup";
+    output = f'''import type {{ ModelMatchupPrediction, ModelPredictionProfile, PredictionModelMeta }} from "../types/worldCup";
 
 export const predictionModelMeta: PredictionModelMeta = {json_for_ts(meta)};
 
 export const modelPredictionProfiles: ModelPredictionProfile[] = {json_for_ts(profiles)};
+
+export const modelScheduledMatchPredictions: ModelMatchupPrediction[] = {json_for_ts(scheduled_match_predictions)};
 '''
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(output, encoding="utf-8")
     args.profile_json.parent.mkdir(parents=True, exist_ok=True)
     args.profile_json.write_text(
         json.dumps(
-            {"meta": meta, "profiles": profiles, "knockoutBacktest": knockout_backtest},
+            {
+                "meta": meta,
+                "profiles": profiles,
+                "scheduledMatchPredictions": scheduled_match_predictions,
+                "advancementWeightCandidates": advancement_weight_candidates,
+                "knockoutBacktest": knockout_backtest,
+            },
             ensure_ascii=False,
             indent=2,
         ),
@@ -797,8 +1336,17 @@ export const modelPredictionProfiles: ModelPredictionProfile[] = {json_for_ts(pr
     print(f"Current tournament results incorporated: {len(current_results)}")
     if knockout_accuracy is not None:
         print(
-            f"Strict knockout backtest: {knockout_correct}/{len(knockout_backtest)} "
-            f"({knockout_accuracy:.3f} 1X2 accuracy)"
+            f"Sequential knockout advancement replay: {knockout_correct}/{len(knockout_backtest)} "
+            f"({knockout_accuracy:.3f})"
+        )
+        print(
+            f"  Development: {development_correct}/{len(development_rows)} "
+            f"({development_accuracy:.3f}); later holdout: {holdout_correct}/{len(holdout_rows)} "
+            f"({holdout_accuracy:.3f})"
+        )
+        print(
+            f"  1X2 replay: {knockout_one_x_two_correct}/{len(knockout_backtest)} "
+            f"({knockout_one_x_two_accuracy:.3f})"
         )
     return 0
 

@@ -1,0 +1,187 @@
+{
+  "updatedAt": "2026-07-13T15:25:09+08:00",
+  "methodology": "Venue coordinates, altitude and roof type are schedule-known static properties. Temperature and humidity are rounded July climate baselines, not post-match observed weather, so strict backtests do not see the result or exact after-the-fact conditions.",
+  "sourceUrls": [
+    "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/match-schedule-fixtures-results-teams-stadiums",
+    "https://www.ncei.noaa.gov/products/land-based-station/us-climate-normals",
+    "https://climate.weather.gc.ca/climate_normals/"
+  ],
+  "venues": [
+    {
+      "id": "mexico-city",
+      "city": "Mexico City",
+      "latitude": 19.4326,
+      "longitude": -99.1332,
+      "altitudeM": 2240,
+      "roofType": "open",
+      "julyDaytimeTemperatureC": 23,
+      "julyRelativeHumidityPct": 45,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "guadalajara",
+      "city": "Guadalajara",
+      "latitude": 20.6597,
+      "longitude": -103.3496,
+      "altitudeM": 1570,
+      "roofType": "open",
+      "julyDaytimeTemperatureC": 27,
+      "julyRelativeHumidityPct": 58,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "toronto",
+      "city": "Toronto",
+      "latitude": 43.6532,
+      "longitude": -79.3832,
+      "altitudeM": 76,
+      "roofType": "open",
+      "julyDaytimeTemperatureC": 27,
+      "julyRelativeHumidityPct": 58,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "los-angeles",
+      "city": "Los Angeles",
+      "latitude": 33.9535,
+      "longitude": -118.3392,
+      "altitudeM": 32,
+      "roofType": "fixed-canopy",
+      "julyDaytimeTemperatureC": 24,
+      "julyRelativeHumidityPct": 58,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "santa-clara",
+      "city": "Santa Clara",
+      "latitude": 37.3541,
+      "longitude": -121.9552,
+      "altitudeM": 6,
+      "roofType": "open",
+      "julyDaytimeTemperatureC": 27,
+      "julyRelativeHumidityPct": 43,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "new-york-new-jersey",
+      "city": "New York New Jersey",
+      "latitude": 40.8135,
+      "longitude": -74.0745,
+      "altitudeM": 3,
+      "roofType": "open",
+      "julyDaytimeTemperatureC": 29,
+      "julyRelativeHumidityPct": 61,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "foxborough",
+      "city": "Foxborough",
+      "latitude": 42.0909,
+      "longitude": -71.2643,
+      "altitudeM": 30,
+      "roofType": "open",
+      "julyDaytimeTemperatureC": 28,
+      "julyRelativeHumidityPct": 60,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "vancouver",
+      "city": "Vancouver",
+      "latitude": 49.2827,
+      "longitude": -123.1207,
+      "altitudeM": 2,
+      "roofType": "retractable",
+      "julyDaytimeTemperatureC": 23,
+      "julyRelativeHumidityPct": 60,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "houston",
+      "city": "Houston",
+      "latitude": 29.6847,
+      "longitude": -95.4107,
+      "altitudeM": 15,
+      "roofType": "retractable",
+      "julyDaytimeTemperatureC": 33,
+      "julyRelativeHumidityPct": 65,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "arlington",
+      "city": "Arlington",
+      "latitude": 32.7473,
+      "longitude": -97.0945,
+      "altitudeM": 184,
+      "roofType": "retractable",
+      "julyDaytimeTemperatureC": 34,
+      "julyRelativeHumidityPct": 52,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "philadelphia",
+      "city": "Philadelphia",
+      "latitude": 39.9008,
+      "longitude": -75.1675,
+      "altitudeM": 12,
+      "roofType": "open",
+      "julyDaytimeTemperatureC": 30,
+      "julyRelativeHumidityPct": 60,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "monterrey",
+      "city": "Monterrey",
+      "latitude": 25.6866,
+      "longitude": -100.3161,
+      "altitudeM": 540,
+      "roofType": "open",
+      "julyDaytimeTemperatureC": 33,
+      "julyRelativeHumidityPct": 54,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "atlanta",
+      "city": "Atlanta",
+      "latitude": 33.7554,
+      "longitude": -84.4008,
+      "altitudeM": 320,
+      "roofType": "retractable",
+      "julyDaytimeTemperatureC": 31,
+      "julyRelativeHumidityPct": 62,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "seattle",
+      "city": "Seattle",
+      "latitude": 47.5952,
+      "longitude": -122.3316,
+      "altitudeM": 15,
+      "roofType": "open",
+      "julyDaytimeTemperatureC": 24,
+      "julyRelativeHumidityPct": 51,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "miami",
+      "city": "Miami",
+      "latitude": 25.958,
+      "longitude": -80.2389,
+      "altitudeM": 2,
+      "roofType": "open-canopy",
+      "julyDaytimeTemperatureC": 33,
+      "julyRelativeHumidityPct": 69,
+      "surface": "natural-grass"
+    },
+    {
+      "id": "kansas-city",
+      "city": "Kansas City",
+      "latitude": 39.0489,
+      "longitude": -94.4839,
+      "altitudeM": 270,
+      "roofType": "open",
+      "julyDaytimeTemperatureC": 31,
+      "julyRelativeHumidityPct": 59,
+      "surface": "natural-grass"
+    }
+  ]
+}

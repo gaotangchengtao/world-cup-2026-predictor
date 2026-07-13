@@ -85,13 +85,16 @@ export const BracketMatch = ({ match, matchState, teams, players, onSlotChange, 
   const { language, t } = useLanguage();
   const teamA = getTeamById(teams, matchState.slotA);
   const teamB = getTeamById(teams, matchState.slotB);
-  const probabilities = getMatchupPrediction(teamA, teamB, players);
-  const recommendedWinnerId = getRecommendedWinnerId(teamA, teamB, players);
+  const probabilities = getMatchupPrediction(teamA, teamB, players, match.matchNumber);
+  const recommendedWinnerId = getRecommendedWinnerId(teamA, teamB, players, match.matchNumber);
   const favorite = recommendedWinnerId === teamA?.id ? teamA : recommendedWinnerId === teamB?.id ? teamB : undefined;
   const noteLabels = {
     mlStrength: t("mlStrengthScore"),
     recentForm: t("recentFormScore"),
     currentTournamentForm: t("currentTournamentForm"),
+    preTournamentPrior: t("preTournamentPrior"),
+    historicalClassifier: t("historicalClassifier"),
+    environmentReadiness: t("environmentReadiness"),
     attackDefense: t("attackDefenseBalance"),
     squadAvailability: t("squadAvailability"),
     tacticalFit: t("tacticalFit"),

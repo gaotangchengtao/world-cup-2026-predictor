@@ -1,4 +1,4 @@
-import { Check, ShieldAlert, Sparkles, X } from "lucide-react";
+import { Check, ShieldAlert, Sparkles, ThermometerSun, X } from "lucide-react";
 import { useLanguage } from "../i18n";
 import type {
   BracketMatch,
@@ -8,7 +8,7 @@ import type {
   Team,
 } from "../types/worldCup";
 import { displayTeamName } from "../utils/localizedNames";
-import { getRecommendedWinnerId } from "../utils/modelPredictions";
+import { getRecommendedWinnerId, getScheduledMatchPrediction } from "../utils/modelPredictions";
 import { TeamFlag } from "./TeamFlag";
 
 interface BracketMatchDrawerProps {
@@ -25,6 +25,9 @@ const factorKeyMap = {
   mlStrength: "mlStrengthScore",
   recentForm: "recentFormScore",
   currentTournamentForm: "currentTournamentForm",
+  preTournamentPrior: "preTournamentPrior",
+  historicalClassifier: "historicalClassifier",
+  environmentReadiness: "environmentReadiness",
   attackDefense: "attackDefenseBalance",
   squadAvailability: "squadAvailability",
   tacticalFit: "tacticalFit",
@@ -47,8 +50,9 @@ export const BracketMatchDrawer = ({
   const { language, t } = useLanguage();
   const teamA = teams.find((team) => team.id === matchState.slotA);
   const teamB = teams.find((team) => team.id === matchState.slotB);
-  const recommendedWinnerId = getRecommendedWinnerId(teamA, teamB, players);
+  const recommendedWinnerId = getRecommendedWinnerId(teamA, teamB, players, match.matchNumber);
   const recommendedWinner = teams.find((team) => team.id === recommendedWinnerId);
+  const environment = getScheduledMatchPrediction(match.matchNumber);
 
   return (
     <aside className="fixed inset-x-0 bottom-0 z-40 max-h-[82dvh] overflow-y-auto rounded-t-lg border border-white/10 bg-[#06113a] p-4 shadow-[0_-20px_70px_rgba(2,6,23,0.6)] backdrop-blur sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[430px] sm:rounded-lg">
@@ -77,6 +81,25 @@ export const BracketMatchDrawer = ({
         <span className="pt-7 text-xs font-black text-slate-500">VS</span>
         <DrawerTeam team={teamB} />
       </div>
+
+      {environment && (
+        <section className="mt-4 rounded-lg border border-cyan-400/20 bg-cyan-500/10 p-3">
+          <p className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-[0.14em] text-cyan-200">
+            <ThermometerSun size={15} />
+            {t("matchEnvironment")}
+          </p>
+          <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+            <EnvironmentMetric label={t("temperature")} value={`${environment.temperatureC}°C`} />
+            <EnvironmentMetric label={t("humidity")} value={`${environment.humidityPct}%`} />
+            <EnvironmentMetric label={t("altitude")} value={`${environment.altitudeM} m`} />
+          </div>
+          <p className="mt-2 text-xs leading-5 text-slate-300">
+            {displayTeamName(teamA, language)}: {environment.teamARestDays} {t("restDays")} · {environment.teamATravelDistanceKm} km
+            {" · "}
+            {displayTeamName(teamB, language)}: {environment.teamBRestDays} {t("restDays")} · {environment.teamBTravelDistanceKm} km
+          </p>
+        </section>
+      )}
 
       {prediction && teamA && teamB ? (
         <>
@@ -147,6 +170,13 @@ export const BracketMatchDrawer = ({
     </aside>
   );
 };
+
+const EnvironmentMetric = ({ label, value }: { label: string; value: string }) => (
+  <div className="rounded-md border border-white/10 bg-slate-950/30 px-2 py-2">
+    <p className="text-[10px] uppercase text-slate-400">{label}</p>
+    <p className="mt-1 text-sm font-black text-white">{value}</p>
+  </div>
+);
 
 const DrawerTeam = ({ team }: { team?: Team }) => {
   const { language, t } = useLanguage();

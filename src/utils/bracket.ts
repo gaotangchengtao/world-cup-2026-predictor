@@ -8,6 +8,7 @@ export type WinnerPicker = (
   slotA: string | undefined,
   slotB: string | undefined,
   teams: Team[],
+  match?: BracketMatch,
 ) => string | undefined;
 
 const pickPredictedWinner: WinnerPicker = (slotA, slotB, teams) => {
@@ -51,7 +52,7 @@ export const completeBracketState = (
       ? match.actualWinnerTeamId
       : isWinnerInMatch(current.winnerTeamId, current.slotA, current.slotB)
         ? current.winnerTeamId
-        : pickWinner(current.slotA, current.slotB, teams);
+        : pickWinner(current.slotA, current.slotB, teams, match);
 
     completed[match.id] = {
       ...current,

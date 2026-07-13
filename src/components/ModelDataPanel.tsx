@@ -37,6 +37,30 @@ export const ModelDataPanel = () => {
               : `${predictionModelMeta.knockoutValidationCorrect}/${predictionModelMeta.knockoutValidationMatches} · ${Math.round(predictionModelMeta.knockoutValidationAccuracy * 100)}%`
           }
         />
+        <Info
+          label={t("knockoutOneXTwoAccuracy")}
+          value={
+            predictionModelMeta.knockoutOneXTwoAccuracy === null
+              ? t("notAvailable")
+              : `${predictionModelMeta.knockoutOneXTwoCorrect}/${predictionModelMeta.knockoutValidationMatches} · ${Math.round(predictionModelMeta.knockoutOneXTwoAccuracy * 100)}%`
+          }
+        />
+        <Info
+          label={t("knockoutDevelopmentAccuracy")}
+          value={
+            predictionModelMeta.knockoutDevelopmentAccuracy === null
+              ? t("notAvailable")
+              : `${predictionModelMeta.knockoutDevelopmentCorrect}/${predictionModelMeta.knockoutDevelopmentMatches} · ${Math.round(predictionModelMeta.knockoutDevelopmentAccuracy * 100)}%`
+          }
+        />
+        <Info
+          label={t("knockoutHoldoutAccuracy")}
+          value={
+            predictionModelMeta.knockoutHoldoutAccuracy === null
+              ? t("notAvailable")
+              : `${predictionModelMeta.knockoutHoldoutCorrect}/${predictionModelMeta.knockoutHoldoutMatches} · ${Math.round(predictionModelMeta.knockoutHoldoutAccuracy * 100)}%`
+          }
+        />
       </div>
 
       <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-3 light:border-slate-900/10 light:bg-white">
@@ -53,6 +77,9 @@ export const ModelDataPanel = () => {
           ))}
         </div>
         <p className="mt-3 text-xs leading-5 text-slate-400 light:text-slate-600">{predictionModelMeta.notes}</p>
+        <p className="mt-2 text-xs font-bold leading-5 text-amber-200 light:text-amber-700">
+          {t("modelBacktestCaveat")}
+        </p>
       </div>
     </section>
   );
