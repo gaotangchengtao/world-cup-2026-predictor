@@ -286,11 +286,8 @@ export const getMatchupPrediction = (
     4.2,
   );
   const profileSuggestsDraw =
-    Math.abs(teamAAdvanceProbability - 0.5) <= predictionModelMeta.scoreDrawAdvanceGap
-    || (
-      drawProbability >= 0.22
-      && Math.abs(teamAWinProbability - teamBWinProbability) < 0.12
-    );
+    drawProbability >= 0.22
+    && Math.abs(teamAWinProbability - teamBWinProbability) < 0.12;
   const desiredOutcome: OutcomeLabel = profileSuggestsDraw
     ? 1
     : teamAAdvanceProbability >= teamBAdvanceProbability

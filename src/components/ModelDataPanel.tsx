@@ -77,6 +77,10 @@ export const ModelDataPanel = () => {
           label={t("scorelineWithinOneGoal")}
           value={`${predictionModelMeta.knockoutBothTeamsWithinOneCorrect}/${predictionModelMeta.knockoutScoreMatches} / ${Math.round(predictionModelMeta.knockoutBothTeamsWithinOneAccuracy * 100)}%`}
         />
+        <Info
+          label={t("groupScoreCalibration")}
+          value={`${predictionModelMeta.groupScoreCalibrationRows} / ${predictionModelMeta.groupScoreCalibrationValidationRows} / MAE ${predictionModelMeta.groupScoreCalibrationValidationMae.toFixed(2)}`}
+        />
       </div>
 
       <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-3 light:border-slate-900/10 light:bg-white">

@@ -327,7 +327,19 @@ export interface PredictionModelMeta {
   scoreRecentMatchWeight: number;
   scoreScale: number;
   scoreEnvironmentAdjustment: number;
-  scoreDrawAdvanceGap: number;
+  scoreGroupCalibrationWeight: number;
+  groupScoreCalibrationModelName: string;
+  groupScoreCalibrationRows: number;
+  groupScoreCalibrationValidationRows: number;
+  groupScoreCalibrationAlpha: number;
+  groupScoreCalibrationValidationMae: number;
+  groupScoreCalibrationValidationPoissonDeviance: number;
+  groupScoreCalibrationValidationExactCorrect: number;
+  groupScoreCalibrationValidationExactAccuracy: number;
+  groupScoreBaselineValidationMae: number;
+  groupScoreBaselineValidationPoissonDeviance: number;
+  groupScoreBaselineValidationExactCorrect: number;
+  groupScoreBaselineValidationExactAccuracy: number;
   notes: string;
 }
 

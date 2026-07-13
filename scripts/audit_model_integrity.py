@@ -195,6 +195,30 @@ def main() -> int:
         meta["scoreHistoryWeight"] + meta["scorePaceWeight"] < 0.9,
         "历史比分与赛事节奏权重之和过高",
     )
+    require(meta["groupScoreCalibrationRows"] == 72, "小组赛校准总样本应为 72 场")
+    require(meta["groupScoreCalibrationValidationRows"] == 24, "小组赛校准时间验证应为 24 场")
+    require(0 <= meta["scoreGroupCalibrationWeight"] <= 1, "小组赛校准融合权重超出 0-100%")
+    selected_group_candidate = min(
+        output["groupCalibrationCandidates"],
+        key=lambda item: (
+            float(item["validationPoissonDeviance"]),
+            float(item["validationMae"]),
+            -int(item["validationExactCorrect"]),
+        ),
+    )
+    require(
+        math.isclose(
+            meta["groupScoreCalibrationAlpha"],
+            float(selected_group_candidate["alpha"]),
+            abs_tol=1e-9,
+        ),
+        "小组赛校准器正则参数与候选验证结果不一致",
+    )
+    require(
+        meta["groupScoreCalibrationValidationExactCorrect"]
+        == int(selected_group_candidate["validationExactCorrect"]),
+        "小组赛校准器精确比分计数不一致",
+    )
 
     for scheduled in output.get("scheduledMatchPredictions", []):
         score = scheduled["scorePrediction"]
@@ -223,8 +247,8 @@ def main() -> int:
         f"{meta['knockoutDevelopmentAccuracy']:.1%}"
     )
     print(
-        f"- 后续留出：{meta['knockoutHoldoutCorrect']}/4 = "
-        f"{meta['knockoutHoldoutAccuracy']:.1%}（样本很小）"
+        f"- 后续诊断时间片：{meta['knockoutHoldoutCorrect']}/4 = "
+        f"{meta['knockoutHoldoutAccuracy']:.1%}（样本很小，未进入自动选参）"
     )
     print(
         f"- 历史训练截断：{meta['historicalTrainingDataCutoff']}；"
@@ -249,6 +273,12 @@ def main() -> int:
     print(
         f"- 双方均误差不超过 1 球：{both_teams_within_one}/{len(backtest)} = "
         f"{both_teams_within_one / len(backtest):.1%}"
+    )
+    print(
+        "- 小组赛时效校准："
+        f"历史基线 MAE {meta['groupScoreBaselineValidationMae']:.2f} -> "
+        f"校准器 {meta['groupScoreCalibrationValidationMae']:.2f}；"
+        f"淘汰赛融合权重 {meta['scoreGroupCalibrationWeight']:.0%}"
     )
     return 0
 
